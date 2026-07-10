@@ -1,172 +1,143 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skincare Produts</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlowSkin - Skincare Products</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background: #fff7f5; color: #333; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.logo h1 { color: #e75480; }
+nav ul { display: flex; list-style: none; gap: 25px; }
+nav a { text-decoration: none; color: #333; font-weight: 500; }
+nav a:hover { color: #e75480; }
+#barra-cotacao { background: #f0fdf4; color: #166534; text-align: center; padding: 12px; font-size: 15px; font-weight: bold; border-bottom: 1px solid #bbf7d0; }
+.hero { text-align: center; padding: 80px 20px; background: linear-gradient(135deg, #ffe4ec, #fff7f5); }
+.hero h2 { font-size: 36px; margin-bottom: 15px; color: #444; }
+.hero p { font-size: 18px; margin-bottom: 25px; color: #666; }
+.btn { background: #e75480; color: white; padding: 12px 28px; border: none; border-radius: 30px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block; }
+.btn:hover { background: #c94572; }
+.produtos { padding: 60px 40px; text-align: center; }
+.produtos h2 { margin-bottom: 40px; font-size: 30px; color: #444; }
+.lista-produtos { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+.produto-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: transform 0.3s; }
+.produto-card:hover { transform: translateY(-5px); }
+.produto-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+.produto-card h3 { margin: 15px 0 8px; color: #333; }
+.produto-card p { color: #777; font-size: 14px; margin-bottom: 10px; }
+.preco-container { margin: 15px 0; }
+.preco-usd { display: block; font-weight: bold; color: #111; font-size: 20px; }
+.preco-brl { display: block; color: #059669; font-size: 14px; margin-top: 4px; }
+.btn-comprar { background: #e75480; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; width: 100%; }
+.btn-comprar:hover { background: #c94572; }
+.sobre, .contato { padding: 60px 40px; text-align: center; }
+.sobre h2, .contato h2 { margin-bottom: 20px; color: #444; }
+.sobre p { max-width: 800px; margin: 0 auto; color: #666; line-height: 1.6; }
+.contato form { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 30px auto 0; }
+.contato input, .contato textarea { padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; font-family: inherit; }
+footer { background: #333; color: white; text-align: center; padding: 20px; }
+</style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <h1>GlowSkin</h1>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#produtos">Produtos</a></li>
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#contato">Contato</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <!-- Barra de Cotação do Dólar -->
-    <div id="barra-cotacao" style="background: #f0fdf4; color: #166534; text-align: center; padding: 10px; font-size: 14px; font-weight: bold; border-bottom: 1px solid #bbf7d0;">
-        💵 Carregando cotação do dólar...
-    </div>
-
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h2>Cuide da sua pele com os melhores produtos</h2>
-            <p>Sua pele merece o melhor cuidado diário. Conheça nossa linha exclusiva.</p>
-            <a href="#produtos" class="btn">Ver Produtos</a>
-        </div>
-    </section>
-
-    <section id="produtos" class="produtos">
-        <h2>Nossos Produtos</h2>
-        <div class="lista-produtos">
-            
-            <!-- Produto 1 -->
-            <div class="produto-card">
-                <img src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop" alt="Produto 1">
-                <h3>Sérum Facial Hidratante</h3>
-                <p>Hidratação profunda e brilho natural para o dia a dia.</p>
-                <!-- Preço em Dólar e Conversão -->
-                <div class="preco-container">
-                    <span class="preco-usd" data-valor="25.00">$25.00 USD</span>
-                    <span class="preco-brl">Carregando R$...</span>
-                </div>
-                <button class="btn-comprar">Comprar</button>
-            </div>
-
-            <!-- Produto 2 -->
-            <div class="produto-card">
-                <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=600&auto=format&fit=crop" alt="Produto 2">
-                <h3>Gel de Limpeza Suave</h3>
-                <p>Limpa profundamente sem ressecar a pele sensível.</p>
-                <div class="preco-container">
-                    <span class="preco-usd" data-valor="18.50">$18.50 USD</span>
-                    <span class="preco-brl">Carregando R$...</span>
-                </div>
-                <button class="btn-comprar">Comprar</button>
-            </div>
-
-            <!-- Produto 3 -->
-            <div class="produto-card">
-                <img src="https://images.unsplash.com/photo-1556229174-5e42a09e45af?q=80&w=600&auto=format&fit=crop" alt="Produto 3">
-                <h3>Creme Nutritivo Noturno</h3>
-                <p>Restaura a barreira cutânea enquanto você dorme.</p>
-                <div class="preco-container">
-                    <span class="preco-usd" data-valor="32.00">$32.00 USD</span>
-                    <span class="preco-brl">Carregando R$...</span>
-                </div>
-                <button class="btn-comprar">Comprar</button>
-            </div>
-
-            <!-- Produto 4 -->
-            <div class="produto-card">
-                <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=600&auto=format&fit=crop" alt="Produto 4">
-                <h3>Protetor Solar FPS 50</h3>
-                <p>Proteção alta contra raios UVA/UVB com toque seco.</p>
-                <div class="preco-container">
-                    <span class="preco-usd" data-valor="22.90">$22.90 USD</span>
-                    <span class="preco-brl">Carregando R$...</span>
-                </div>
-                <button class="btn-comprar">Comprar</button>
-            </div>
-
-        </div>
-    </section>
-
-    <section id="sobre" class="sobre">
-        <h2>Sobre a GlowSkin</h2>
-        <p>Somos uma marca dedicada a trazer a melhor tecnologia em cuidados para a pele. Nossos produtos são formulados com ingredientes naturais, cruelty-free e dermatologicamente testados para garantir que sua pele receba exatamente o que precisa para brilhar de forma saudável.</p>
-    </section>
-
-    <section id="contato" class="contato">
-        <h2>Fale Conosco</h2>
-        <p>Dúvidas ou sugestões? Envie uma mensagem para nós!</p>
-        <form>
-            <input type="text" placeholder="Seu Nome" required>
-            <input type="email" placeholder="Seu E-mail" required>
-            <textarea placeholder="Sua Mensagem" rows="5" required></textarea>
-            <button type="submit" class="btn">Enviar</button>
-        </form>
-    </section>
-
-    <footer>
-        <p>&copy; 2024 GlowSkin. Todos os direitos reservados.</p>
-    </footer>
-
-    <!-- Script para buscar o dólar e fazer a conversão automática -->
-    <script>
-        async function atualizarPrecos() {
-            try {
-                // Busca a cotação atualizada da API pública
-                const resposta = await fetch("https://economia.awesomeapi.com.br/last/USD-BRL");
-                const dados = await reply = await resposta.json();
-                const cotacao = parseFloat(dados.USDBRL.bid);
-
-                // Atualiza a barra de cotação no topo
-                document.getElementById("barra-cotacao").innerHTML = `💵 Cotação do Dólar Hoje: <strong>1 USD = R$ ${cotacao.toFixed(2)}</strong> (Atualizado em tempo real)`;
-
-                // Converte o preço de cada produto
-                const elementosUsd = document.querySelectorAll(".preco-usd");
-                const elementosBrl = document.querySelectorAll(".preco-brl");
-
-                elementosUsd.forEach((el, index) => {
-                    const valorUsd = parseFloat(el.getAttribute("data-valor"));
-                    const valorBrl = valorUsd * cotacao;
-                    elementosBrl[index].innerHTML = ` | aprox. <strong>R$ ${valorBrl.toFixed(2)}</strong>`;
-                });
-
-            } catch (erro) {
-                console.error("Erro ao buscar cotação:", erro);
-                // Caso a API falhe, usa um valor padrão de segurança (ex: R$ 5.10)
-                const cotacaoPadrao = 5.10;
-                document.getElementById("barra-cotacao").innerHTML = `💵 Cotação do Dólar (Estimada): <strong>1 USD = R$ ${cotacaoPadrao.toFixed(2)}</strong>`;
-                
-                const elementosUsd = document.querySelectorAll(".preco-usd");
-                const elementosBrl = document.querySelectorAll(".preco-brl");
-
-                elementosUsd.forEach((el, index) => {
-                    const valorUsd = parseFloat(el.getAttribute("data-valor"));
-                    const valorBrl = valorUsd * cotacaoPadrao;
-                    elementosBrl[index].innerHTML = ` | aprox. <strong>R$ ${valorBrl.toFixed(2)}</strong>`;
-                });
-            }
-        }
-
-        // Executa a função ao carregar a página
-        window.onload = atualizarPrecos;
-    </script>
-
-    <!-- Estilos adicionais para organizar os preços lado a lado -->
-    <style>
-        .preco-container {
-            margin: 15px 0;
-            font-size: 16px;
-        }
-        .preco-usd {
-            font-weight: bold;
-            color: #111;
-        }
-        .preco-brl {
-            color: #059669; /* Cor verde para o Real */
-            font-size: 14px;
-        }
-    </style>
+<header>
+<div class="logo"><h1>GlowSkin</h1></div>
+<nav>
+<ul>
+<li><a href="#home">Home</a></li>
+<li><a href="#produtos">Produtos</a></li>
+<li><a href="#sobre">Sobre</a></li>
+<li><a href="#contato">Contato</a></li>
+</ul>
+</nav>
+</header>
+<div id="barra-cotacao">Carregando cotacao do dolar...</div>
+<section id="home" class="hero">
+<h2>Cuide da sua pele com os melhores produtos</h2>
+<p>Sua pele merece o melhor cuidado diario. Conheca nossa linha exclusiva.</p>
+<a href="#produtos" class="btn">Ver Produtos</a>
+</section>
+<section id="produtos" class="produtos">
+<h2>Nossos Produtos</h2>
+<div class="lista-produtos">
+<div class="produto-card">
+<img src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=600&auto=format&fit=crop" alt="Serum">
+<h3>Serum Facial Hidratante</h3>
+<p>Hidratacao profunda e brilho natural.</p>
+<div class="preco-container">
+<span class="preco-usd" data-valor="25.00">$25.00 USD</span>
+<span class="preco-brl">Calculando...</span>
+</div>
+<button class="btn-comprar">Comprar</button>
+</div>
+<div class="produto-card">
+<img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=600&auto=format&fit=crop" alt="Gel">
+<h3>Gel de Limpeza Suave</h3>
+<p>Limpa sem ressecar a pele.</p>
+<div class="preco-container">
+<span class="preco-usd" data-valor="18.50">$18.50 USD</span>
+<span class="preco-brl">Calculando...</span>
+</div>
+<button class="btn-comprar">Comprar</button>
+</div>
+<div class="produto-card">
+<img src="https://images.unsplash.com/photo-1556229174-5e42a09e45af?q=80&w=600&auto=format&fit=crop" alt="Creme">
+<h3>Creme Nutritivo Noturno</h3>
+<p>Restaura a pele enquanto voce dorme.</p>
+<div class="preco-container">
+<span class="preco-usd" data-valor="32.00">$32.00 USD</span>
+<span class="preco-brl">Calculando...</span>
+</div>
+<button class="btn-comprar">Comprar</button>
+</div>
+<div class="produto-card">
+<img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=600&auto=format&fit=crop" alt="Protetor">
+<h3>Protetor Solar FPS 50</h3>
+<p>Protecao alta com toque seco.</p>
+<div class="preco-container">
+<span class="preco-usd" data-valor="22.90">$22.90 USD</span>
+<span class="preco-brl">Calculando...</span>
+</div>
+<button class="btn-comprar">Comprar</button>
+</div>
+</div>
+</section>
+<section id="sobre" class="sobre">
+<h2>Sobre a GlowSkin</h2>
+<p>Somos uma marca dedicada ao cuidado da sua pele. Nossos produtos sao formulados com ingredientes naturais, cruelty-free e dermatologicamente testados.</p>
+</section>
+<section id="contato" class="contato">
+<h2>Fale Conosco</h2>
+<form>
+<input type="text" placeholder="Seu Nome" required>
+<input type="email" placeholder="Seu E-mail" required>
+<textarea placeholder="Sua Mensagem" rows="5" required></textarea>
+<button type="submit" class="btn">Enviar</button>
+</form>
+</section>
+<footer>
+<p>GlowSkin - Todos os direitos reservados.</p>
+</footer>
+<script>
+async function atualizarPrecos() {
+  var cotacao = 5.10;
+  try {
+    var resposta = await fetch("https://economia.awesomeapi.com.br/last/USD-BRL");
+    var dados = await resposta.json();
+    cotacao = parseFloat(dados.USDBRL.bid);
+    document.getElementById("barra-cotacao").innerHTML = "Cotacao do Dolar Hoje: 1 USD = R$ " + cotacao.toFixed(2);
+  } catch (erro) {
+    document.getElementById("barra-cotacao").innerHTML = "Cotacao do Dolar (Estimada): 1 USD = R$ " + cotacao.toFixed(2);
+  }
+  var precosUsd = document.querySelectorAll(".preco-usd");
+  var precosBrl = document.querySelectorAll(".preco-brl");
+  for (var i = 0; i < precosUsd.length; i++) {
+    var valorUsd = parseFloat(precosUsd[i].getAttribute("data-valor"));
+    var valorBrl = valorUsd * cotacao;
+    precosBrl[i].innerHTML = "aprox. R$ " + valorBrl.toFixed(2);
+  }
+}
+window.onload = atualizarPrecos;
+</script>
 </body>
 </html>
