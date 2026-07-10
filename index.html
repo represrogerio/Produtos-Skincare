@@ -1796,34 +1796,116 @@
             document.getElementById('compData').value = hoje;
         }
 
-        // ============================================
-        // LOCALSTORAGE
-        // ============================================
-        function salvarDados() {
-            try {
-                const dados = {
-                    produtos: APP.produtos,
-                    compras: APP.compras,
-                    atividades: APP.atividades
-                };
-                localStorage.setItem('skincarepro_data', JSON.stringify(dados));
-            } catch (e) {
-                console.error('Erro ao salvar dados:', e);
-                showToast('Erro ao salvar dados no navegador', 'error');
-            }
-        }
+      // ============================================
+// INDEXEDDB - Substitui o localStorage (sem limite de 5MB)
+// ============================================
 
-        function carregarDados() {
-            try {
-                const dados = localStorage.getItem('skincarepro_data');
+function abrirBanco() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('SkincareProDB', 1);
+        
+        request.onupgradeneeded = function(e) {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('dados')) {
+                db.createObjectStore('dados', { keyPath: 'id' });
+            }
+        };
+        
+        request.onsuccess = function(e) {
+            resolve(e.target.result);
+        };
+        
+        request.onerror = function(e) {
+            reject(e.target.error);
+        };
+    });
+}
+
+async function salvarDados() {
+    try {
+        const dados = {
+            id: 'skincarepro_data',
+            produtos: APP.produtos,
+            compras: APP.compras,
+            atividades: APP.atividades
+        };
+        
+        const db = await abrirBanco();
+        const tx = db.transaction('dados', 'readwrite');
+        const store = tx.objectStore('dados');
+        
+        store.put(dados);
+        
+        return new Promise((resolve, reject) => {
+            tx.oncomplete = () => {
+                console.log('✅ Dados salvos com sucesso!');
+                resolve();
+            };
+            tx.onerror = (e) => {
+                console.error('Erro ao salvar:', e.target.error);
+                showToast('Erro ao salvar dados', 'error');
+                reject(e.target.error);
+            };
+        });
+    } catch (e) {
+        console.error('Erro ao salvar dados:', e);
+        showToast('Erro ao salvar dados', 'error');
+    }
+}
+
+async function carregarDados() {
+    try {
+        const db = await abrirBanco();
+        const tx = db.transaction('dados', 'readonly');
+        const store = tx.objectStore('dados');
+        const request = store.get('skincarepro_data');
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = function(e) {
+                const dados = e.target.result;
                 if (dados) {
-                    const parsed = JSON.parse(dados);
-                    APP.produtos = parsed.produtos || [];
-                    APP.compras = parsed.compras || [];
-                    APP.atividades = parsed.atividades || [];
+                    APP.produtos = dados.produtos || [];
+                    APP.compras = dados.compras || [];
+                    APP.atividades = dados.atividades || [];
+                    console.log('✅ Dados carregados! Produtos:', APP.produtos.length);
+                } else {
+                    // Se não tem nada no IndexedDB, tenta migrar do localStorage
+                    migrarDoLocalStorage();
                 }
-            } catch (e) {
-                console.error('Erro ao carregar dados:', e);
+                resolve();
+            };
+            
+            request.onerror = function(e) {
+                console.error('Erro ao carregar:', e.target.error);
+                reject(e.target.error);
+            };
+        });
+    } catch (e) {
+        console.error('Erro ao carregar dados:', e);
+    }
+}
+
+// Migra dados antigos do localStorage para IndexedDB (só uma vez)
+async function migrarDoLocalStorage() {
+    try {
+        const dadosAntigos = localStorage.getItem('skincarepro_data');
+        if (dadosAntigos) {
+            const parsed = JSON.parse(dadosAntigos);
+            APP.produtos = parsed.produtos || [];
+            APP.compras = parsed.compras || [];
+            APP.atividades = parsed.atividades || [];
+            
+            // Salva no IndexedDB
+            await salvarDados();
+            
+            // Remove do localStorage para liberar espaço
+            localStorage.removeItem('skincarepro_data');
+            
+            console.log('✅ Dados migrados do localStorage para IndexedDB!');
+            showToast('Dados migrados com sucesso!', 'success');
+        }
+    } catch (e) {
+        console.error('Erro na migração:', e);
             }
         }
 
