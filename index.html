@@ -3,15 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skincare Pro - Sistema Profissional</title>
+<title>Skincare Estoque Pro</title>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f9;}
+header{background:#111827;color:#fff;padding:15px;font-size:20px;font-weight:bold;display:flex;justify-content:space-between;flex-wrap:wrap;}
+nav{background:#1f2937;padding:10px;display:flex;gap:10px;flex-wrap:wrap;}
+nav button{background:#374151;color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer;}
+.container{padding:20px;max-width:1200px;margin:auto;}
+.card{background:#fff;padding:20px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+input,select{width:100%;padding:10px;margin:8px 0;border-radius:4px;border:1px solid #ddd;}
+button.primary{background:#2563eb;color:#fff;border:none;padding:10px;border-radius:5px;cursor:pointer;width:100%;}
+button.import{background:#059669;color:#fff;border:none;padding:10px;border-radius:5px;cursor:pointer;width:100%;margin-top:10px;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th,td{border:1px solid #ddd;padding:10px;text-align:left;}
+th{background:#111827;color:#fff;}
+.alert{background:#fee2e2;color:#dc2626;padding:10px;margin-bottom:10px;border-radius:5px;font-weight:bold;}
+.img-prod{width:50px;height:50px;object-fit:cover;border-radius:4px;}
+.hidden{display:none;}
+</style>
+</head>
 
-<script>
-// ✅ SUAS CREDENCIAIS DO FIREBASE (JÁ CONFIGURADO)
+<body>
+
+<header>
+<span>🧴 Skincare Estoque Pro</span>
+<span id="dollar-info">USD: R$ ...</span>
+</header>
+
+<nav>
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('produtos')">Produtos</button>
+<button onclick="showPage('compras')">Compras</button>
+</nav>
+
+<div class="container">
+
+<div id="dashboard" class="card">
+<h3>Resumo</h3>
+<div id="alerts"></div>
+<p>Total em estoque: <strong id="totalEstoque">0</strong></p>
+<button class="import" onclick="importarGitHub()">⬇ Importar Imagens do GitHub</button>
+</div>
+
+<div id="produtos" class="card hidden">
+<h3>Novo Produto</h3>
+<input type="text" id="nomeProduto" placeholder="Nome">
+<input type="number" id="estoqueProduto" placeholder="Estoque inicial">
+<input type="number" id="minimoProduto" placeholder="Estoque mínimo">
+<input type="file" id="fotoProduto" accept="image/*">
+<button class="primary" onclick="salvarProduto()">Salvar Produto</button>
+
+<h3>Lista</h3>
+<table>
+<thead>
+<tr>
+<th>Foto</th>
+<th>Nome</th>
+<th>Estoque</th>
+<th>Mínimo</th>
+<th>Últ USD</th>
+<th>Últ R$</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody id="listaProdutos"></tbody>
+</table>
+</div>
+
+<div id="compras" class="card hidden">
+<h3>Registrar Compra</h3>
+<select id="produtoCompra"></select>
+<input type="number" id="quantidadeCompra" placeholder="Quantidade">
+<select id="moedaCompra">
+<option value="BRL">Real</option>
+<option value="USD">Dólar</option>
+</select>
+<input type="number" id="valorCompra" placeholder="Valor total" step="0.01">
+<label>Cotação:</label>
+<input type="number" id="cotacaoManual" step="0.01">
+<button class="primary" onclick="registrarCompra()">Registrar</button>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBX6_4pbYSgyT9JDvyqLgfk63yyUbF8AcE",
   authDomain: "skincare-estoque.firebaseapp.com",
@@ -20,554 +100,143 @@ const firebaseConfig = {
   messagingSenderId: "853012503411",
   appId: "1:853012503411:web:38a3b7ee12115cc4518306"
 };
-// Inicializa Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-console.log("Firebase conectado com sucesso!");
-</script>
 
-<style>
-body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;}
-header{background:linear-gradient(135deg,#1a237e,#3949ab);color:white;padding:20px;font-size:24px;font-weight:bold;box-shadow:0 4px 6px rgba(0,0,0,0.1);}
-nav{background:#283593;padding:15px;display:flex;gap:15px;flex-wrap:wrap;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
-nav button{background:#5c6bc0;color:white;border:none;padding:12px 24px;border-radius:25px;cursor:pointer;font-weight:600;transition:all 0.3s;font-size:14px;}
-nav button:hover{background:#7986cb;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-.container{max-width:1200px;margin:20px auto;padding:0 20px;}
-.card{background:white;padding:25px;margin-bottom:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:0.3s;}
-.card:hover{box-shadow:0 4px 15px rgba(0,0,0,0.12);}
-input, select, textarea{width:100%;padding:12px;margin:8px 0;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;transition:0.3s;box-sizing:border-box;}
-input:focus, select:focus{border-color:#3949ab;outline:none;box-shadow:0 0 0 3px rgba(57,73,171,0.1);}
-button.primary{background:linear-gradient(135deg,#3949ab,#1a237e);color:white;border:none;padding:12px 25px;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;transition:0.3s;}
-button.primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(57,73,171,0.4);}
-button.danger{background:#d32f2f;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;transition:0.3s;}
-button.danger:hover{background:#b71c1c;}
-button.success{background:#388e3c;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;}
-table{width:100%;border-collapse:collapse;margin-top:15px;border-radius:8px;overflow:hidden;}
-th, td{padding:12px;text-align:left;border-bottom:1px solid #e0e0e0;}
-th{background:linear-gradient(135deg,#3949ab,#1a237e);color:white;font-weight:600;}
-tr:hover{background:#f5f5f5;}
-.hidden{display:none !important;}
-.alert{background:#ffebee;color:#c62828;padding:15px;border-radius:8px;margin:10px 0;font-weight:600;border-left:4px solid #c62828;display:flex;align-items:center;gap:10px;}
-.success-alert{background:#e8f5e9;color:#2e7d32;padding:15px;border-radius:8px;margin:10px 0;font-weight:600;border-left:4px solid #2e7d32;}
-.img-preview{max-width:80px;max-height:80px;border-radius:8px;border:2px solid #ddd;object-fit:cover;}
-.status-baixo{color:#d32f2f;font-weight:bold;background:#ffebee;padding:4px 8px;border-radius:4px;}
-.status-ok{color:#388e3c;font-weight:bold;background:#e8f5e9;padding:4px 8px;border-radius:4px;}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-h2{color:#1a237e;margin-top:0;border-bottom:2px solid #e0e0e0;padding-bottom:10px;}
-h3{color:#3949ab;margin-top:25px;}
-.loading{text-align:center;padding:20px;color:#666;font-style:italic;}
-@media(max-width:768px){.grid-2{grid-template-columns:1fr;}nav button{width:100%;}}
-</style>
-</head>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-<body>
+let cotacaoAtual = 5;
 
-<header>🧴 Skincare Pro - Controle Profissional</header>
+fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
+.then(r=>r.json())
+.then(d=>{
+cotacaoAtual=parseFloat(d.USDBRL.bid);
+document.getElementById("dollar-info").innerText="USD: R$ "+cotacaoAtual.toFixed(2);
+document.getElementById("cotacaoManual").value=cotacaoAtual.toFixed(2);
+});
 
-<nav>
-<button onclick="mostrar('dashboard')">📊 Dashboard</button>
-<button onclick="mostrar('produtos')">📦 Produtos</button>
-<button onclick="mostrar('compras')">🛒 Compras</button>
-<button onclick="mostrar('estoque')">⚠️ Estoque Baixo</button>
-</nav>
+window.showPage=(id)=>{
+["dashboard","produtos","compras"].forEach(p=>document.getElementById(p).classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+};
 
-<div class="container">
+window.salvarProduto=async()=>{
+const nome=document.getElementById("nomeProduto").value;
+const estoque=parseInt(document.getElementById("estoqueProduto").value)||0;
+const minimo=parseInt(document.getElementById("minimoProduto").value)||1;
+const file=document.getElementById("fotoProduto").files[0];
 
-<!-- Dashboard -->
-<div id="dashboard" class="card">
-<h2>📊 Dashboard</h2>
-<div class="grid-2">
-<div class="card" style="background:linear-gradient(135deg,#e8eaf6,#c5cae9);">
-<p style="margin:0;color:#3949ab;font-size:14px;">Total de Produtos</p>
-<p style="margin:5px 0;font-size:32px;font-weight:bold;color:#1a237e;" id="dashTotal">0</p>
-</div>
-<div class="card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);">
-<p style="margin:0;color:#388e3c;font-size:14px;">Itens em Estoque</p>
-<p style="margin:5px 0;font-size:32px;font-weight:bold;color:#2e7d32;" id="dashEstoque">0</p>
-</div>
-</div>
-<div class="grid-2">
-<div class="card" style="background:linear-gradient(135deg,#ffebee,#ffcdd2);">
-<p style="margin:0;color:#d32f2f;font-size:14px;">Produtos em Alerta</p>
-<p style="margin:5px 0;font-size:32px;font-weight:bold;color:#c62828;" id="dashAlerta">0</p>
-</div>
-<div class="card" style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);">
-<p style="margin:0;color:#e65100;font-size:14px;">Cotação USD</p>
-<p style="margin:5px 0;font-size:32px;font-weight:bold;color:#ef6c00;">R$ <span id="dashCotacao">--</span></p>
-</div>
-</div>
-<div id="alertasDashboard"></div>
-</div>
+let url="";
+if(file){
+const storageRef=ref(storage,"produtos/"+Date.now()+"_"+file.name);
+const snap=await uploadBytes(storageRef,file);
+url=await getDownloadURL(snap.ref);
+}
 
-<!-- Produtos -->
-<div id="produtos" class="card hidden">
-<h2>➕ Cadastrar Produto</h2>
-<div class="grid-2">
-<input type="text" id="nomeProduto" placeholder="Nome do produto *" required>
-<input type="text" id="codigoProduto" placeholder="Código/SKU">
-</div>
-<div class="grid-2">
-<input type="number" id="estoqueProduto" placeholder="Estoque atual *" min="0" required>
-<input type="number" id="minimoProduto" placeholder="Estoque mínimo (alerta) *" min="1" required>
-</div>
-<select id="categoriaProduto">
-<option value="">Selecione a categoria...</option>
-<option value="Limpeza">🧼 Limpeza Facial</option>
-<option value="Sérum">💎 Sérum</option>
-<option value="Hidratante">🧴 Hidratante</option>
-<option value="Protetor">☀️ Protetor Solar</option>
-<option value="Máscara">🎭 Máscara Facial</option>
-<option value="Ácido">🔬 Ácidos/Ativos</option>
-<option value="Outros">📌 Outros</option>
-</select>
+await addDoc(collection(db,"produtos"),{
+nome,estoque,minimo,foto:url,ultimaUSD:0,ultimaBRL:0
+});
 
-<h4>📸 Imagem do Produto</h4>
-<input type="file" id="imagemProduto" accept="image/*" onchange="previewImagem(this)">
-<div id="previewContainer" style="margin:10px 0;">
-<img id="previewImg" class="img-preview hidden">
-</div>
+alert("Produto salvo!");
+};
 
-<button class="primary" onclick="salvarProduto()" style="width:100%;margin-top:10px;">💾 Salvar no Banco de Dados</button>
+window.importarGitHub=async()=>{
+const owner="represrogerio";
+const repo="Controle-de-Compras";
 
-<h3>📋 Produtos Cadastrados</h3>
-<div id="loadingProdutos" class="loading">Carregando do banco de dados...</div>
-<table id="tabelaProdutosContainer" class="hidden">
-<thead>
+const repoInfo=await (await fetch(`https://api.github.com/repos/${owner}/${repo}`)).json();
+const branch=repoInfo.default_branch;
+
+const res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents?ref=${branch}`);
+const files=await res.json();
+
+const existentes=[];
+const snap=await getDocs(collection(db,"produtos"));
+snap.forEach(d=>existentes.push(d.data().nome));
+
+for(const f of files){
+if(/\.(png|jpg|jpeg|webp)$/i.test(f.name)){
+const nome=f.name.replace(/\.(png|jpg|jpeg|webp)$/i,"").replace(/[_-]/g," ");
+if(!existentes.includes(nome)){
+await addDoc(collection(db,"produtos"),{
+nome,estoque:0,minimo:1,foto:f.download_url,ultimaUSD:0,ultimaBRL:0
+});
+}
+}
+}
+alert("Importação concluída!");
+};
+
+onSnapshot(collection(db,"produtos"),(snapshot)=>{
+const tbody=document.getElementById("listaProdutos");
+const select=document.getElementById("produtoCompra");
+const alerts=document.getElementById("alerts");
+tbody.innerHTML="";
+select.innerHTML="";
+alerts.innerHTML="";
+let total=0;
+
+snapshot.forEach(docSnap=>{
+const p=docSnap.data();
+const id=docSnap.id;
+total+=p.estoque||0;
+
+if((p.estoque||0)<=p.minimo){
+alerts.innerHTML+=`<div class="alert">⚠ ${p.nome} estoque baixo (${p.estoque})</div>`;
+}
+
+tbody.innerHTML+=`
 <tr>
-<th>Imagem</th>
-<th>Nome</th>
-<th>Código</th>
-<th>Estoque</th>
-<th>Mínimo</th>
-<th>Status</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="listaProdutos"></tbody>
-</table>
-</div>
+<td>${p.foto?`<img src="${p.foto}" class="img-prod">`:"🧴"}</td>
+<td>${p.nome}</td>
+<td>${p.estoque}</td>
+<td>${p.minimo}</td>
+<td>$ ${p.ultimaUSD.toFixed(2)}</td>
+<td>R$ ${p.ultimaBRL.toFixed(2)}</td>
+<td><button onclick="deletar('${id}')">Excluir</button></td>
+</tr>`;
 
-<!-- Compras -->
-<div id="compras" class="card hidden">
-<h2>🛒 Registrar Compra</h2>
-<select id="selectProdutoCompra">
-<option value="">Selecione o produto...</option>
-</select>
+select.innerHTML+=`<option value="${id}">${p.nome}</option>`;
+});
+document.getElementById("totalEstoque").innerText=total;
+});
 
-<div class="grid-2">
-<input type="number" id="qtdCompra" placeholder="Quantidade comprada *" min="1">
-<select id="moedaCompra">
-<option value="BRL">Valor em Real (R$)</option>
-<option value="USD">Valor em Dólar (USD)</option>
-</select>
-</div>
+window.registrarCompra=async()=>{
+const id=document.getElementById("produtoCompra").value;
+const qtd=parseInt(document.getElementById("quantidadeCompra").value);
+const valor=parseFloat(document.getElementById("valorCompra").value);
+const moeda=document.getElementById("moedaCompra").value;
+const cot=parseFloat(document.getElementById("cotacaoManual").value)||cotacaoAtual;
 
-<input type="number" id="valorCompra" placeholder="Valor total da compra *" step="0.01">
-<p style="font-size:13px;color:#666;margin-top:5px;">💡 Cotação USD atual: <strong>R$ <span id="cotacaoAtual">--</span></strong> (atualiza automaticamente)</p>
+if(!id||isNaN(qtd)||isNaN(valor))return alert("Preencha os dados.");
 
-<button class="primary" onclick="registrarCompra()" style="width:100%;">✅ Registrar Compra</button>
+let valorBRL,valorUSD;
 
-<h3>📜 Histórico de Compras</h3>
-<div id="loadingCompras" class="loading">Carregando...</div>
-<table id="tabelaComprasContainer" class="hidden">
-<thead>
-<tr>
-<th>Data</th>
-<th>Produto</th>
-<th>Qtd</th>
-<th>Valor BRL</th>
-<th>Valor USD</th>
-</tr>
-</thead>
-<tbody id="listaCompras"></tbody>
-</table>
-</div>
-
-<!-- Estoque Baixo -->
-<div id="estoque" class="card hidden">
-<h2>⚠️ Produtos com Estoque Baixo</h2>
-<div id="loadingEstoque" class="loading">Verificando estoque...</div>
-<div id="listaEstoqueBaixo"></div>
-</div>
-
-</div>
-
-<script>
-let produtos = [];
-let compras = [];
-let cotacaoUSD = 5.0;
-let imagemBase64 = "";
-
-// Mostrar/ocultar seções
-function mostrar(aba) {
-  ['dashboard','produtos','compras','estoque'].forEach(id => {
-    document.getElementById(id).classList.add('hidden');
-  });
-  document.getElementById(aba).classList.remove('hidden');
-  
-  if(aba === 'dashboard') {
-    atualizarDashboard();
-    buscarCotacao();
-  }
-  if(aba === 'produtos') carregarProdutos();
-  if(aba === 'compras') {
-    carregarProdutosSelect();
-    buscarCotacao();
-  }
-  if(aba === 'estoque') mostrarEstoqueBaixo();
+if(moeda==="USD"){
+valorUSD=valor;
+valorBRL=valor*cot;
+}else{
+valorBRL=valor;
+valorUSD=valor/cot;
 }
 
-// Preview da imagem
-function previewImagem(input) {
-  if (input.files && input.files[0]) {
-    if(input.files[0].size > 2 * 1024 * 1024) {
-      alert("Imagem muito grande! Máximo 2MB.");
-      input.value = "";
-      return;
-    }
-    let reader = new FileReader();
-    reader.onload = function(e) {
-      imagemBase64 = e.target.result;
-      document.getElementById('previewImg').src = e.target.result;
-      document.getElementById('previewImg').classList.remove('hidden');
-    }
-    reader.readAsDataURL(input.files[0]);
-  }
+const refDoc=doc(db,"produtos",id);
+const snap=await getDoc(refDoc);
+const atual=snap.data();
+
+await updateDoc(refDoc,{
+estoque:(atual.estoque||0)+qtd,
+ultimaUSD:valorUSD,
+ultimaBRL:valorBRL
+});
+
+alert("Compra registrada!");
+};
+
+window.deletar=async(id)=>{
+if(confirm("Excluir produto?")){
+await deleteDoc(doc(db,"produtos",id));
 }
-
-// Buscar cotação do dólar
-async function buscarCotacao() {
-  try {
-    const res = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
-    const data = await res.json();
-    cotacaoUSD = parseFloat(data.USDBRL.bid);
-    document.getElementById('cotacaoAtual').innerText = cotacaoUSD.toFixed(2);
-    document.getElementById('dashCotacao').innerText = cotacaoUSD.toFixed(2);
-  } catch(e) {
-    console.log("Erro cotação:", e);
-    cotacaoUSD = 5.0;
-    document.getElementById('cotacaoAtual').innerText = "5.00 (padrão)";
-  }
-}
-
-// Salvar produto no Firebase
-async function salvarProduto() {
-  const nome = document.getElementById('nomeProduto').value.trim();
-  const estoque = parseInt(document.getElementById('estoqueProduto').value);
-  const minimo = parseInt(document.getElementById('minimoProduto').value);
-  
-  if(!nome || isNaN(estoque) || isNaN(minimo)) {
-    alert("⚠️ Preencha todos os campos obrigatórios!");
-    return;
-  }
-
-  const btn = event.target;
-  btn.innerHTML = "⏳ Salvando...";
-  btn.disabled = true;
-
-  try {
-    const produto = {
-      nome: nome,
-      codigo: document.getElementById('codigoProduto').value || '',
-      estoque: estoque,
-      minimo: minimo,
-      categoria: document.getElementById('categoriaProduto').value || 'Outros',
-      imagem: imagemBase64 || '',
-      ultimaCompraBRL: 0,
-      ultimaCompraUSD: 0,
-      criadoEm: new Date().toISOString()
-    };
-
-    // Salva no Firestore
-    const docRef = await db.collection('produtos').add(produto);
-    console.log("Produto salvo com ID:", docRef.id);
-    
-    alert("✅ Produto salvo com sucesso no banco de dados!");
-    
-    // Limpa formulário
-    document.getElementById('nomeProduto').value = '';
-    document.getElementById('estoqueProduto').value = '';
-    document.getElementById('minimoProduto').value = '';
-    document.getElementById('codigoProduto').value = '';
-    document.getElementById('categoriaProduto').value = '';
-    document.getElementById('imagemProduto').value = '';
-    document.getElementById('previewImg').classList.add('hidden');
-    imagemBase64 = '';
-    
-    carregarProdutos();
-  } catch (error) {
-    console.error("Erro ao salvar:", error);
-    alert("❌ Erro ao salvar: " + error.message);
-  } finally {
-    btn.innerHTML = "💾 Salvar no Banco de Dados";
-    btn.disabled = false;
-  }
-}
-
-// Carregar produtos do Firebase
-async function carregarProdutos() {
-  document.getElementById('loadingProdutos').classList.remove('hidden');
-  document.getElementById('tabelaProdutosContainer').classList.add('hidden');
-  
-  try {
-    const snapshot = await db.collection('produtos').orderBy('nome').get();
-    produtos = [];
-    snapshot.forEach(doc => {
-      produtos.push({id: doc.id, ...doc.data()});
-    });
-    
-    renderizarTabelaProdutos();
-  } catch (error) {
-    console.error("Erro ao carregar:", error);
-    document.getElementById('loadingProdutos').innerText = "Erro ao carregar: " + error.message;
-  }
-}
-
-function renderizarTabelaProdutos() {
-  const tbody = document.getElementById('listaProdutos');
-  document.getElementById('loadingProdutos').classList.add('hidden');
-  document.getElementById('tabelaProdutosContainer').classList.remove('hidden');
-  
-  if (produtos.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">Nenhum produto cadastrado. Adicione o primeiro acima!</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = produtos.map(p => {
-    const status = p.estoque <= p.minimo ? 
-      '<span class="status-baixo">⚠️ BAIXO</span>' : 
-      '<span class="status-ok">✅ OK</span>';
-    
-    const img = p.imagem ? `<img src="${p.imagem}" class="img-preview" onclick="window.open('${p.imagem}')">` : '<span style="font-size:24px;">📦</span>';
-    
-    return `
-      <tr>
-        <td style="text-align:center;">${img}</td>
-        <td><strong>${p.nome}</strong><br><small style="color:#666;">${p.categoria}</small></td>
-        <td>${p.codigo || '-'}</td>
-        <td style="text-align:center;font-weight:bold;">${p.estoque}</td>
-        <td style="text-align:center;">${p.minimo}</td>
-        <td style="text-align:center;">${status}</td>
-        <td>
-          <button class="danger" onclick="excluirProduto('${p.id}')" title="Excluir">🗑️</button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// Carregar produtos no select de compras
-async function carregarProdutosSelect() {
-  try {
-    const snapshot = await db.collection('produtos').orderBy('nome').get();
-    const select = document.getElementById('selectProdutoCompra');
-    select.innerHTML = '<option value="">Selecione o produto...</option>';
-    
-    snapshot.forEach(doc => {
-      const p = doc.data();
-      select.innerHTML += `<option value="${doc.id}">${p.nome} (Estoque: ${p.estoque})</option>`;
-    });
-  } catch(e) {
-    console.error("Erro:", e);
-  }
-}
-
-// Excluir produto
-async function excluirProduto(id) {
-  if(!confirm("Tem certeza que deseja excluir este produto?")) return;
-  
-  try {
-    await db.collection('produtos').doc(id).delete();
-    alert("✅ Produto excluído!");
-    carregarProdutos();
-  } catch(error) {
-    alert("❌ Erro ao excluir: " + error.message);
-  }
-}
-
-// Registrar compra
-async function registrarCompra() {
-  const produtoId = document.getElementById('selectProdutoCompra').value;
-  const qtd = parseInt(document.getElementById('qtdCompra').value);
-  const valor = parseFloat(document.getElementById('valorCompra').value);
-  const moeda = document.getElementById('moedaCompra').value;
-  
-  if(!produtoId || isNaN(qtd) || isNaN(valor) || qtd <= 0 || valor <= 0) {
-    alert("⚠️ Preencha todos os campos corretamente!");
-    return;
-  }
-
-  const btn = event.target;
-  btn.innerHTML = "⏳ Processando...";
-  btn.disabled = true;
-
-  try {
-    // Calcula valores
-    let valorBRL, valorUSD;
-    if(moeda === 'USD') {
-      valorUSD = valor;
-      valorBRL = valor * cotacaoUSD;
-    } else {
-      valorBRL = valor;
-      valorUSD = valor / cotacaoUSD;
-    }
-
-    // Atualiza estoque do produto
-    const produtoRef = db.collection('produtos').doc(produtoId);
-    const produtoDoc = await produtoRef.get();
-    const produtoData = produtoDoc.data();
-    const novoEstoque = (produtoData.estoque || 0) + qtd;
-    
-    await produtoRef.update({
-      estoque: novoEstoque,
-      ultimaCompraBRL: valorBRL,
-      ultimaCompraUSD: valorUSD
-    });
-
-    // Salva compra no histórico
-    await db.collection('compras').add({
-      produtoId: produtoId,
-      produtoNome: produtoData.nome,
-      qtd: qtd,
-      valorBRL: valorBRL,
-      valorUSD: valorUSD,
-      moeda: moeda,
-      data: new Date().toISOString(),
-      dataFormatada: new Date().toLocaleString('pt-BR')
-    });
-
-    alert(`✅ Compra registrada!\n\nProduto: ${produtoData.nome}\nQuantidade: +${qtd}\nValor BRL: R$ ${valorBRL.toFixed(2)}\nValor USD: $ ${valorUSD.toFixed(2)}`);
-    
-    // Limpa
-    document.getElementById('selectProdutoCompra').value = '';
-    document.getElementById('qtdCompra').value = '';
-    document.getElementById('valorCompra').value = '';
-    
-    carregarCompras();
-    carregarProdutosSelect();
-  } catch(error) {
-    console.error("Erro:", error);
-    alert("❌ Erro: " + error.message);
-  } finally {
-    btn.innerHTML = "✅ Registrar Compra";
-    btn.disabled = false;
-  }
-}
-
-// Carregar histórico de compras
-async function carregarCompras() {
-  document.getElementById('loadingCompras').classList.remove('hidden');
-  document.getElementById('tabelaComprasContainer').classList.add('hidden');
-  
-  try {
-    const snapshot = await db.collection('compras').orderBy('data', 'desc').get();
-    const tbody = document.getElementById('listaCompras');
-    
-    document.getElementById('loadingCompras').classList.add('hidden');
-    document.getElementById('tabelaComprasContainer').classList.remove('hidden');
-    
-    if(snapshot.empty) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">Nenhuma compra registrada</td></tr>';
-      return;
-    }
-    
-    tbody.innerHTML = snapshot.docs.map(doc => {
-      const c = doc.data();
-      return `
-        <tr>
-          <td>${c.dataFormatada || new Date(c.data).toLocaleString('pt-BR')}</td>
-          <td><strong>${c.produtoNome}</strong></td>
-          <td style="text-align:center;">${c.qtd}</td>
-          <td style="color:#2e7d32;font-weight:bold;">R$ ${c.valorBRL.toFixed(2)}</td>
-          <td style="color:#666;">$ ${c.valorUSD.toFixed(2)}</td>
-        </tr>
-      `;
-    }).join('');
-  } catch(error) {
-    console.error("Erro:", error);
-  }
-}
-
-// Atualizar dashboard
-async function atualizarDashboard() {
-  try {
-    const produtosSnap = await db.collection('produtos').get();
-    const comprasSnap = await db.collection('compras').get();
-    
-    const totalProdutos = produtosSnap.size;
-    let totalEstoque = 0;
-    let emAlerta = 0;
-    let alertasHTML = '';
-    
-    produtosSnap.forEach(doc => {
-      const p = doc.data();
-      totalEstoque += p.estoque || 0;
-      if((p.estoque || 0) <= (p.minimo || 0)) {
-        emAlerta++;
-        alertasHTML += `<div class="alert">⚠️ <strong>${p.nome}</strong> está com estoque baixo (${p.estoque} unidades)</div>`;
-      }
-    });
-    
-    document.getElementById('dashTotal').innerText = totalProdutos;
-    document.getElementById('dashEstoque').innerText = totalEstoque;
-    document.getElementById('dashAlerta').innerText = emAlerta;
-    
-    const divAlertas = document.getElementById('alertasDashboard');
-    if(emAlerta > 0) {
-      divAlertas.innerHTML = '<h3 style="color:#c62828;margin-top:20px;">🚨 Atenção:</h3>' + alertasHTML;
-    } else {
-      divAlertas.innerHTML = '<div class="success-alert" style="margin-top:20px;">✅ Todos os produtos com estoque adequado!</div>';
-    }
-  } catch(e) {
-    console.error("Erro dashboard:", e);
-  }
-}
-
-// Mostrar estoque baixo
-async function mostrarEstoqueBaixo() {
-  const div = document.getElementById('listaEstoqueBaixo');
-  document.getElementById('loadingEstoque').classList.remove('hidden');
-  div.innerHTML = '';
-  
-  try {
-    const snapshot = await db.collection('produtos').get();
-    document.getElementById('loadingEstoque').classList.add('hidden');
-    
-    let encontrou = false;
-    let html = '';
-    
-    snapshot.forEach(doc => {
-      const p = doc.data();
-      if((p.estoque || 0) <= (p.minimo || 0)) {
-        encontrou = true;
-        html += `
-          <div class="alert" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <div>
-              <strong>${p.nome}</strong> ${p.codigo ? '('+p.codigo+')' : ''}<br>
-              <small>Estoque: ${p.estoque} | Mínimo: ${p.minimo} | Faltam: ${p.minimo - p.estoque + 1} unidades</small>
-            </div>
-            <button class="primary" onclick="mostrar('compras')">Comprar +</button>
-          </div>
-        `;
-      }
-    });
-    
-    if(!encontrou) {
-      div.innerHTML = '<div class="success-alert" style="text-align:center;padding:30px;font-size:18px;">🎉 Nenhum produto com estoque baixo!<br><small>Todos os produtos estão com estoque adequado.</small></div>';
-    } else {
-      div.innerHTML = html;
-    }
-  } catch(e) {
-    div.innerHTML = '<p style="color:red;">Erro ao carregar: ' + e.message + '</p>';
-  }
-}
-
-// Inicialização
-window.onload = function() {
-  console.log("Sistema iniciado - Firebase conectado");
-  buscarCotacao();
-  atualizarDashboard();
 };
 </script>
 
