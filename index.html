@@ -74,7 +74,7 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <header class="topbar">
   <h1 id="pageTitle">Dashboard</h1>
   <div style="display:flex;gap:12px;align-items:center">
-    <div class="cotacao-badge" title="Cotação atualizada em tempo real">
+    <div class="cotacao-badge" title="Cotação online atualizada a cada 60s">
       <span class="live-dot"></span>
       <span>💵</span>
       <span id="dollar-info-topbar">Carregando...</span>
@@ -92,8 +92,11 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Alertas</h3><button id="btnImportar" class="btn btn-primary" onclick="importarGitHub()">⬇ Importar Imagens do GitHub</button></div><div id="alerts" style="margin-top:12px"></div></div>
 <div class="card">
   <h3>🔗 Integração Mercado Livre</h3>
-  <p style="color:var(--muted);font-size:14px">Conecte sua conta do Mercado Livre para que o estoque seja baixado automaticamente a cada venda.</p>
-  <a href="/api/auth/login" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 20px;margin-top:8px">🔗 Conectar Mercado Livre</a>
+  <p style="color:var(--muted);font-size:14px">1) Primeiro sincronize os IDs do Mercado Livre nos produtos. 2) Depois conecte sua conta para o estoque baixar sozinho a cada venda.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+    <button id="btnSincML" class="btn btn-success" onclick="sincronizarMLIds()" style="padding:12px 18px">🔄 Sincronizar IDs do Mercado Livre</button>
+    <a href="/api/auth/login" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 18px">🔗 Conectar Mercado Livre</a>
+  </div>
 </div>
 </div>
 
@@ -103,7 +106,7 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <div class="form-grid">
 <input id="nomeProduto" class="input" placeholder="Nome">
 <input id="skuProduto" class="input" placeholder="SKU (ex: TONMEDPAD70U)">
-<input id="mlIdProduto" class="input" placeholder="ID Mercado Livre (ex: MLB4634071405)">
+<input id="mlIdProduto" class="input" placeholder="ID ML (ex: MLB4634071405)">
 <input id="estoqueProduto" type="number" class="input" placeholder="Estoque inicial">
 </div>
 <div class="form-grid-file">
@@ -155,6 +158,33 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 let cotacaoAtual = 5.11;
 
+const ML_MAP = [
+  { sku: "MASFINCRE230", nome: "Fino Premium Touc Hair Mascara Capilar 230g", ml_item_id: "MLB6845189982" },
+  { sku: "PDRMEDSER30M", nome: "Medicube Pdrn Exosome 2000 Colageno 30ml", ml_item_id: "MLB4671922511" },
+  { sku: "CICVTSER100",  nome: "Vt Cosmetics Cica Cream Plus 100ml", ml_item_id: "MLB7104495842" },
+  { sku: "AMPSKISER100", nome: "Skin1004 Ampoule Centella De Madagascar 100ml", ml_item_id: "MLB4852430375" },
+  { sku: "AMPSKIESP125", nome: "Espuma de Limpeza Ampoule Fom", ml_item_id: "MLB7104034322" },
+  { sku: "NO9NAMCRE10M", nome: "Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml", ml_item_id: "MLB4667484245" },
+  { sku: "PORCELCRE35M", nome: "Pore + Dark Spot Brightening Celimax 35ml", ml_item_id: "MLB6726179242" },
+  { sku: "RETCELCRE15M", nome: "Retinal Shor Celimax 15ml", ml_item_id: "MLB6725246532" },
+  { sku: "345DRACRE55M", nome: "345 Relief Cream Dr Althea 50 ml", ml_item_id: "MLB4633597133" },
+  { sku: "PROSKIAMP55M", nome: "Probio-Cica Intensive Ampoule Skin 1004 50 ml", ml_item_id: "MLB6669781578" },
+  { sku: "LIGSKICLE200", nome: "Light Cleasing Oil Skin 1004 200 ml", ml_item_id: "MLB4629595331" },
+  { sku: "HEAANUCLE200", nome: "Hearleaf Pore Control Cleasing Oil Anua", ml_item_id: "MLB4629579899" },
+  { sku: "PDRMEDMAS75M", nome: "PDRN Pink Caffeine Night Mask Medicube", ml_item_id: "MLB6662223372" },
+  { sku: "DEEMEDPAD70U", nome: "Deep Vita C Pad Medicube", ml_item_id: "MLB6662204692" },
+  { sku: "TONMEDPAD70U", nome: "Toner Pads Zero Pore 70 Pads Medicube", ml_item_id: "MLB4634071405" },
+  { sku: "COLMEDMAS1UN", nome: "Medicube Collagen Lifting Mask", ml_item_id: "MLB4633793035" },
+  { sku: "VITOMGMAS1UN", nome: "Vitamin With Niacinamide Mask OMG 1 unid", ml_item_id: "MLB4633775937" },
+  { sku: "COLOMGMAS1UN", nome: "Collagen With PDRN Mask OMG 1 unid", ml_item_id: "MLB6670185882" },
+  { sku: "PORSKIMAS1UN", nome: "Poremizing Clarifyng Mask Skin 1004 1 unid", ml_item_id: "MLB6670134408" },
+  { sku: "DEEMEDMAS1UN", nome: "Deep Peptide Radiance Mask Medicube 1 unid", ml_item_id: "MLB4633624291" }
+];
+
+function norm(s){
+  return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
+}
+
 async function atualizarCotacao(){
   try{
     const r = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL");
@@ -170,7 +200,7 @@ async function atualizarCotacao(){
   }
 }
 atualizarCotacao();
-setInterval(atualizarCotacao, 60000); // atualiza a cada 60s
+setInterval(atualizarCotacao, 60000);
 
 window.showPage = function(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
@@ -209,22 +239,48 @@ window.salvarProduto = async function(){
     const dados = {nome:nome, estoque:estoque, minimo:minimo, foto:url, ultimaUSD:0, ultimaBRL:0, criadoEm:Date.now()};
     if(sku) dados.sku = sku;
     if(mlId) dados.ml_item_id = mlId;
-    
-    if(sku){
-      await setDoc(doc(db,"produtos",sku), dados);
-    } else {
-      await addDoc(collection(db,"produtos"), dados);
-    }
-    document.getElementById("nomeProduto").value=""; 
-    document.getElementById("skuProduto").value=""; 
-    document.getElementById("mlIdProduto").value=""; 
-    document.getElementById("estoqueProduto").value=""; 
-    document.getElementById("minimoProduto").value=""; 
-    document.getElementById("fotoProduto").value=""; 
+    if(sku){ await setDoc(doc(db,"produtos",sku), dados); }
+    else { await addDoc(collection(db,"produtos"), dados); }
+    document.getElementById("nomeProduto").value="";
+    document.getElementById("skuProduto").value="";
+    document.getElementById("mlIdProduto").value="";
+    document.getElementById("estoqueProduto").value="";
+    document.getElementById("minimoProduto").value="";
+    document.getElementById("fotoProduto").value="";
     document.getElementById("previewFoto").classList.add("hidden");
     alert("Produto salvo");
   }catch(err){ console.error(err); alert("Erro - verifique regras Firestore/Storage"); }
   btn.disabled = false; btn.innerText = "Salvar";
+};
+
+window.sincronizarMLIds = async function(){
+  const btn = document.getElementById("btnSincML");
+  btn.disabled = true; btn.innerText = "Sincronizando...";
+  try{
+    const snap = await getDocs(collection(db,"produtos"));
+    const existentes = [];
+    snap.forEach(d => existentes.push({id:d.id, data:d.data()}));
+    let ok = 0; const fail = [];
+    for(const item of ML_MAP){
+      let alvo = existentes.find(e => e.id === item.sku) ||
+                 existentes.find(e => (e.data.sku||"").toUpperCase() === item.sku);
+      if(!alvo){
+        const nn = norm(item.nome);
+        const palavras = nn.split(" ").filter(w => w.length > 3);
+        alvo = existentes.find(e => {
+          const n = norm(e.data.nome||"");
+          return palavras.filter(w => n.includes(w)).length >= 3;
+        });
+      }
+      if(!alvo){ fail.push(item.sku); continue; }
+      await updateDoc(doc(db,"produtos", alvo.id), { sku:item.sku, ml_item_id:item.ml_item_id });
+      ok++;
+    }
+    let msg = "✅ " + ok + " produtos sincronizados com Mercado Livre!";
+    if(fail.length){ msg += "\n\nNão encontrados (cadastre o ID ML manualmente neles):\n" + fail.join(", "); }
+    alert(msg);
+  }catch(e){ console.error(e); alert("Erro: " + e.message); }
+  btn.disabled = false; btn.innerText = "🔄 Sincronizar IDs do Mercado Livre";
 };
 
 window.importarGitHub = async function(){
