@@ -22,9 +22,13 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--te
 .nav-btn{all:unset;cursor:pointer;padding:12px 14px;border-radius:10px;color:#94a3b8;font-weight:500;font-size:14px;display:flex;gap:10px}
 .nav-btn.active,.nav-btn:hover{background:#1e293b;color:#fff}
 .sidebar-footer{margin-top:auto;border-top:1px solid #1e293b;padding-top:16px}
-.pill{background:#1e293b;padding:10px 14px;border-radius:99px;font-size:12px;font-weight:600;color:#cbd5e1}
+.pill{background:#1e293b;padding:10px 14px;border-radius:12px;font-size:12px;font-weight:600;color:#cbd5e1;display:flex;align-items:center;gap:8px}
+.pill .live-dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .main{flex:1;min-width:0}
-.topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:18px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.cotacao-badge{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:8px 14px;border-radius:12px;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.cotacao-badge .live-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.6s infinite}
 .content{padding:28px;max-width:1300px;margin:0 auto}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:22px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;display:flex;gap:14px;align-items:center}
@@ -34,7 +38,8 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--te
 .stat-value{font-size:24px;font-weight:800}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
 .input, select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff}
-.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;gap:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.form-grid-file{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .btn{border:0;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .btn-primary{background:var(--primary);color:#fff} .btn-success{background:var(--green);color:#fff} .btn-danger{background:var(--red);color:#fff} .btn-edit{background:#e0e7ff;color:#4338ca}
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;margin-top:14px}
@@ -45,6 +50,7 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 .alert-low{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:8px}
 .hover-name{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:underline}
 .tooltip-img{position:absolute;display:none;background:#fff;border:1px solid var(--border);padding:6px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:9999}
+.ml-badge{display:inline-block;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-left:6px}
 @media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;height:auto;flex-direction:row}.form-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -57,10 +63,25 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <button id="nav-produtos" class="nav-btn" onclick="showPage('produtos')">🧴 Produtos</button>
 <button id="nav-compras" class="nav-btn" onclick="showPage('compras')">🛒 Compras</button>
 </nav>
-<div class="sidebar-footer"><div class="pill"><span id="dollar-info">USD: carregando...</span></div></div>
+<div class="sidebar-footer">
+  <div class="pill">
+    <span class="live-dot"></span>
+    <span id="dollar-info-sidebar">USD: carregando...</span>
+  </div>
+</div>
 </aside>
 <main class="main">
-<header class="topbar"><h1 id="pageTitle">Dashboard</h1><input id="searchProdutos" class="input" style="max-width:280px" placeholder="🔍 Buscar"></header>
+<header class="topbar">
+  <h1 id="pageTitle">Dashboard</h1>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="cotacao-badge" title="Cotação atualizada em tempo real">
+      <span class="live-dot"></span>
+      <span>💵</span>
+      <span id="dollar-info-topbar">Carregando...</span>
+    </div>
+    <input id="searchProdutos" class="input" style="max-width:220px" placeholder="🔍 Buscar">
+  </div>
+</header>
 <div class="content">
 <div id="dashboard" class="page">
 <div class="stats-grid">
@@ -69,6 +90,11 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">Estoque Baixo</div><div class="stat-value" id="totalBaixo">0</div></div></div>
 </div>
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Alertas</h3><button id="btnImportar" class="btn btn-primary" onclick="importarGitHub()">⬇ Importar Imagens do GitHub</button></div><div id="alerts" style="margin-top:12px"></div></div>
+<div class="card">
+  <h3>🔗 Integração Mercado Livre</h3>
+  <p style="color:var(--muted);font-size:14px">Conecte sua conta do Mercado Livre para que o estoque seja baixado automaticamente a cada venda.</p>
+  <a href="/api/auth/login" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 20px;margin-top:8px">🔗 Conectar Mercado Livre</a>
+</div>
 </div>
 
 <div id="produtos" class="page hidden">
@@ -76,13 +102,17 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <h3>Novo Produto</h3>
 <div class="form-grid">
 <input id="nomeProduto" class="input" placeholder="Nome">
+<input id="skuProduto" class="input" placeholder="SKU (ex: TONMEDPAD70U)">
+<input id="mlIdProduto" class="input" placeholder="ID Mercado Livre (ex: MLB4634071405)">
 <input id="estoqueProduto" type="number" class="input" placeholder="Estoque inicial">
-<input id="minimoProduto" type="number" class="input" placeholder="Mínimo">
+</div>
+<div class="form-grid-file">
+<input id="minimoProduto" type="number" class="input" placeholder="Estoque mínimo">
 <input id="fotoProduto" type="file" class="input" accept="image/*">
 </div>
 <div style="display:flex;gap:10px;margin-top:12px;align-items:center"><img id="previewFoto" class="img-thumb hidden" style="width:56px;height:56px"><button id="btnSalvar" class="btn btn-primary" onclick="salvarProduto()" style="margin-left:auto">Salvar</button></div>
 </div>
-<div class="card"><h3>Lista</h3><div class="table-wrap"><table><thead><tr><th>Foto</th><th>Nome</th><th>Est.</th><th>Mín</th><th>USD</th><th>R$</th><th>Ações</th></tr></thead><tbody id="listaProdutos"></tbody></table></div></div>
+<div class="card"><h3>Lista</h3><div class="table-wrap"><table><thead><tr><th>Foto</th><th>Nome</th><th>SKU / ML</th><th>Est.</th><th>Mín</th><th>USD</th><th>R$</th><th>Ações</th></tr></thead><tbody id="listaProdutos"></tbody></table></div></div>
 </div>
 
 <div id="compras" class="page hidden">
@@ -108,7 +138,7 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
@@ -125,11 +155,22 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 let cotacaoAtual = 5.11;
 
-fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL").then(r=>r.json()).then(d=>{
-  cotacaoAtual = parseFloat(d.USDBRL.bid);
-  document.getElementById("dollar-info").innerText = "USD: R$ " + cotacaoAtual.toFixed(2);
-  document.getElementById("cotacaoManual").value = cotacaoAtual.toFixed(2);
-}).catch(()=>{document.getElementById("cotacaoManual").value = cotacaoAtual;});
+async function atualizarCotacao(){
+  try{
+    const r = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL");
+    const d = await r.json();
+    cotacaoAtual = parseFloat(d.USDBRL.bid);
+    const txt = "USD → R$ " + cotacaoAtual.toFixed(2);
+    document.getElementById("dollar-info-sidebar").innerText = txt;
+    document.getElementById("dollar-info-topbar").innerText = txt;
+    const cotInput = document.getElementById("cotacaoManual");
+    if(cotInput && !cotInput.value) cotInput.value = cotacaoAtual.toFixed(2);
+  }catch(e){
+    document.getElementById("dollar-info-topbar").innerText = "Offline";
+  }
+}
+atualizarCotacao();
+setInterval(atualizarCotacao, 60000); // atualiza a cada 60s
 
 window.showPage = function(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
@@ -150,6 +191,8 @@ document.getElementById("fotoProduto").addEventListener("change", function(e){
 
 window.salvarProduto = async function(){
   const nome = document.getElementById("nomeProduto").value.trim();
+  const sku = document.getElementById("skuProduto").value.trim().toUpperCase();
+  const mlId = document.getElementById("mlIdProduto").value.trim().toUpperCase();
   const estoque = parseInt(document.getElementById("estoqueProduto").value) || 0;
   const minimo = parseInt(document.getElementById("minimoProduto").value) || 1;
   const file = document.getElementById("fotoProduto").files[0];
@@ -163,8 +206,22 @@ window.salvarProduto = async function(){
       const snap = await uploadBytes(storageRef, file);
       url = await getDownloadURL(snap.ref);
     }
-    await addDoc(collection(db,"produtos"), {nome:nome, estoque:estoque, minimo:minimo, foto:url, ultimaUSD:0, ultimaBRL:0, criadoEm:Date.now()});
-    document.getElementById("nomeProduto").value=""; document.getElementById("estoqueProduto").value=""; document.getElementById("minimoProduto").value=""; document.getElementById("fotoProduto").value=""; document.getElementById("previewFoto").classList.add("hidden");
+    const dados = {nome:nome, estoque:estoque, minimo:minimo, foto:url, ultimaUSD:0, ultimaBRL:0, criadoEm:Date.now()};
+    if(sku) dados.sku = sku;
+    if(mlId) dados.ml_item_id = mlId;
+    
+    if(sku){
+      await setDoc(doc(db,"produtos",sku), dados);
+    } else {
+      await addDoc(collection(db,"produtos"), dados);
+    }
+    document.getElementById("nomeProduto").value=""; 
+    document.getElementById("skuProduto").value=""; 
+    document.getElementById("mlIdProduto").value=""; 
+    document.getElementById("estoqueProduto").value=""; 
+    document.getElementById("minimoProduto").value=""; 
+    document.getElementById("fotoProduto").value=""; 
+    document.getElementById("previewFoto").classList.add("hidden");
     alert("Produto salvo");
   }catch(err){ console.error(err); alert("Erro - verifique regras Firestore/Storage"); }
   btn.disabled = false; btn.innerText = "Salvar";
@@ -209,9 +266,12 @@ onSnapshot(collection(db,"produtos"), function(snap){
       alerts.innerHTML += '<div class="alert-low">⚠ ' + p.nome + ' - estoque ' + (p.estoque||0) + ' / mín ' + (p.minimo||0) + '</div>';
     }
     const fotoHtml = p.foto ? '<img src="' + p.foto + '" class="img-thumb">' : '🧴';
+    const skuHtml = p.sku ? '<div style="font-size:11px;color:#64748b">SKU: ' + p.sku + '</div>' : '';
+    const mlHtml = p.ml_item_id ? '<span class="ml-badge">🏷 ' + p.ml_item_id + '</span>' : '';
     const row = '<tr>' +
       '<td>' + fotoHtml + '</td>' +
       '<td>' + p.nome + '</td>' +
+      '<td>' + skuHtml + mlHtml + '</td>' +
       '<td><strong>' + (p.estoque||0) + '</strong></td>' +
       '<td>' + (p.minimo||0) + '</td>' +
       '<td>$ ' + (p.ultimaUSD||0).toFixed(2) + '</td>' +
@@ -240,7 +300,7 @@ onSnapshot(collection(db,"compras"), function(snap){
     const c = docSnap.data();
     const foto = c.foto || "";
     const safeFoto = foto.replace(/'/g, "%27");
-    const safeNome = c.produtoNome.replace(/</g,"").replace(/>/g,"");
+    const safeNome = (c.produtoNome||"").replace(/</g,"").replace(/>/g,"");
     tbody.innerHTML += '<tr><td><span class="hover-name" onmousemove="showTooltip(\'' + safeFoto + '\',event)" onmouseleave="hideTooltip()">' + safeNome + '</span></td>' +
       '<td>' + c.tipo + '</td><td>' + c.qtd + '</td>' +
       '<td>$ ' + (c.totalUSD||0).toFixed(2) + '</td><td>R$ ' + (c.totalBRL||0).toFixed(2) + '</td>' +
