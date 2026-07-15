@@ -4,13 +4,14 @@ const env = require("../../lib/env");
 
 async function getValidToken() {
   const snap = await db.collection("ml_tokens").get();
-  if (snap.empty) throw new Error("Nenhum token encontrado. Conecte o ML primeiro.");
+  if (snap.empty) throw new Error("Nenhum token encontrado. Conecte o Mercado Livre primeiro.");
   
   const tokenDoc = snap.docs[0];
   const data = tokenDoc.data();
-  const userId = data.user_id;
   
-  if (new Date(data.expires_at) > new Date()) return { token: data.access_token, userId };
+  if (new Date(data.expires_at) > new Date()) {
+    return data.access_token;
+  }
 
   const r = await fetch("https://api.mercadolibre.com/oauth/token", {
     method: "POST",
@@ -33,12 +34,12 @@ async function getValidToken() {
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
   
-  return { token: nd.access_token, userId };
+  return nd.access_token;
 }
 
 module.exports = async (req, res) => {
   try {
-    const { token } = await getValidToken();
+    const token = await getValidToken();
     
     const snap = await db.collection("produtos").get();
     const resultados = [];
@@ -47,8 +48,9 @@ module.exports = async (req, res) => {
 
     for (const docSnap of snap.docs) {
       const p = docSnap.data();
+      
       if (!p.ml_item_id) {
-        resultados.push({ nome: p.nome, status: "sem ml_item_id" });
+        resultados.push({ nome: p.nome || docSnap.id, status: "sem ml_item_id" });
         continue;
       }
 
@@ -59,25 +61,29 @@ module.exports = async (req, res) => {
         const item = await r.json();
         
         if (!r.ok) {
-          resultados.push({ nome: p.nome, status: "erro: " + (item.message || "desconhecido") });
+          resultados.push({ 
+            nome: p.nome, 
+            status: "erro API: " + (item.message || item.error || "desconhecido") 
+          });
           erros++;
           continue;
         }
 
-        const estoqueML = item.available_quantity || 0;
+        const estoqueML = Number(item.available_quantity || 0);
+        const estoqueAnterior = Number(p.estoque || 0);
         
         await docSnap.ref.update({
           estoque: estoqueML,
-          ml_titulo: item.title,
-          ml_preco: item.price,
-          ml_status: item.status,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          ml_titulo: item.title || "",
+          ml_preco: item.price || 0,
+          ml_status: item.status || "",
+          ml_permalink: item.permalink || "",
+          ultimaSincronizacaoML: admin.firestore.FieldValue.serverTimestamp()
         });
         
         resultados.push({ 
           nome: p.nome, 
-          ml_item_id: p.ml_item_id,
-          estoque_anterior: p.estoque || 0,
+          estoque_anterior: estoqueAnterior,
           estoque_novo: estoqueML,
           status: "✅ atualizado" 
         });
