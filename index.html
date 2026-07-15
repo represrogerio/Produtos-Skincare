@@ -40,22 +40,20 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--te
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
 .input, select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff}
 .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
-.form-grid-file{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.btn{border:0;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.btn{border:0;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-primary{background:var(--primary);color:#fff}
 .btn-success{background:var(--green);color:#fff}
 .btn-danger{background:var(--red);color:#fff}
-.btn-edit{background:#e0e7ff;color:#4338ca}
+.btn-warning{background:#f59e0b;color:#fff}
 .btn-big{padding:14px 20px;font-size:14px;margin:5px}
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;margin-top:14px}
 table{width:100%;border-collapse:collapse;min-width:720px}
 th{font-size:11px;text-transform:uppercase;color:var(--muted);padding:12px 14px;background:#f8fafc;border-bottom:1px solid var(--border);text-align:left}
 td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
-.img-thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border)}
 .alert-low{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:8px}
-.hover-name{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:underline}
-.tooltip-img{position:absolute;display:none;background:#fff;border:1px solid var(--border);padding:6px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:9999}
 .ml-badge{display:inline-block;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-left:6px}
+.result-box{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px;max-height:400px;overflow:auto;font-family:monospace;font-size:12px;white-space:pre-wrap}
 @media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;height:auto;flex-direction:row}.form-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -75,6 +73,7 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
   </div>
 </div>
 </aside>
+
 <main class="main">
 <header class="topbar">
   <h1 id="pageTitle">Dashboard</h1>
@@ -87,8 +86,10 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
     <input id="searchProdutos" class="input" style="max-width:220px" placeholder="🔍 Buscar">
   </div>
 </header>
+
 <div class="content">
 
+<!-- DASHBOARD -->
 <div id="dashboard" class="page">
 <div class="stats-grid">
 <div class="stat-card"><div class="stat-icon blue">📦</div><div><div class="stat-label">Total Produtos</div><div class="stat-value" id="totalProdutos">0</div></div></div>
@@ -98,19 +99,25 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 
 <div class="card">
   <h3>🔗 Integração Mercado Livre</h3>
-  <p style="color:var(--muted);font-size:14px;margin-bottom:12px"><strong>Passo 1:</strong> Limpe os produtos antigos e crie os 20 com IDs do Mercado Livre.</p>
+  <p style="color:var(--muted);font-size:14px;margin:8px 0 12px"><strong>Passo 1:</strong> Cadastrar produtos com IDs do Mercado Livre.</p>
   <button class="btn btn-danger btn-big" onclick="limparTodosProdutos()">🗑️ Limpar todos os produtos</button>
   <button class="btn btn-success btn-big" onclick="criarProdutosML()">📦 Criar 20 Produtos com ML IDs</button>
-  <p style="color:var(--muted);font-size:14px;margin-top:20px;margin-bottom:12px"><strong>Passo 2:</strong> Conecte sua conta.</p>
+  
+  <p style="color:var(--muted);font-size:14px;margin:20px 0 12px"><strong>Passo 2:</strong> Conectar sua conta do Mercado Livre.</p>
   <a href="/api/auth/login" class="btn btn-primary btn-big" style="display:inline-block;text-decoration:none">🔗 Conectar Mercado Livre</a>
+  
+  <p style="color:var(--muted);font-size:14px;margin:20px 0 12px"><strong>Passo 3:</strong> Puxar o estoque atual dos seus anúncios no ML.</p>
+  <button class="btn btn-warning btn-big" onclick="puxarEstoqueML()">🔄 Puxar Estoque do Mercado Livre</button>
+  <div id="resultSync" class="result-box hidden"></div>
 </div>
 
 <div class="card">
-  <h3>Alertas de Estoque Baixo</h3>
+  <h3>⚠️ Alertas de Estoque Baixo</h3>
   <div id="alerts" style="margin-top:12px"></div>
 </div>
 </div>
 
+<!-- PRODUTOS -->
 <div id="produtos" class="page hidden">
 <div class="card">
 <h3>Novo Produto</h3>
@@ -120,25 +127,23 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 <input id="mlIdProduto" class="input" placeholder="ID ML (MLB...)">
 <input id="estoqueProduto" type="number" class="input" placeholder="Estoque">
 </div>
-<div class="form-grid-file">
-<input id="minimoProduto" type="number" class="input" placeholder="Mínimo">
-<input id="fotoProduto" type="file" class="input" accept="image/*">
-</div>
-<div style="margin-top:12px;text-align:right">
-<button id="btnSalvar" class="btn btn-primary" onclick="salvarProduto()">Salvar Produto</button>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+<input id="minimoProduto" type="number" class="input" placeholder="Estoque mínimo">
+<button class="btn btn-primary" onclick="salvarProduto()">Salvar Produto</button>
 </div>
 </div>
 <div class="card">
 <h3>Lista de Produtos</h3>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Foto</th><th>Nome</th><th>SKU / ML</th><th>Est.</th><th>Mín</th><th>USD</th><th>R$</th><th>Ações</th></tr></thead>
+<thead><tr><th>Nome</th><th>SKU / ML</th><th>Est.</th><th>Mín</th><th>USD</th><th>R$</th><th>Ações</th></tr></thead>
 <tbody id="listaProdutos"></tbody>
 </table>
 </div>
 </div>
 </div>
 
+<!-- COMPRAS -->
 <div id="compras" class="page hidden">
 <div class="card">
 <h3>Registrar Compra Manual</h3>
@@ -167,11 +172,10 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 </div>
 </main>
 </div>
-<div id="tooltip" class="tooltip-img"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBX6_4pbYSgyT9JDvyqLgfk63yyUbF8AcE",
@@ -219,9 +223,7 @@ async function atualizarCotacao(){
     document.getElementById("dollar-info-topbar").innerText = txt;
     const cotInput = document.getElementById("cotacaoManual");
     if(cotInput && !cotInput.value) cotInput.value = cotacaoAtual.toFixed(2);
-  }catch(e){
-    document.getElementById("dollar-info-topbar").innerText = "Offline";
-  }
+  }catch(e){}
 }
 atualizarCotacao();
 setInterval(atualizarCotacao, 60000);
@@ -236,45 +238,54 @@ window.showPage = function(id){
 };
 
 window.limparTodosProdutos = async function(){
-  if(!confirm("⚠️ TEM CERTEZA? Isso vai APAGAR TODOS os produtos!")) return;
-  if(!confirm("Última chance! Clique OK para APAGAR TUDO.")) return;
-  try{
-    const snap = await getDocs(collection(db,"produtos"));
-    let count = 0;
-    for(let d of snap.docs){
-      await deleteDoc(d.ref);
-      count++;
-    }
-    alert("✅ " + count + " produtos foram apagados!");
-  }catch(e){
-    console.error(e);
-    alert("Erro: " + e.message);
-  }
+  if(!confirm("⚠️ TEM CERTEZA? Vai APAGAR TODOS os produtos!")) return;
+  if(!confirm("Última chance! OK para APAGAR TUDO.")) return;
+  const snap = await getDocs(collection(db,"produtos"));
+  let count = 0;
+  for(let d of snap.docs){ await deleteDoc(d.ref); count++; }
+  alert("✅ " + count + " produtos apagados!");
 };
 
 window.criarProdutosML = async function(){
-  if(!confirm("Vai criar os 20 produtos com SKU e ml_item_id. Continuar?")) return;
-  try{
-    let count = 0;
-    for(let p of produtosML){
-      await addDoc(collection(db,"produtos"), {
-        nome: p.nome,
-        sku: p.sku,
-        ml_item_id: p.ml_item_id,
-        estoque: 0,
-        minimo: 3,
-        foto: "",
-        ultimaUSD: 0,
-        ultimaBRL: 0,
-        criadoEm: Date.now()
-      });
-      count++;
-    }
-    alert("✅ " + count + " produtos criados com sucesso!");
-  }catch(e){
-    console.error(e);
-    alert("Erro: " + e.message);
+  if(!confirm("Vai criar 20 produtos. Continuar?")) return;
+  let count = 0;
+  for(let p of produtosML){
+    await addDoc(collection(db,"produtos"), {
+      nome: p.nome, sku: p.sku, ml_item_id: p.ml_item_id,
+      estoque: 0, minimo: 3, ultimaUSD: 0, ultimaBRL: 0, criadoEm: Date.now()
+    });
+    count++;
   }
+  alert("✅ " + count + " produtos criados!");
+};
+
+window.puxarEstoqueML = async function(){
+  if(!confirm("Vai consultar o estoque atual de cada anúncio no ML. Continuar?")) return;
+  const btn = event.target;
+  const resultBox = document.getElementById("resultSync");
+  btn.disabled = true; btn.innerText = "⏳ Consultando ML...";
+  resultBox.classList.remove("hidden");
+  resultBox.innerText = "Consultando Mercado Livre...";
+  
+  try {
+    const r = await fetch("/api/ml/sync-estoque");
+    const data = await r.json();
+    
+    if (data.sucesso) {
+      let msg = "✅ " + data.atualizados + " produtos atualizados | ❌ " + data.erros + " erros\n\n";
+      data.resultados.forEach(r => {
+        msg += "• " + r.nome + " → " + r.status;
+        if (r.estoque_novo !== undefined) msg += " (" + r.estoque_anterior + " → " + r.estoque_novo + ")";
+        msg += "\n";
+      });
+      resultBox.innerText = msg;
+    } else {
+      resultBox.innerText = "❌ Erro: " + data.erro;
+    }
+  } catch(e) {
+    resultBox.innerText = "❌ Erro: " + e.message;
+  }
+  btn.disabled = false; btn.innerText = "🔄 Puxar Estoque do Mercado Livre";
 };
 
 window.salvarProduto = async function(){
@@ -284,19 +295,12 @@ window.salvarProduto = async function(){
   const estoque = parseInt(document.getElementById("estoqueProduto").value) || 0;
   const minimo = parseInt(document.getElementById("minimoProduto").value) || 3;
   if(!nome){ alert("Digite o nome"); return; }
-  try{
-    await addDoc(collection(db,"produtos"), {
-      nome: nome, sku: sku, ml_item_id: mlId,
-      estoque: estoque, minimo: minimo, foto: "",
-      ultimaUSD: 0, ultimaBRL: 0, criadoEm: Date.now()
-    });
-    alert("Produto salvo!");
-    document.getElementById("nomeProduto").value = "";
-    document.getElementById("skuProduto").value = "";
-    document.getElementById("mlIdProduto").value = "";
-    document.getElementById("estoqueProduto").value = "";
-    document.getElementById("minimoProduto").value = "";
-  }catch(e){ alert("Erro: " + e.message); }
+  await addDoc(collection(db,"produtos"), {
+    nome, sku, ml_item_id: mlId, estoque, minimo,
+    ultimaUSD: 0, ultimaBRL: 0, criadoEm: Date.now()
+  });
+  alert("Produto salvo!");
+  ["nomeProduto","skuProduto","mlIdProduto","estoqueProduto","minimoProduto"].forEach(id => document.getElementById(id).value = "");
 };
 
 onSnapshot(collection(db,"produtos"), function(snap){
@@ -305,30 +309,31 @@ onSnapshot(collection(db,"produtos"), function(snap){
   const alerts = document.getElementById("alerts");
   tbody.innerHTML = ""; sel.innerHTML = ""; alerts.innerHTML = "";
   let total = 0, baixo = 0;
+  const items = [];
   snap.forEach(function(docSnap){
-    const p = docSnap.data(); const id = docSnap.id;
+    items.push({id: docSnap.id, data: docSnap.data()});
+  });
+  items.sort((a,b) => (a.data.nome||"").localeCompare(b.data.nome||""));
+  
+  items.forEach(function(it){
+    const p = it.data; const id = it.id;
     total += (p.estoque || 0);
     if((p.estoque||0) <= (p.minimo||0)){
       baixo++;
-      alerts.innerHTML += '<div class="alert-low">⚠ ' + p.nome + ' - estoque ' + (p.estoque||0) + ' / mín ' + (p.minimo||0) + '</div>';
+      alerts.innerHTML += '<div class="alert-low">⚠ ' + p.nome + ' — estoque: ' + (p.estoque||0) + ' / mín: ' + (p.minimo||0) + '</div>';
     }
-    const fotoHtml = p.foto ? '<img src="' + p.foto + '" class="img-thumb">' : '🧴';
     const skuHtml = p.sku ? '<div style="font-size:11px;color:#64748b">SKU: ' + p.sku + '</div>' : '';
     const mlHtml = p.ml_item_id ? '<span class="ml-badge">🏷 ' + p.ml_item_id + '</span>' : '';
-    const row = '<tr>' +
-      '<td>' + fotoHtml + '</td>' +
+    tbody.innerHTML += '<tr>' +
       '<td>' + (p.nome||"") + '</td>' +
       '<td>' + skuHtml + mlHtml + '</td>' +
       '<td><strong>' + (p.estoque||0) + '</strong></td>' +
       '<td>' + (p.minimo||0) + '</td>' +
       '<td>$ ' + (p.ultimaUSD||0).toFixed(2) + '</td>' +
       '<td>R$ ' + (p.ultimaBRL||0).toFixed(2) + '</td>' +
-      '<td><div style="display:flex;gap:6px;flex-wrap:wrap">' +
-      '<button class="btn btn-success" onclick="entradaEstoque(\'' + id + '\')">+ Entrada</button>' +
-      '<button class="btn btn-danger" onclick="saidaEstoque(\'' + id + '\')">- Saída</button>' +
-      '<button class="btn" onclick="deletarProduto(\'' + id + '\')">Excluir</button>' +
-      '</div></td></tr>';
-    tbody.innerHTML += row;
+      '<td><button class="btn btn-success" onclick="entradaEstoque(\'' + id + '\')">+</button> ' +
+      '<button class="btn btn-danger" onclick="saidaEstoque(\'' + id + '\')">−</button> ' +
+      '<button class="btn" onclick="deletarProduto(\'' + id + '\')">🗑</button></td></tr>';
     sel.innerHTML += '<option value="' + id + '">' + p.nome + '</option>';
   });
   document.getElementById("totalProdutos").innerText = snap.size;
@@ -339,8 +344,8 @@ onSnapshot(collection(db,"produtos"), function(snap){
 onSnapshot(collection(db,"compras"), function(snap){
   const tbody = document.getElementById("listaCompras");
   tbody.innerHTML = "";
-  const docs = []; snap.forEach(function(d){ docs.push(d); });
-  docs.sort(function(a,b){ return (b.data().data||"").localeCompare(a.data().data||""); });
+  const docs = []; snap.forEach(d => docs.push(d));
+  docs.sort((a,b) => (b.data().data||"").localeCompare(a.data().data||""));
   docs.forEach(function(docSnap){
     const c = docSnap.data();
     tbody.innerHTML += '<tr><td>' + (c.produtoNome||"") + '</td>' +
@@ -353,19 +358,17 @@ onSnapshot(collection(db,"compras"), function(snap){
 window.entradaEstoque = async function(id){
   const qtd = parseInt(prompt("Qtd de ENTRADA:"));
   if(!qtd) return;
-  const refDoc = doc(db,"produtos",id);
-  const s = await getDoc(refDoc);
-  await updateDoc(refDoc, {estoque: increment(qtd)});
-  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:s.data().nome, tipo:"Entrada", qtd:qtd, totalUSD:0, totalBRL:0, data:new Date().toISOString()});
+  const s = await getDoc(doc(db,"produtos",id));
+  await updateDoc(doc(db,"produtos",id), {estoque: increment(qtd)});
+  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:s.data().nome, tipo:"Entrada", qtd, totalUSD:0, totalBRL:0, data:new Date().toISOString()});
 };
 
 window.saidaEstoque = async function(id){
   const qtd = parseInt(prompt("Qtd de SAÍDA:"));
   if(!qtd) return;
-  const refDoc = doc(db,"produtos",id);
-  const s = await getDoc(refDoc);
-  await updateDoc(refDoc, {estoque: increment(-qtd)});
-  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:s.data().nome, tipo:"Saída", qtd:qtd, totalUSD:0, totalBRL:0, data:new Date().toISOString()});
+  const s = await getDoc(doc(db,"produtos",id));
+  await updateDoc(doc(db,"produtos",id), {estoque: increment(-qtd)});
+  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:s.data().nome, tipo:"Saída", qtd, totalUSD:0, totalBRL:0, data:new Date().toISOString()});
 };
 
 window.registrarCompra = async function(){
@@ -375,14 +378,12 @@ window.registrarCompra = async function(){
   const moeda = document.getElementById("moedaCompra").value;
   const cot = parseFloat(document.getElementById("cotacaoManual").value) || cotacaoAtual;
   if(!id || !qtd || !total){ alert("Preencha tudo"); return; }
-  const refDoc = doc(db,"produtos",id);
-  const snap = await getDoc(refDoc);
-  const p = snap.data();
+  const s = await getDoc(doc(db,"produtos",id));
+  const p = s.data();
   let totalUSD, totalBRL;
   if(moeda==="USD"){ totalUSD=total; totalBRL=total*cot; } else { totalBRL=total; totalUSD=total/cot; }
-  const unitUSD = totalUSD/qtd; const unitBRL = totalBRL/qtd;
-  await updateDoc(refDoc, {estoque: increment(qtd), ultimaUSD: unitUSD, ultimaBRL: unitBRL});
-  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:p.nome, tipo:"Compra", qtd:qtd, totalUSD:totalUSD, totalBRL:totalBRL, data:new Date().toISOString()});
+  await updateDoc(doc(db,"produtos",id), {estoque: increment(qtd), ultimaUSD: totalUSD/qtd, ultimaBRL: totalBRL/qtd});
+  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:p.nome, tipo:"Compra", qtd, totalUSD, totalBRL, data:new Date().toISOString()});
   alert("Compra registrada!");
 };
 
@@ -393,7 +394,7 @@ window.deletarProduto = async function(id){
 document.getElementById("searchProdutos").addEventListener("input", function(e){
   const term = e.target.value.toLowerCase();
   document.querySelectorAll("#listaProdutos tr").forEach(function(tr){
-    const name = tr.children[1] ? tr.children[1].innerText.toLowerCase() : "";
+    const name = tr.children[0] ? tr.children[0].innerText.toLowerCase() : "";
     tr.style.display = name.includes(term) ? "" : "none";
   });
 });
