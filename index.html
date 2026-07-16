@@ -53,7 +53,10 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted);padding:12px 14px;
 td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 .alert-low{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:8px}
 .ml-badge{display:inline-block;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;margin-left:6px}
-.result-box{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px;max-height:400px;overflow:auto;font-family:monospace;font-size:12px;white-space:pre-wrap}
+.hover-name{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:underline}
+.tooltip-img{position:absolute;display:none;background:#fff;border:1px solid var(--border);padding:6px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:9999;pointer-events:none}
+.danger-zone{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border)}
+.danger-zone small{color:var(--muted);display:block;margin-bottom:8px}
 @media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;height:auto;flex-direction:row}.form-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -99,19 +102,21 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 
 <div class="card">
   <h3>🔗 Integração Mercado Livre</h3>
-  <p style="color:var(--muted);font-size:14px;margin:8px 0 12px"><strong>Passo 1:</strong> Cadastrar produtos com IDs do Mercado Livre.</p>
-  <button class="btn btn-danger btn-big" onclick="limparTodosProdutos()">🗑️ Limpar todos os produtos</button>
-  <button class="btn btn-success btn-big" onclick="criarProdutosML()">📦 Criar 20 Produtos com ML IDs</button>
-  
-  <p style="color:var(--muted);font-size:14px;margin:20px 0 12px"><strong>Passo 2:</strong> Conectar sua conta do Mercado Livre.</p>
+  <p style="color:var(--muted);font-size:14px;margin:8px 0 12px"><strong>Conectar conta</strong> (só precisa fazer uma vez, ou se a conexão cair).</p>
   <a href="/api/auth/login" class="btn btn-primary btn-big" style="display:inline-block;text-decoration:none">🔗 Conectar Mercado Livre</a>
-  
-  <p style="color:var(--muted);font-size:14px;margin:20px 0 12px"><strong>Passo 3:</strong> Puxar o estoque atual dos seus anúncios no ML.</p>
+
+  <p style="color:var(--muted);font-size:14px;margin:20px 0 12px"><strong>Sincronizar agora</strong> — puxa o estoque e a foto de cada anúncio do ML.</p>
   <button class="btn btn-warning btn-big" onclick="puxarEstoqueML()">🔄 Puxar Estoque do Mercado Livre</button>
+
+  <div class="danger-zone">
+    <small>⚠️ Zona de perigo — apaga todos os produtos do sistema.</small>
+    <button class="btn btn-danger" onclick="limparTodosProdutos()">🗑️ Limpar todos os produtos</button>
   </div>
+</div>
 
 <div class="card">
   <h3>⚠️ Alertas de Estoque Baixo</h3>
+  <p style="color:var(--muted);font-size:12px;margin:4px 0 12px">Passe o mouse sobre o nome para ver a foto do produto.</p>
   <div id="alerts" style="margin-top:12px"></div>
 </div>
 </div>
@@ -133,6 +138,7 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 </div>
 <div class="card">
 <h3>Lista de Produtos</h3>
+<p style="color:var(--muted);font-size:12px;margin:4px 0 0">Passe o mouse sobre o nome para ver a foto do produto.</p>
 <div class="table-wrap">
 <table>
 <thead><tr><th>Nome</th><th>SKU / ML</th><th>Est.</th><th>Mín</th><th>USD</th><th>R$</th><th>Ações</th></tr></thead>
@@ -172,6 +178,8 @@ td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
 </main>
 </div>
 
+<div id="tooltip" class="tooltip-img"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -188,29 +196,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let cotacaoAtual = 5.11;
-
-const produtosML = [
-  { nome: "Fino Premium Touc Hair Máscara Capilar 230g", sku: "MASFINCRE230", ml_item_id: "MLB6845189982" },
-  { nome: "Medicube Pdrn Exosome 2000 Colágeno 30ml", sku: "PDRMEDSER30M", ml_item_id: "MLB4671922511" },
-  { nome: "Vt Cosmetics Cica Cream Plus 100ml", sku: "CICVTSER100", ml_item_id: "MLB7104495842" },
-  { nome: "Skin1004 Ampoule Centella De Madagascar 100ml", sku: "AMPSKISER100", ml_item_id: "MLB4852430375" },
-  { nome: "Espuma de Limpeza Ampoule Fom", sku: "AMPSKIESP125", ml_item_id: "MLB7104034322" },
-  { nome: "Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml", sku: "NO9NAMCRE10M", ml_item_id: "MLB4667484245" },
-  { nome: "Pore + Dark Spot Brightening Celimax 35ml", sku: "PORCELCRE35M", ml_item_id: "MLB6726179242" },
-  { nome: "Retinal Shor Celimax 15ml", sku: "RETCELCRE15M", ml_item_id: "MLB6725246532" },
-  { nome: "345 Relief Cream Dr Althea 50 ml", sku: "345DRACRE55M", ml_item_id: "MLB4633597133" },
-  { nome: "Probio-Cica Intensive Ampoule Skin 1004 50 ml", sku: "PROSKIAMP55M", ml_item_id: "MLB6669781578" },
-  { nome: "Light Cleasing Oil Skin 1004 200 ml", sku: "LIGSKICLE200", ml_item_id: "MLB4629595331" },
-  { nome: "Hearleaf Pore Control Cleasing Oil Anua", sku: "HEAANUCLE200", ml_item_id: "MLB4629579899" },
-  { nome: "PDRN Pink Caffeine Night Mask Medicube", sku: "PDRMEDMAS75M", ml_item_id: "MLB6662223372" },
-  { nome: "Deep Vita C Pad Medicube", sku: "DEEMEDPAD70U", ml_item_id: "MLB6662204692" },
-  { nome: "Toner Pads Zero Pore 70 Pads Medicube", sku: "TONMEDPAD70U", ml_item_id: "MLB4634071405" },
-  { nome: "Medicube Collagen Lifting Mask", sku: "COLMEDMAS1UN", ml_item_id: "MLB4633793035" },
-  { nome: "Vitamin With Niacinamide Mask OMG 1 unid", sku: "VITOMGMAS1UN", ml_item_id: "MLB4633775937" },
-  { nome: "Collagen With PDRN Mask OMG 1 unid", sku: "COLOMGMAS1UN", ml_item_id: "MLB6670185882" },
-  { nome: "Poremizing Clarifyng Mask Skin 1004 1 unid", sku: "PORSKIMAS1UN", ml_item_id: "MLB6670134408" },
-  { nome: "Deep Peptide Radiance Mask Medicube 1 unid", sku: "DEEMEDMAS1UN", ml_item_id: "MLB4633624291" }
-];
 
 async function atualizarCotacao(){
   try{
@@ -236,6 +221,18 @@ window.showPage = function(id){
   document.getElementById("pageTitle").innerText = titles[id];
 };
 
+window.showTooltip = function(url,e){
+  if(!url) return;
+  const t = document.getElementById("tooltip");
+  t.innerHTML = '<img src="' + url + '" style="width:140px;height:140px;object-fit:cover;border-radius:10px">';
+  t.style.display = "block";
+  t.style.left = (e.pageX+14) + "px";
+  t.style.top = (e.pageY+14) + "px";
+};
+window.hideTooltip = function(){
+  document.getElementById("tooltip").style.display = "none";
+};
+
 window.limparTodosProdutos = async function(){
   if(!confirm("⚠️ TEM CERTEZA? Vai APAGAR TODOS os produtos!")) return;
   if(!confirm("Última chance! OK para APAGAR TUDO.")) return;
@@ -245,25 +242,8 @@ window.limparTodosProdutos = async function(){
   alert("✅ " + count + " produtos apagados!");
 };
 
-window.criarProdutosML = async function(){
-  if(!confirm("Vai criar os 20 produtos (pulando os que já existem). Continuar?")) return;
-  const snap = await getDocs(collection(db,"produtos"));
-  const skusExistentes = new Set();
-  snap.forEach(d => { if(d.data().sku) skusExistentes.add(String(d.data().sku).toUpperCase()); });
-  let criados = 0, pulados = 0;
-  for(let p of produtosML){
-    if(skusExistentes.has(p.sku.toUpperCase())){ pulados++; continue; }
-    await addDoc(collection(db,"produtos"), {
-      nome: p.nome, sku: p.sku, ml_item_id: p.ml_item_id,
-      estoque: 0, minimo: 3, ultimaUSD: 0, ultimaBRL: 0, criadoEm: Date.now()
-    });
-    criados++;
-  }
-  alert("✅ " + criados + " criados, " + pulados + " já existiam (pulados).");
-};
-
 window.puxarEstoqueML = async function(){
-  if(!confirm("Vai consultar o estoque atual de cada anúncio no ML. Continuar?")) return;
+  if(!confirm("Vai consultar estoque e foto de cada anúncio no ML. Continuar?")) return;
   const btn = event.target;
   btn.disabled = true; btn.innerText = "⏳ Consultando ML...";
   try {
@@ -308,22 +288,24 @@ onSnapshot(collection(db,"produtos"), function(snap){
   tbody.innerHTML = ""; sel.innerHTML = ""; alerts.innerHTML = "";
   let total = 0, baixo = 0;
   const items = [];
-  snap.forEach(function(docSnap){
-    items.push({id: docSnap.id, data: docSnap.data()});
-  });
+  snap.forEach(function(docSnap){ items.push({id: docSnap.id, data: docSnap.data()}); });
   items.sort((a,b) => (a.data.nome||"").localeCompare(b.data.nome||""));
-  
+
   items.forEach(function(it){
     const p = it.data; const id = it.id;
     total += (p.estoque || 0);
+    const safeFoto = (p.foto||"").replace(/'/g,"%27").replace(/"/g,"%22");
+    const safeNome = (p.nome||"").replace(/</g,"").replace(/>/g,"");
+    const nomeHover = '<span class="hover-name" onmousemove="showTooltip(\'' + safeFoto + '\',event)" onmouseleave="hideTooltip()">' + safeNome + '</span>';
+
     if((p.estoque||0) <= (p.minimo||0)){
       baixo++;
-      alerts.innerHTML += '<div class="alert-low">⚠ ' + p.nome + ' — estoque: ' + (p.estoque||0) + ' / mín: ' + (p.minimo||0) + '</div>';
+      alerts.innerHTML += '<div class="alert-low">⚠ ' + nomeHover + ' — estoque: ' + (p.estoque||0) + ' / mín: ' + (p.minimo||0) + '</div>';
     }
     const skuHtml = p.sku ? '<div style="font-size:11px;color:#64748b">SKU: ' + p.sku + '</div>' : '';
     const mlHtml = p.ml_item_id ? '<span class="ml-badge">🏷 ' + p.ml_item_id + '</span>' : '';
     tbody.innerHTML += '<tr>' +
-      '<td>' + (p.nome||"") + '</td>' +
+      '<td>' + nomeHover + '</td>' +
       '<td>' + skuHtml + mlHtml + '</td>' +
       '<td><strong>' + (p.estoque||0) + '</strong></td>' +
       '<td>' + (p.minimo||0) + '</td>' +
@@ -332,7 +314,7 @@ onSnapshot(collection(db,"produtos"), function(snap){
       '<td><button class="btn btn-success" onclick="entradaEstoque(\'' + id + '\')">+</button> ' +
       '<button class="btn btn-danger" onclick="saidaEstoque(\'' + id + '\')">−</button> ' +
       '<button class="btn" onclick="deletarProduto(\'' + id + '\')">🗑</button></td></tr>';
-    sel.innerHTML += '<option value="' + id + '">' + p.nome + '</option>';
+    sel.innerHTML += '<option value="' + id + '">' + safeNome + '</option>';
   });
   document.getElementById("totalProdutos").innerText = snap.size;
   document.getElementById("totalEstoque").innerText = total;
