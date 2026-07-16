@@ -266,28 +266,23 @@ window.criarProdutosML = async function(){
 window.puxarEstoqueML = async function(){
   if(!confirm("Vai consultar o estoque atual de cada anúncio no ML. Continuar?")) return;
   const btn = event.target;
-  const resultBox = document.getElementById("resultSync");
   btn.disabled = true; btn.innerText = "⏳ Consultando ML...";
-  resultBox.classList.remove("hidden");
-  resultBox.innerText = "Consultando Mercado Livre...";
-  
   try {
     const r = await fetch("/api/ml/sync-estoque");
     const data = await r.json();
-    
     if (data.sucesso) {
-      let msg = "✅ " + data.atualizados + " produtos atualizados | ❌ " + data.erros + " erros\n\n";
-      data.resultados.forEach(r => {
-        msg += "• " + r.nome + " → " + r.status;
-        if (r.estoque_novo !== undefined) msg += " (" + r.estoque_anterior + " → " + r.estoque_novo + ")";
-        msg += "\n";
-      });
-      resultBox.innerText = msg;
+      let msg = "✅ " + data.atualizados + " produtos atualizados\n❌ " + data.erros + " erros";
+      if (data.erros > 0) {
+        msg += "\n\nCom erro:";
+        data.resultados.filter(x => (x.status||"").indexOf("atualizado") < 0)
+          .forEach(x => { msg += "\n• " + x.nome + " → " + x.status; });
+      }
+      alert(msg);
     } else {
-      resultBox.innerText = "❌ Erro: " + data.erro;
+      alert("Erro: " + data.erro);
     }
   } catch(e) {
-    resultBox.innerText = "❌ Erro: " + e.message;
+    alert("Erro: " + e.message);
   }
   btn.disabled = false; btn.innerText = "🔄 Puxar Estoque do Mercado Livre";
 };
