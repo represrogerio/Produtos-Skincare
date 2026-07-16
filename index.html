@@ -4,107 +4,161 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skincare Estoque Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 :root{
-  --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#64748b;
-  --border:#e2e8f0; --primary:#6366f1; --primary-dark:#4f46e5;
-  --green:#10b981; --red:#ef4444; --radius:16px; --shadow:0 4px 6px -1px rgb(0 0 0 / 0.06);
-  --shadow-lg:0 12px 24px -6px rgb(0 0 0 / 0.12);
+  --bg:#f8fafc; 
+  --card:#fff; 
+  --text:#0f172a; 
+  --muted:#64748b;
+  --border:#e2e8f0; 
+  --primary:#6366f1;
+  --green:#10b981; 
+  --red:#ef4444; 
+  --radius:14px;
 }
+
 *{box-sizing:border-box}
 body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
-.hidden{display:none !important}
+.hidden{display:none!important}
+
+/* Layout */
 .app{display:flex;min-height:100vh}
-.sidebar{width:280px;background:#0f172a;color:#fff;padding:24px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
-.brand{font-size:20px;font-weight:800;margin-bottom:32px;display:flex;align-items:center;gap:10px}
-.nav{display:flex;flex-direction:column;gap:6px}
-.nav-btn{all:unset;cursor:pointer;padding:12px 14px;border-radius:10px;color:#94a3b8;font-weight:500;font-size:14px;display:flex;gap:10px}
+.sidebar{width:260px;background:#0f172a;color:#fff;padding:24px 16px;display:flex;flex-direction:column}
+.brand{font-size:18px;font-weight:800;margin-bottom:30px}
+.nav-btn{all:unset;cursor:pointer;padding:10px 14px;border-radius:8px;color:#94a3b8;font-size:14px;margin-bottom:6px}
 .nav-btn.active,.nav-btn:hover{background:#1e293b;color:#fff}
-.sidebar-footer{margin-top:auto;border-top:1px solid #1e293b;padding-top:16px}
-.pill{background:#1e293b;padding:10px 14px;border-radius:99px;font-size:12px;font-weight:600;color:#cbd5e1}
-.main{flex:1;min-width:0}
-.topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
-.content{padding:28px;max-width:1300px;margin:0 auto}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:22px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;display:flex;gap:14px;align-items:center}
-.stat-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:22px}
-.stat-icon.blue{background:#eef2ff} .stat-icon.green{background:#ecfdf5} .stat-icon.red{background:#fef2f2}
-.stat-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}
-.stat-value{font-size:24px;font-weight:800}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
-.input, select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff}
-.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;gap:12px}
-.btn{border:0;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer}
-.btn-primary{background:var(--primary);color:#fff} .btn-success{background:var(--green);color:#fff} .btn-danger{background:var(--red);color:#fff} .btn-edit{background:#e0e7ff;color:#4338ca}
-.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;margin-top:14px}
-table{width:100%;border-collapse:collapse;min-width:720px}
-th{font-size:11px;text-transform:uppercase;color:var(--muted);padding:12px 14px;background:#f8fafc;border-bottom:1px solid var(--border);text-align:left}
-td{padding:12px 14px;font-size:13.5px;border-top:1px solid var(--border)}
-.img-thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--border)}
-.alert-low{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:8px}
-.hover-name{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:underline}
-.tooltip-img{position:absolute;display:none;background:#fff;border:1px solid var(--border);padding:6px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:9999}
-@media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;height:auto;flex-direction:row}.form-grid{grid-template-columns:1fr 1fr}}
+.main{flex:1}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+.content{padding:24px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--border);padding:16px;border-radius:var(--radius)}
+.stat h4{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+.stat strong{font-size:22px}
+
+/* Buttons */
+.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-edit{background:#e0e7ff;color:#3730a3}
+.btn:hover{opacity:.9}
+
+/* Table */
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;text-transform:uppercase;color:var(--muted);padding:10px;border-bottom:1px solid var(--border);text-align:left}
+td{padding:10px;border-top:1px solid var(--border);font-size:13px}
+.img-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover}
+
+/* Alerts */
+.alert-low{background:#fee2e2;color:#991b1c;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px}
+
+/* Tooltip */
+.tooltip{position:fixed;display:none;z-index:9999;background:#fff;border:1px solid var(--border);padding:6px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+
+.input{width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
+
 </style>
 </head>
+
 <body>
 <div class="app">
 <aside class="sidebar">
 <div class="brand">🧴 Skincare Pro</div>
-<nav class="nav">
-<button id="nav-dashboard" class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
-<button id="nav-produtos" class="nav-btn" onclick="showPage('produtos')">🧴 Produtos</button>
-<button id="nav-compras" class="nav-btn" onclick="showPage('compras')">🛒 Compras</button>
-</nav>
-<div class="sidebar-footer"><div class="pill"><span id="dollar-info">USD: carregando...</span></div></div>
-</aside>
-<main class="main">
-<header class="topbar"><h1 id="pageTitle">Dashboard</h1><input id="searchProdutos" class="input" style="max-width:280px" placeholder="🔍 Buscar"></header>
-<div class="content">
-<div id="dashboard" class="page">
-<div class="stats-grid">
-<div class="stat-card"><div class="stat-icon blue">📦</div><div><div class="stat-label">Total Produtos</div><div class="stat-value" id="totalProdutos">0</div></div></div>
-<div class="stat-card"><div class="stat-icon green">📊</div><div><div class="stat-label">Total Estoque</div><div class="stat-value" id="totalEstoque">0</div></div></div>
-<div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">Estoque Baixo</div><div class="stat-value" id="totalBaixo">0</div></div></div>
+<button id="nav-dashboard" class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+<button id="nav-produtos" class="nav-btn" onclick="showPage('produtos')">Produtos</button>
+<button id="nav-compras" class="nav-btn" onclick="showPage('compras')">Compras</button>
+<div style="margin-top:auto;font-size:12px;color:#94a3b8">
+<span id="dollar-info">USD carregando...</span>
 </div>
-<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Alertas</h3><button id="btnImportar" class="btn btn-primary" onclick="importarGitHub()">⬇ Importar Imagens do GitHub</button></div><div id="alerts" style="margin-top:12px"></div></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+<h2 id="pageTitle">Dashboard</h2>
+<input id="searchProdutos" class="input" style="max-width:240px" placeholder="Buscar produto">
+</header>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page">
+<div class="stats">
+<div class="stat"><h4>Total Produtos</h4><strong id="totalProdutos">0</strong></div>
+<div class="stat"><h4>Total Estoque</h4><strong id="totalEstoque">0</strong></div>
+<div class="stat"><h4>Estoque Baixo</h4><strong id="totalBaixo">0</strong></div>
 </div>
 
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h3>Alertas</h3>
+<button id="btnImportar" class="btn btn-primary" onclick="importarGitHub()">Importar GitHub</button>
+</div>
+<div id="alerts" style="margin-top:10px"></div>
+</div>
+</div>
+
+<!-- PRODUTOS -->
 <div id="produtos" class="page hidden">
 <div class="card">
 <h3>Novo Produto</h3>
-<div class="form-grid">
 <input id="nomeProduto" class="input" placeholder="Nome">
 <input id="estoqueProduto" type="number" class="input" placeholder="Estoque inicial">
-<input id="minimoProduto" type="number" class="input" placeholder="Mínimo">
+<input id="minimoProduto" type="number" class="input" placeholder="Estoque mínimo">
 <input id="fotoProduto" type="file" class="input" accept="image/*">
-</div>
-<div style="display:flex;gap:10px;margin-top:12px;align-items:center"><img id="previewFoto" class="img-thumb hidden" style="width:56px;height:56px"><button id="btnSalvar" class="btn btn-primary" onclick="salvarProduto()" style="margin-left:auto">Salvar</button></div>
-</div>
-<div class="card"><h3>Lista</h3><div class="table-wrap"><table><thead><tr><th>Foto</th><th>Nome</th><th>Est.</th><th>Mín</th><th>USD</th><th>R$</th><th>Ações</th></tr></thead><tbody id="listaProdutos"></tbody></table></div></div>
+<button class="btn btn-primary" onclick="salvarProduto()">Salvar</button>
 </div>
 
+<div class="card">
+<h3>Lista</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Foto</th>
+<th>Nome</th>
+<th>Estoque</th>
+<th>Mín</th>
+<th>USD</th>
+<th>R$</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="listaProdutos"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- COMPRAS -->
 <div id="compras" class="page hidden">
 <div class="card">
 <h3>Registrar Compra</h3>
-<div class="form-grid">
 <select id="produtoCompra" class="input"></select>
 <input id="quantidadeCompra" type="number" class="input" placeholder="Qtd">
-<select id="moedaCompra" class="input"><option value="BRL">Real R$</option><option value="USD">Dólar</option></select>
+<select id="moedaCompra" class="input">
+<option value="BRL">Real</option>
+<option value="USD">Dólar</option>
+</select>
 <input id="valorCompra" type="number" step="0.01" class="input" placeholder="Valor TOTAL">
+<label style="font-size:12px">Cotação</label>
+<input id="cotacaoManual" type="number" step="0.01" class="input">
+<button class="btn btn-primary" onclick="registrarCompra()">Registrar</button>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
-<div><label style="font-size:12px;font-weight:600">Cotação editável</label><input id="cotacaoManual" type="number" step="0.01" class="input"></div>
-<button class="btn btn-primary" style="padding:12px" onclick="registrarCompra()">Registrar</button>
 </div>
-</div>
-<div class="card"><h3>Histórico</h3><div class="table-wrap"><table><thead><tr><th>Produto</th><th>Tipo</th><th>Qtd</th><th>USD</th><th>R$</th><th>Data</th></tr></thead><tbody id="listaCompras"></tbody></table></div></div>
-</div>
+
 </div>
 </main>
 </div>
-<div id="tooltip" class="tooltip-img"></div>
+
+<img id="tooltip" class="tooltip">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -123,190 +177,211 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
 let cotacaoAtual = 5.11;
 
-fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL").then(r=>r.json()).then(d=>{
+// Cotação automática
+fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
+.then(r=>r.json())
+.then(d=>{
   cotacaoAtual = parseFloat(d.USDBRL.bid);
-  document.getElementById("dollar-info").innerText = "USD: R$ " + cotacaoAtual.toFixed(2);
-  document.getElementById("cotacaoManual").value = cotacaoAtual.toFixed(2);
-}).catch(()=>{document.getElementById("cotacaoManual").value = cotacaoAtual;});
+  document.getElementById("dollar-info").innerText =
+    "USD: R$ " + cotacaoAtual.toFixed(2);
+  document.getElementById("cotacaoManual").value =
+    cotacaoAtual.toFixed(2);
+});
 
+// Navegação
 window.showPage = function(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById("nav-"+id).classList.add("active");
-  const titles = {dashboard:"Dashboard",produtos:"Produtos",compras:"Compras"};
-  document.getElementById("pageTitle").innerText = titles[id];
+  document.getElementById("pageTitle").innerText =
+    id.charAt(0).toUpperCase()+id.slice(1);
 };
 
-document.getElementById("fotoProduto").addEventListener("change", function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const prev = document.getElementById("previewFoto");
-  prev.src = URL.createObjectURL(file);
-  prev.classList.remove("hidden");
-});
-
+// Salvar Produto
 window.salvarProduto = async function(){
   const nome = document.getElementById("nomeProduto").value.trim();
-  const estoque = parseInt(document.getElementById("estoqueProduto").value) || 0;
-  const minimo = parseInt(document.getElementById("minimoProduto").value) || 1;
+  const estoque = parseInt(document.getElementById("estoqueProduto").value)||0;
+  const minimo = parseInt(document.getElementById("minimoProduto").value)||1;
   const file = document.getElementById("fotoProduto").files[0];
-  if(!nome){ alert("Digite o nome"); return; }
-  const btn = document.getElementById("btnSalvar");
-  btn.disabled = true; btn.innerText = "Salvando...";
-  try{
-    let url = "";
-    if(file){
-      const storageRef = ref(storage, "produtos/" + Date.now() + "_" + file.name);
-      const snap = await uploadBytes(storageRef, file);
-      url = await getDownloadURL(snap.ref);
-    }
-    await addDoc(collection(db,"produtos"), {nome:nome, estoque:estoque, minimo:minimo, foto:url, ultimaUSD:0, ultimaBRL:0, criadoEm:Date.now()});
-    document.getElementById("nomeProduto").value=""; document.getElementById("estoqueProduto").value=""; document.getElementById("minimoProduto").value=""; document.getElementById("fotoProduto").value=""; document.getElementById("previewFoto").classList.add("hidden");
-    alert("Produto salvo");
-  }catch(err){ console.error(err); alert("Erro - verifique regras Firestore/Storage"); }
-  btn.disabled = false; btn.innerText = "Salvar";
+
+  if(!nome) return alert("Informe o nome");
+
+  let url="";
+  if(file){
+    const storageRef = ref(storage,"produtos/"+Date.now()+"_"+file.name);
+    const snap = await uploadBytes(storageRef,file);
+    url = await getDownloadURL(snap.ref);
+  }
+
+  await addDoc(collection(db,"produtos"),{
+    nome:nome,
+    estoque:estoque,
+    minimo:minimo,
+    foto:url,
+    ultimaUSD:0,
+    ultimaBRL:0
+  });
+
+  alert("Produto salvo!");
 };
 
+// Importar com anti-duplicado
 window.importarGitHub = async function(){
-  const btn = document.getElementById("btnImportar");
-  btn.disabled = true; btn.innerText = "Importando...";
-  try{
-    const owner = "represrogerio"; const repo = "Controle-de-Compras";
-    const repoInfo = await (await fetch("https://api.github.com/repos/" + owner + "/" + repo)).json();
-    const branch = repoInfo.default_branch || "main";
-    const res = await fetch("https://api.github.com/repos/" + owner + "/" + repo + "/contents?ref=" + branch);
-    const files = await res.json();
-    const snap = await getDocs(collection(db,"produtos"));
-    const existentes = []; snap.forEach(function(d){ existentes.push(d.data().nome); });
-    let count = 0;
-    for(let i=0;i<files.length;i++){
-      const f = files[i];
-      if(/\.(png|jpg|jpeg|webp)$/i.test(f.name)){
-        const nome = f.name.replace(/\.(png|jpg|jpeg|webp)$/i,"").replace(/[_-]/g," ").trim();
-        if(existentes.indexOf(nome) >= 0) continue;
-        await addDoc(collection(db,"produtos"), {nome:nome, estoque:0, minimo:1, foto:f.download_url, ultimaUSD:0, ultimaBRL:0, criadoEm:Date.now()});
-        count++;
+
+  const owner="represrogerio";
+  const repo="Controle-de-Compras";
+
+  const repoInfo = await (await fetch(
+    `https://api.github.com/repos/${owner}/${repo}`
+  )).json();
+
+  const branch = repoInfo.default_branch;
+
+  const files = await (await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents?ref=${branch}`
+  )).json();
+
+  const existentes=[];
+  const snap = await getDocs(collection(db,"produtos"));
+  snap.forEach(d=>{
+    existentes.push(d.data().nome.toLowerCase().trim());
+  });
+
+  let criados=0;
+
+  for(const f of files){
+    if(/\.(png|jpg|jpeg|webp)$/i.test(f.name)){
+      const nome = f.name
+        .replace(/\.(png|jpg|jpeg|webp)$/i,"")
+        .replace(/[_\-\.]+/g," ")
+        .trim();
+
+      if(!existentes.includes(nome.toLowerCase())){
+        await addDoc(collection(db,"produtos"),{
+          nome:nome,
+          estoque:0,
+          minimo:1,
+          foto:f.download_url,
+          ultimaUSD:0,
+          ultimaBRL:0
+        });
+        criados++;
       }
     }
-    alert("Importados: " + count);
-  }catch(e){ console.error(e); alert("Erro importar: " + e.message); }
-  btn.disabled = false; btn.innerText = "⬇ Importar Imagens do GitHub";
+  }
+
+  alert("Importados: "+criados);
 };
 
-onSnapshot(collection(db,"produtos"), function(snap){
-  const tbody = document.getElementById("listaProdutos");
-  const sel = document.getElementById("produtoCompra");
-  const alerts = document.getElementById("alerts");
-  tbody.innerHTML = ""; sel.innerHTML = ""; alerts.innerHTML = "";
-  let total = 0;
-  snap.forEach(function(docSnap){
-    const p = docSnap.data(); const id = docSnap.id;
-    total += (p.estoque || 0);
-    if((p.estoque||0) <= (p.minimo||0)){
-      alerts.innerHTML += '<div class="alert-low">⚠ ' + p.nome + ' - estoque ' + (p.estoque||0) + ' / mín ' + (p.minimo||0) + '</div>';
+// Listener Produtos
+onSnapshot(collection(db,"produtos"), snap=>{
+  const tbody=document.getElementById("listaProdutos");
+  const sel=document.getElementById("produtoCompra");
+  const alerts=document.getElementById("alerts");
+  tbody.innerHTML=""; sel.innerHTML=""; alerts.innerHTML="";
+  let total=0, baixo=0;
+
+  snap.forEach(d=>{
+    const p=d.data();
+    const id=d.id;
+    total+=p.estoque||0;
+
+    if((p.estoque||0)<=(p.minimo||0)){
+      baixo++;
+      alerts.innerHTML+=`
+      <div class="alert-low"
+        onmousemove="showTooltip('${p.foto}',event)"
+        onmouseleave="hideTooltip()">
+        ⚠ ${p.nome} (${p.estoque}/${p.minimo})
+      </div>`;
     }
-    const fotoHtml = p.foto ? '<img src="' + p.foto + '" class="img-thumb">' : '🧴';
-    const row = '<tr>' +
-      '<td>' + fotoHtml + '</td>' +
-      '<td>' + p.nome + '</td>' +
-      '<td><strong>' + (p.estoque||0) + '</strong></td>' +
-      '<td>' + (p.minimo||0) + '</td>' +
-      '<td>$ ' + (p.ultimaUSD||0).toFixed(2) + '</td>' +
-      '<td>R$ ' + (p.ultimaBRL||0).toFixed(2) + '</td>' +
-      '<td><div style="display:flex;gap:6px;flex-wrap:wrap">' +
-      '<button class="btn btn-success" onclick="entradaEstoque(\'' + id + '\')">+ Entrada</button>' +
-      '<button class="btn btn-danger" onclick="saidaEstoque(\'' + id + '\')">- Saída</button>' +
-      '<button class="btn btn-edit" onclick="editarPreco(\'' + id + '\')">Preço</button>' +
-      '<button class="btn" onclick="deletarProduto(\'' + id + '\')">Excluir</button>' +
-      '</div></td></tr>';
-    tbody.innerHTML += row;
-    sel.innerHTML += '<option value="' + id + '">' + p.nome + '</option>';
+
+    tbody.innerHTML+=`
+    <tr>
+      <td>${p.foto?`<img src="${p.foto}" class="img-thumb">`:"🧴"}</td>
+      <td>${p.nome}</td>
+      <td>${p.estoque||0}</td>
+      <td>${p.minimo||0}</td>
+      <td>$ ${(p.ultimaUSD||0).toFixed(2)}</td>
+      <td>R$ ${(p.ultimaBRL||0).toFixed(2)}</td>
+      <td>
+        <button class="btn btn-success" onclick="entrada('${id}')">+ Entrada</button>
+        <button class="btn btn-danger" onclick="saida('${id}')">- Saída</button>
+      </td>
+    </tr>`;
+
+    sel.innerHTML+=`<option value="${id}">${p.nome}</option>`;
   });
-  document.getElementById("totalProdutos").innerText = snap.size;
-  document.getElementById("totalEstoque").innerText = total;
-  let baixo = 0; snap.forEach(function(d){ if((d.data().estoque||0) <= (d.data().minimo||0)) baixo++; });
-  document.getElementById("totalBaixo").innerText = baixo;
+
+  document.getElementById("totalProdutos").innerText=snap.size;
+  document.getElementById("totalEstoque").innerText=total;
+  document.getElementById("totalBaixo").innerText=baixo;
 });
 
-onSnapshot(collection(db,"compras"), function(snap){
-  const tbody = document.getElementById("listaCompras");
-  tbody.innerHTML = "";
-  const docs = []; snap.forEach(function(d){ docs.push(d); });
-  docs.sort(function(a,b){ return (b.data().data||"").localeCompare(a.data().data||""); });
-  docs.forEach(function(docSnap){
-    const c = docSnap.data();
-    const foto = c.foto || "";
-    const safeFoto = foto.replace(/'/g, "%27");
-    const safeNome = c.produtoNome.replace(/</g,"").replace(/>/g,"");
-    tbody.innerHTML += '<tr><td><span class="hover-name" onmousemove="showTooltip(\'' + safeFoto + '\',event)" onmouseleave="hideTooltip()">' + safeNome + '</span></td>' +
-      '<td>' + c.tipo + '</td><td>' + c.qtd + '</td>' +
-      '<td>$ ' + (c.totalUSD||0).toFixed(2) + '</td><td>R$ ' + (c.totalBRL||0).toFixed(2) + '</td>' +
-      '<td>' + (c.data ? new Date(c.data).toLocaleDateString("pt-BR") : "") + '</td></tr>';
-  });
-});
+// Entrada/Saída
+window.entrada = async function(id){
+  const qtd=parseInt(prompt("Qtd entrada:"));
+  if(!qtd) return;
+  await updateDoc(doc(db,"produtos",id),{estoque:increment(qtd)});
+};
 
-window.entradaEstoque = async function(id){
-  const qtd = parseInt(prompt("Qtd de ENTRADA:"));
+window.saida = async function(id){
+  const qtd=parseInt(prompt("Qtd saída:"));
   if(!qtd) return;
-  const refDoc = doc(db,"produtos",id);
-  const s = await getDoc(refDoc);
-  await updateDoc(refDoc, {estoque: increment(qtd)});
-  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:s.data().nome, foto:s.data().foto||"", tipo:"Entrada", qtd:qtd, totalUSD:0, totalBRL:0, data:new Date().toISOString()});
+  await updateDoc(doc(db,"produtos",id),{estoque:increment(-qtd)});
 };
-window.saidaEstoque = async function(id){
-  const qtd = parseInt(prompt("Qtd de SAÍDA:"));
-  if(!qtd) return;
-  const refDoc = doc(db,"produtos",id);
-  const s = await getDoc(refDoc);
-  await updateDoc(refDoc, {estoque: increment(-qtd)});
-  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:s.data().nome, foto:s.data().foto||"", tipo:"Saída", qtd:qtd, totalUSD:0, totalBRL:0, data:new Date().toISOString()});
-};
-window.editarPreco = async function(id){
-  const cot = parseFloat(document.getElementById("cotacaoManual").value) || cotacaoAtual;
-  const usd = prompt("Novo preço unitário USD (cotação R$ " + cot + "):");
-  if(usd===null) return;
-  const brlInput = prompt("Novo preço unitário R$ (vazio = calcula automático):");
-  let u = parseFloat(usd); let b = brlInput ? parseFloat(brlInput) : null;
-  if(isNaN(u)) return;
-  if(!b) b = u * cot;
-  await updateDoc(doc(db,"produtos",id), {ultimaUSD:u, ultimaBRL:b});
-};
+
+// Compra
 window.registrarCompra = async function(){
-  const id = document.getElementById("produtoCompra").value;
-  const qtd = parseInt(document.getElementById("quantidadeCompra").value);
-  const total = parseFloat(document.getElementById("valorCompra").value);
-  const moeda = document.getElementById("moedaCompra").value;
-  const cot = parseFloat(document.getElementById("cotacaoManual").value) || cotacaoAtual;
-  if(!id || !qtd || !total){ alert("Preencha produto, qtd e valor"); return; }
-  const refDoc = doc(db,"produtos",id);
-  const snap = await getDoc(refDoc);
-  const p = snap.data();
-  let totalUSD, totalBRL;
-  if(moeda==="USD"){ totalUSD=total; totalBRL=total*cot; } else { totalBRL=total; totalUSD=total/cot; }
-  const unitUSD = totalUSD/qtd; const unitBRL = totalBRL/qtd;
-  await updateDoc(refDoc, {estoque: increment(qtd), ultimaUSD: unitUSD, ultimaBRL: unitBRL});
-  await addDoc(collection(db,"compras"), {produtoId:id, produtoNome:p.nome, foto:p.foto||"", tipo:"Compra", qtd:qtd, totalUSD:totalUSD, totalBRL:totalBRL, unitUSD:unitUSD, unitBRL:unitBRL, cotacao:cot, data:new Date().toISOString()});
-  alert("Compra registrada R$ " + totalBRL.toFixed(2));
-  document.getElementById("quantidadeCompra").value=""; document.getElementById("valorCompra").value="";
-};
-window.deletarProduto = async function(id){ if(confirm("Excluir produto?")){ await deleteDoc(doc(db,"produtos",id)); } };
-window.showTooltip = function(url,e){
-  if(!url) return;
-  const t = document.getElementById("tooltip");
-  t.innerHTML = '<img src="' + url + '" style="width:130px;height:130px;object-fit:cover;border-radius:10px">';
-  t.style.display = "block"; t.style.left = (e.pageX+12) + "px"; t.style.top = (e.pageY+12) + "px";
-};
-window.hideTooltip = function(){ document.getElementById("tooltip").style.display="none"; };
-document.getElementById("searchProdutos").addEventListener("input", function(e){
-  const term = e.target.value.toLowerCase();
-  document.querySelectorAll("#listaProdutos tr").forEach(function(tr){
-    const name = tr.children[1] ? tr.children[1].innerText.toLowerCase() : "";
-    tr.style.display = name.includes(term) ? "" : "none";
+  const id=document.getElementById("produtoCompra").value;
+  const qtd=parseInt(document.getElementById("quantidadeCompra").value);
+  const total=parseFloat(document.getElementById("valorCompra").value);
+  const moeda=document.getElementById("moedaCompra").value;
+  const cot=parseFloat(document.getElementById("cotacaoManual").value)||cotacaoAtual;
+
+  if(!id||!qtd||!total) return alert("Preencha tudo");
+
+  const refDoc=doc(db,"produtos",id);
+  const snap=await getDoc(refDoc);
+  const p=snap.data();
+
+  let totalUSD,totalBRL;
+
+  if(moeda==="USD"){
+    totalUSD=total;
+    totalBRL=total*cot;
+  }else{
+    totalBRL=total;
+    totalUSD=total/cot;
+  }
+
+  await updateDoc(refDoc,{
+    estoque:increment(qtd),
+    ultimaUSD:(totalUSD/qtd),
+    ultimaBRL:(totalBRL/qtd)
   });
-});
+
+  alert("Compra registrada!");
+};
+
+// Tooltip
+window.showTooltip=function(url,e){
+  if(!url) return;
+  const t=document.getElementById("tooltip");
+  t.innerHTML=`<img src="${url}" style="width:130px;height:130px;object-fit:cover;border-radius:10px">`;
+  t.style.display="block";
+  t.style.left=(e.pageX+10)+"px";
+  t.style.top=(e.pageY+10)+"px";
+};
+
+window.hideTooltip=function(){
+  document.getElementById("tooltip").style.display="none";
+};
 </script>
+
 </body>
 </html>
