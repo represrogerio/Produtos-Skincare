@@ -47,7 +47,9 @@ td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
 tr:hover td{background:#f8fafc}
 .img-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover}
 
-.alert-low{background:#fee2e2;color:#991b1c;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px;cursor:pointer}
+.alert-low{background:#fee2e2;color:#991b1c;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.alert-low .alert-info{flex:1}
+.alert-low .badge-dup{background:#991b1c;color:#fff;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
 .tooltip{position:fixed;display:none;z-index:9999;background:#fff;border:1px solid var(--border);padding:6px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 
 .input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
@@ -63,6 +65,8 @@ tr:hover td{background:#f8fafc}
 
 .sku-tag{font-size:10px;background:#f1f5f9;color:#475569;padding:2px 6px;border-radius:4px;font-weight:600;font-family:monospace}
 .ml-tag{font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-weight:600;font-family:monospace}
+
+.dup-warning{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:10px;border-radius:8px;font-size:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 </style>
 </head>
 
@@ -103,11 +107,13 @@ tr:hover td{background:#f8fafc}
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
 <h3 style="margin:0">Alertas de Reposição</h3>
-<div style="display:flex;gap:6px">
+<div style="display:flex;gap:6px;flex-wrap:wrap">
 <button class="btn btn-primary" id="btnImportar" onclick="importarGitHub()">Importar do GitHub</button>
 <button class="btn btn-warning" onclick="abrirSincronizarSKU()">🔄 Sincronizar SKU/ML</button>
 </div>
 </div>
+<!-- Aviso duplicidades detectadas -->
+<div id="dupWarning"></div>
 <div id="alerts"></div>
 </div>
 
@@ -133,7 +139,10 @@ tr:hover td{background:#f8fafc}
 </div>
 
 <div class="card">
-<h3 style="margin-top:0">Estoque</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<h3 style="margin:0">Estoque</h3>
+<button class="btn btn-danger" onclick="removerDuplicidadesGlobal()">🧹 Remover Duplicidades</button>
+</div>
 <div class="table-wrap">
 <table id="tabelaProdutosExport">
 <thead>
@@ -253,26 +262,18 @@ tr:hover td{background:#f8fafc}
 <h3>🔄 Sincronizar SKU / ML ID</h3>
 <p style="font-size:13px;color:var(--muted);margin-top:0">
 Cole abaixo os dados da planilha Excel no formato:<br>
-<strong>Nome do Produto ⇥ ml_item_id ⇥ SKU</strong> (separados por TAB ou ; ou ,)<br>
-Isto irá <strong style="color:var(--green)">atualizar produtos existentes</strong>, 
-<strong style="color:var(--primary)">criar novos</strong> e 
-<strong style="color:var(--red)">remover duplicidades</strong>.
+<strong>Nome do Produto ⇥ ml_item_id ⇥ SKU</strong> (separados por TAB ou ; ou ,)
 </p>
-
 <div style="display:flex;gap:6px;margin-bottom:10px">
 <button class="btn btn-edit" onclick="carregarExemploSKU()" style="font-size:11px">📋 Carregar Exemplo</button>
 <button class="btn btn-danger" onclick="document.getElementById('dadosSKU').value=''" style="font-size:11px">🗑️ Limpar</button>
 </div>
-
 <textarea id="dadosSKU" class="input" rows="10" style="font-family:monospace;font-size:11px;resize:vertical"
 placeholder="Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE230
-Medicube Pdrn Exosome 2000 Colágeno 30ml	4671922511	PDRMEDSER30M
 ..."></textarea>
-
 <div style="background:#fef3c7;border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#92400e">
-⚠️ <strong>Atenção:</strong> Produtos duplicados (mesmo nome ou mesmo SKU) serão mesclados/removidos automaticamente. Estoque e histórico do primeiro produto encontrado serão mantidos.
+⚠️ Duplicidades serão mescladas automaticamente. Estoque do primeiro produto encontrado será mantido (somando dos duplicados).
 </div>
-
 <div style="display:flex;gap:10px">
 <button class="btn btn-success" style="flex:1" onclick="processarSincronizacaoSKU()">✅ Processar</button>
 <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
@@ -285,7 +286,7 @@ Medicube Pdrn Exosome 2000 Colágeno 30ml	4671922511	PDRMEDSER30M
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBX6_4pbYSgyT9JDvyqLgfk63yyUbF8AcE",
@@ -391,17 +392,17 @@ window.importarGitHub = async function() {
     const files = await (await fetch(`https://api.github.com/repos/represrogerio/Controle-de-Compras/contents?ref=${branch}`)).json();
     const existentes = [];
     const snap = await getDocs(collection(db, "produtos"));
-    snap.forEach(d => existentes.push(d.data().nome.trim().toLowerCase()));
+    snap.forEach(d => existentes.push(normalizarNome(d.data().nome)));
     let criados = 0;
     for (const f of files) {
       if (/\.(png|jpg|jpeg|webp)$/i.test(f.name)) {
         const nome = f.name.replace(/\.(png|jpg|jpeg|webp)$/i, "").replace(/[_\-\.]+/g, " ").trim();
-        if (!existentes.includes(nome.toLowerCase())) {
+        if (!existentes.includes(normalizarNome(nome))) {
           await addDoc(collection(db, "produtos"), {
             nome, estoque: 0, minimo: 1, foto: f.download_url,
             ultimaUSD: 0, ultimaBRL: 0, custoManual: false, sku: "", mlItemId: ""
           });
-          existentes.push(nome.toLowerCase());
+          existentes.push(normalizarNome(nome));
           criados++;
         }
       }
@@ -412,14 +413,96 @@ window.importarGitHub = async function() {
 };
 
 // ==========================================================
-// 🔄 SINCRONIZAR SKU / ML ID + Remover Duplicidades
+// FUNÇÃO GLOBAL DE REMOÇÃO DE DUPLICIDADES
+// (usada no botão da tela Produtos e como base para dedupagem)
+// ==========================================================
+function normalizarNome(str) {
+  return (str || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+window.removerDuplicidadesGlobal = async function() {
+  if (!confirm("🧹 Remover duplicidades?\n\nProdutos com mesmo nome (ou mesmo SKU) serão mesclados. Estoques serão somados no principal.")) return;
+
+  const snap = await getDocs(collection(db, "produtos"));
+  const produtos = [];
+  snap.forEach(d => produtos.push({ id: d.id, ...d.data() }));
+
+  let removidos = 0;
+
+  // Duplicidade por nome
+  const gruposNome = {};
+  produtos.forEach(p => {
+    const k = normalizarNome(p.nome);
+    if (!k) return;
+    if (!gruposNome[k]) gruposNome[k] = [];
+    gruposNome[k].push(p);
+  });
+
+  for (const k in gruposNome) {
+    const g = gruposNome[k];
+    if (g.length > 1) {
+      // Mantém o de maior estoque (empate → primeiro)
+      g.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
+      const manter = g[0];
+      let estTotal = manter.estoque || 0;
+      for (let i = 1; i < g.length; i++) {
+        estTotal += (g[i].estoque || 0);
+        await deleteDoc(doc(db, "produtos", g[i].id));
+        removidos++;
+      }
+      if (estTotal !== (manter.estoque || 0)) {
+        await updateDoc(doc(db, "produtos", manter.id), { estoque: estTotal });
+      }
+    }
+  }
+
+  // Recarrega e verifica por SKU
+  const snap2 = await getDocs(collection(db, "produtos"));
+  const produtos2 = [];
+  snap2.forEach(d => produtos2.push({ id: d.id, ...d.data() }));
+
+  const gruposSku = {};
+  produtos2.forEach(p => {
+    if (p.sku && p.sku.trim()) {
+      const k = p.sku.toUpperCase().trim();
+      if (!gruposSku[k]) gruposSku[k] = [];
+      gruposSku[k].push(p);
+    }
+  });
+
+  for (const k in gruposSku) {
+    const g = gruposSku[k];
+    if (g.length > 1) {
+      g.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
+      const manter = g[0];
+      let estTotal = manter.estoque || 0;
+      for (let i = 1; i < g.length; i++) {
+        estTotal += (g[i].estoque || 0);
+        await deleteDoc(doc(db, "produtos", g[i].id));
+        removidos++;
+      }
+      if (estTotal !== (manter.estoque || 0)) {
+        await updateDoc(doc(db, "produtos", manter.id), { estoque: estTotal });
+      }
+    }
+  }
+
+  alert(`✅ Limpeza concluída!\n🗑️ Duplicidades removidas: ${removidos}`);
+};
+
+// ==========================================================
+// SINCRONIZAR SKU / ML ID
 // ==========================================================
 window.abrirSincronizarSKU = function() {
   document.getElementById("modalSincSKU").classList.add("active");
 };
 
 window.carregarExemploSKU = function() {
-  const exemplo = `Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE230
+  document.getElementById("dadosSKU").value = `Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE230
 Medicube Pdrn Exosome 2000 Colágeno 30ml	4671922511	PDRMEDSER30M
 Vt Cosmetics Cica Cream Plus 100ml	7104495842	CICVTSER100
 Skin1004 Ampoule Centella De Madagascar 100ml	4852430375	AMPSKISER100
@@ -439,27 +522,15 @@ Vitamin With Niacinamide Mask OMG 1 unid	4633775937	VITOMGMAS1UN
 Collagen With PDRN Mask OMG	6670185682	COLOMGMAS1UN
 Poremizing Clarifyng Mask Skin 1004 1 Unid	6670134408	PORSKIMAS1UN
 Deep Peptide Radiance Mask Medicube 1 unid	4633624291	DEEMEDMAS1UN`;
-  document.getElementById("dadosSKU").value = exemplo;
 };
-
-// Normaliza nome (remove acentos, espaços extras, deixa minúsculo)
-function normalizarNome(str) {
-  return (str || "")
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 window.processarSincronizacaoSKU = async function() {
   const raw = document.getElementById("dadosSKU").value.trim();
   if (!raw) return alert("Cole os dados primeiro!");
 
-  // Parse: aceita tab, ; ou vírgula
   const linhas = raw.split("\n").map(l => l.trim()).filter(l => l);
   const registros = [];
   for (const linha of linhas) {
-    // tenta TAB primeiro; se não achar, tenta ; ou ,
     let partes = linha.split("\t");
     if (partes.length < 3) partes = linha.split(";");
     if (partes.length < 3) partes = linha.split(",");
@@ -470,91 +541,67 @@ window.processarSincronizacaoSKU = async function() {
     if (nome && sku) registros.push({ nome, mlItemId, sku });
   }
 
-  if (registros.length === 0) {
-    return alert("Nenhuma linha válida encontrada. Verifique o formato.");
-  }
+  if (registros.length === 0) return alert("Nenhuma linha válida.");
+  if (!confirm(`Encontradas ${registros.length} linhas.\nProcessar agora?`)) return;
 
-  if (!confirm(`Encontradas ${registros.length} linhas.\nDeseja processar agora?`)) return;
-
-  // Buscar todos os produtos existentes
+  // Antes de sincronizar, remove duplicidades existentes
   const snap = await getDocs(collection(db, "produtos"));
   const produtos = [];
   snap.forEach(d => produtos.push({ id: d.id, ...d.data() }));
 
-  let atualizados = 0;
-  let criados = 0;
-  let duplicadosRemovidos = 0;
+  let atualizados = 0, criados = 0, duplicadosRemovidos = 0;
 
-  // ==== FASE 1: Remover duplicidades já existentes no banco ====
-  // Agrupa por nome normalizado
   const grupos = {};
   produtos.forEach(p => {
-    const chave = normalizarNome(p.nome);
-    if (!grupos[chave]) grupos[chave] = [];
-    grupos[chave].push(p);
+    const k = normalizarNome(p.nome);
+    if (!grupos[k]) grupos[k] = [];
+    grupos[k].push(p);
   });
 
-  for (const chave in grupos) {
-    const grupo = grupos[chave];
-    if (grupo.length > 1) {
-      // Ordena: mantém o que tem MAIS estoque (ou o primeiro)
-      grupo.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
-      const manter = grupo[0];
-      // Soma estoques dos duplicados no principal
-      let estoqueTotal = manter.estoque || 0;
-      for (let i = 1; i < grupo.length; i++) {
-        estoqueTotal += (grupo[i].estoque || 0);
-        await deleteDoc(doc(db, "produtos", grupo[i].id));
+  for (const k in grupos) {
+    const g = grupos[k];
+    if (g.length > 1) {
+      g.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
+      const manter = g[0];
+      let estTotal = manter.estoque || 0;
+      for (let i = 1; i < g.length; i++) {
+        estTotal += (g[i].estoque || 0);
+        await deleteDoc(doc(db, "produtos", g[i].id));
         duplicadosRemovidos++;
       }
-      if (estoqueTotal !== (manter.estoque || 0)) {
-        await updateDoc(doc(db, "produtos", manter.id), { estoque: estoqueTotal });
-        manter.estoque = estoqueTotal;
+      if (estTotal !== (manter.estoque || 0)) {
+        await updateDoc(doc(db, "produtos", manter.id), { estoque: estTotal });
+        manter.estoque = estTotal;
       }
     }
   }
 
-  // Recarrega lista sem duplicidades
   const snap2 = await getDocs(collection(db, "produtos"));
   const produtosLimpos = [];
   snap2.forEach(d => produtosLimpos.push({ id: d.id, ...d.data() }));
 
-  // ==== FASE 2: Sincronizar com a planilha ====
   for (const reg of registros) {
     const nomeNorm = normalizarNome(reg.nome);
-
-    // Procura por nome normalizado OU por SKU idêntico
     const existente = produtosLimpos.find(p =>
       normalizarNome(p.nome) === nomeNorm ||
       (p.sku && p.sku.toUpperCase() === reg.sku.toUpperCase())
     );
-
     if (existente) {
-      // Atualiza SKU, ML ID e o nome oficial da planilha
       await updateDoc(doc(db, "produtos", existente.id), {
-        nome: reg.nome,
-        sku: reg.sku,
-        mlItemId: reg.mlItemId
+        nome: reg.nome, sku: reg.sku, mlItemId: reg.mlItemId
       });
       atualizados++;
     } else {
-      // Cria novo produto
       await addDoc(collection(db, "produtos"), {
-        nome: reg.nome,
-        sku: reg.sku,
-        mlItemId: reg.mlItemId,
-        estoque: 0,
-        minimo: 1,
-        foto: "",
-        ultimaUSD: 0,
-        ultimaBRL: 0,
-        custoManual: false
+        nome: reg.nome, sku: reg.sku, mlItemId: reg.mlItemId,
+        estoque: 0, minimo: 1, foto: "",
+        ultimaUSD: 0, ultimaBRL: 0, custoManual: false
       });
       criados++;
     }
   }
 
-  // ==== FASE 3: Remover duplicidades por SKU (mesmo SKU em produtos diferentes) ====
+  // Dedupe final por SKU
   const snap3 = await getDocs(collection(db, "produtos"));
   const produtosFinais = [];
   snap3.forEach(d => produtosFinais.push({ id: d.id, ...d.data() }));
@@ -569,14 +616,14 @@ window.processarSincronizacaoSKU = async function() {
   });
 
   for (const k in gruposSku) {
-    const grupo = gruposSku[k];
-    if (grupo.length > 1) {
-      grupo.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
-      const manter = grupo[0];
+    const g = gruposSku[k];
+    if (g.length > 1) {
+      g.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
+      const manter = g[0];
       let estTotal = manter.estoque || 0;
-      for (let i = 1; i < grupo.length; i++) {
-        estTotal += (grupo[i].estoque || 0);
-        await deleteDoc(doc(db, "produtos", grupo[i].id));
+      for (let i = 1; i < g.length; i++) {
+        estTotal += (g[i].estoque || 0);
+        await deleteDoc(doc(db, "produtos", g[i].id));
         duplicadosRemovidos++;
       }
       if (estTotal !== (manter.estoque || 0)) {
@@ -587,25 +634,25 @@ window.processarSincronizacaoSKU = async function() {
 
   alert(
     `✅ Sincronização concluída!\n\n` +
-    `📝 Produtos atualizados: ${atualizados}\n` +
-    `➕ Produtos criados: ${criados}\n` +
-    `🗑️ Duplicidades removidas: ${duplicadosRemovidos}\n` +
-    `\nEstoques foram somados ao mesclar duplicados.`
+    `📝 Atualizados: ${atualizados}\n` +
+    `➕ Criados: ${criados}\n` +
+    `🗑️ Duplicidades removidas: ${duplicadosRemovidos}`
   );
-
   fecharModais();
 };
 
 // ==========================================================
-// LISTENER PRODUTOS
+// LISTENER PRODUTOS — Renderiza SEM duplicidade nos alertas
 // ==========================================================
 onSnapshot(collection(db, "produtos"), snap => {
   const tbody = document.getElementById("listaProdutos");
   const sel = document.getElementById("produtoCompra");
   const alerts = document.getElementById("alerts");
+  const dupWarning = document.getElementById("dupWarning");
   tbody.innerHTML = "";
   sel.innerHTML = "";
   alerts.innerHTML = "";
+  dupWarning.innerHTML = "";
 
   let totalP = 0, totalQ = 0, totalCrit = 0, totalUSD = 0, totalBRL = 0;
   let dadosGrafico = [];
@@ -614,6 +661,94 @@ onSnapshot(collection(db, "produtos"), snap => {
   snap.forEach(d => produtos.push({ id: d.id, ...d.data() }));
   produtos.sort((a, b) => a.nome.localeCompare(b.nome));
 
+  // ============================================
+  // DETECÇÃO DE DUPLICIDADES para os ALERTAS
+  // Agrupa por nome normalizado E por SKU
+  // ============================================
+  const agrupadosParaAlerta = {}; // chave = nome normalizado (ou SKU se tiver)
+  const contadorDuplicados = {};  // conta quantas cópias existem
+  const idsDuplicados = new Set(); // ids extras (para marcar/limpar)
+
+  produtos.forEach(p => {
+    // Chave de agrupamento: prefere SKU se existir, senão nome
+    let chave;
+    if (p.sku && p.sku.trim()) {
+      chave = "sku:" + p.sku.toUpperCase().trim();
+    } else {
+      chave = "nome:" + normalizarNome(p.nome);
+    }
+
+    if (!agrupadosParaAlerta[chave]) {
+      // Primeiro produto desse grupo → é o "principal"
+      agrupadosParaAlerta[chave] = { ...p, estoqueSomado: p.estoque || 0 };
+      contadorDuplicados[chave] = 1;
+    } else {
+      // Duplicado! Soma estoque no principal e marca id como duplicado
+      agrupadosParaAlerta[chave].estoqueSomado += (p.estoque || 0);
+      contadorDuplicados[chave]++;
+      idsDuplicados.add(p.id);
+    }
+  });
+
+  // Total de duplicidades encontradas
+  const totalDuplicados = idsDuplicados.size;
+  if (totalDuplicados > 0) {
+    dupWarning.innerHTML = `
+      <div class="dup-warning">
+        <span>⚠️ Foram detectados <strong>${totalDuplicados}</strong> produto(s) duplicado(s) no banco.</span>
+        <button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar Agora</button>
+      </div>`;
+  }
+
+  // ============================================
+  // RENDERIZAR ALERTAS — únicos, sem duplicidade
+  // Usa o estoque SOMADO para checar o mínimo
+  // ============================================
+  const chavesUnicas = Object.keys(agrupadosParaAlerta);
+  const alertasArr = [];
+
+  chavesUnicas.forEach(chave => {
+    const p = agrupadosParaAlerta[chave];
+    if ((p.estoqueSomado || 0) <= (p.minimo || 0)) {
+      totalCrit++;
+      const qtdCopias = contadorDuplicados[chave];
+      alertasArr.push({
+        nome: p.nome,
+        foto: p.foto,
+        estoque: p.estoqueSomado,
+        minimo: p.minimo || 0,
+        duplicado: qtdCopias > 1,
+        qtdCopias: qtdCopias
+      });
+    }
+  });
+
+  // Ordena alertas: primeiro por criticidade (menor estoque)
+  alertasArr.sort((a, b) => (a.estoque - a.minimo) - (b.estoque - b.minimo));
+
+  alertasArr.forEach(al => {
+    const badgeDup = al.duplicado
+      ? `<span class="badge-dup">${al.qtdCopias}x duplicado</span>`
+      : "";
+    alerts.innerHTML += `
+      <div class="alert-low"
+        onmousemove="showTooltip('${al.foto}',event)"
+        onmouseleave="hideTooltip()">
+        <span class="alert-info">
+          ⚠ <strong>${al.nome}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})
+        </span>
+        ${badgeDup}
+      </div>`;
+  });
+
+  if (totalCrit === 0) {
+    alerts.innerHTML = `<p style="color:var(--green);font-size:13px;font-weight:600">✅ Nenhum alerta no momento.</p>`;
+  }
+
+  // ============================================
+  // TABELA COMPLETA — mostra TODOS (inclusive duplicados)
+  // para você poder ver e limpar manualmente se quiser
+  // ============================================
   produtos.forEach(p => {
     const id = p.id;
     totalP++;
@@ -641,26 +776,20 @@ onSnapshot(collection(db, "produtos"), snap => {
     totalUSD += subUSD;
     totalBRL += subBRL;
 
-    if ((p.estoque || 0) <= (p.minimo || 0)) {
-      totalCrit++;
-      alerts.innerHTML += `
-        <div class="alert-low"
-          onmousemove="showTooltip('${p.foto}',event)"
-          onmouseleave="hideTooltip()">
-          ⚠ <strong>${p.nome}</strong> — Estoque: ${p.estoque || 0} (Mín: ${p.minimo || 0})
-        </div>`;
-    }
-
     dadosGrafico.push({ nome: p.nome, valor: subBRL });
 
-    // Tags SKU / ML
+    // Marca visualmente linhas duplicadas na tabela
+    const isDup = idsDuplicados.has(id);
+    const rowStyle = isDup ? 'style="background:#fef3c7"' : '';
+
     let skuHtml = "";
     if (p.sku) skuHtml += `<span class="sku-tag">SKU: ${p.sku}</span>`;
     if (p.mlItemId) skuHtml += `<br><span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${p.mlItemId}</span>`;
     if (!p.sku && !p.mlItemId) skuHtml = `<span style="color:var(--muted);font-size:11px">—</span>`;
+    if (isDup) skuHtml += `<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
 
     tbody.innerHTML += `
-      <tr>
+      <tr ${rowStyle}>
         <td>${p.foto ? `<img src="${p.foto}" class="img-thumb"
             onmousemove="showTooltip('${p.foto}',event)"
             onmouseleave="hideTooltip()">` : "🧴"}</td>
@@ -683,10 +812,6 @@ onSnapshot(collection(db, "produtos"), snap => {
 
     sel.innerHTML += `<option value="${id}">${p.nome} ${p.sku ? `(${p.sku})` : ''}</option>`;
   });
-
-  if (totalCrit === 0) {
-    alerts.innerHTML = `<p style="color:var(--muted);font-size:13px">✅ Nenhum alerta no momento.</p>`;
-  }
 
   document.getElementById("totalProdutos").innerText = totalP;
   document.getElementById("totalEstoque").innerText = totalQ;
@@ -713,11 +838,7 @@ function atualizarGrafico(dados) {
         borderRadius: 4
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } }
-    }
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
   });
 }
 
@@ -764,7 +885,7 @@ window.confirmarVenda = async function() {
   const refDoc = doc(db, "produtos", produtoSelId);
   const snapProd = await getDoc(refDoc);
   const estAtual = snapProd.data().estoque || 0;
-  if (qtd > estAtual) { alert("Estoque insuficiente para esta venda!"); return; }
+  if (qtd > estAtual) { alert("Estoque insuficiente!"); return; }
   const custoTotalVenda = produtoSelCusto * qtd;
   const lucro = valorTotalVenda - custoTotalVenda;
   await updateDoc(refDoc, { estoque: increment(-qtd) });
@@ -774,7 +895,7 @@ window.confirmarVenda = async function() {
     totalUSD: 0, totalBRL: valorTotalVenda, lucro: lucro,
     criadoEm: new Date().toISOString()
   });
-  alert("Venda Registrada!\nLucro estimado: R$ " + lucro.toFixed(2));
+  alert("Venda Registrada!\nLucro: R$ " + lucro.toFixed(2));
   fecharModais();
 };
 
@@ -798,17 +919,14 @@ window.registrarCompra = async function() {
   const unitUSD = totalUSD / qtd;
   const unitBRL = totalBRL / qtd;
   await updateDoc(refDoc, {
-    estoque: increment(qtd),
-    ultimaUSD: unitUSD,
-    ultimaBRL: unitBRL,
-    custoManual: false
+    estoque: increment(qtd), ultimaUSD: unitUSD, ultimaBRL: unitBRL, custoManual: false
   });
   await addDoc(collection(db, "compras"), {
     produtoId: id, produtoNome: p.nome, foto: p.foto || "",
     tipo: "Compra", qtd: qtd, totalUSD: totalUSD, totalBRL: totalBRL,
     criadoEm: new Date().toISOString()
   });
-  alert("Compra registrada! Custo Unitário atualizado.");
+  alert("Compra registrada!");
   document.getElementById("quantidadeCompra").value = "";
   document.getElementById("valorCompra").value = "";
 };
@@ -825,9 +943,7 @@ window.abrirEditarCusto = function(id, nome, usdAtual, brlAtual) {
   document.getElementById("cotacaoModalInfo").innerText = "R$ " + cotacaoAtual.toFixed(4);
   const brlAuto = editandoCustoUSDAtual > 0 ? (editandoCustoUSDAtual * cotacaoAtual).toFixed(2) : "—";
   document.getElementById("infoAtualCusto").innerHTML = `
-    <strong>Custo atual salvo:</strong>
-    &nbsp; $ ${editandoCustoUSDAtual.toFixed(2)}
-    &nbsp;|&nbsp; R$ ${editandoCustoBRLAtual.toFixed(2)}
+    <strong>Custo atual salvo:</strong> $ ${editandoCustoUSDAtual.toFixed(2)} | R$ ${editandoCustoBRLAtual.toFixed(2)}
     <br><span style="font-size:11px">R$ pela cotação atual: R$ ${brlAuto}</span>`;
   document.getElementById("modalEditarCusto").classList.add("active");
 };
@@ -838,17 +954,9 @@ window.previewConversaoModal = function() {
   const preview = document.getElementById("previewConversaoModal");
   if (usdVal <= 0 && brlVal <= 0) { preview.style.display = "none"; return; }
   let textos = [];
-  if (usdVal > 0 && brlVal <= 0) {
-    const brlCalc = usdVal * cotacaoAtual;
-    textos.push(`💱 R$ calculado automaticamente: <strong>R$ ${brlCalc.toFixed(2)}</strong>`);
-  }
-  if (usdVal > 0 && brlVal > 0) {
-    const brlAuto = usdVal * cotacaoAtual;
-    textos.push(`💵 USD: <strong>$ ${usdVal.toFixed(2)}</strong> → R$ auto seria: R$ ${brlAuto.toFixed(2)}<br>✅ Será salvo R$ manual: <strong>R$ ${brlVal.toFixed(2)}</strong>`);
-  }
-  if (usdVal <= 0 && brlVal > 0) {
-    textos.push(`💰 Apenas R$: <strong>R$ ${brlVal.toFixed(2)}</strong>`);
-  }
+  if (usdVal > 0 && brlVal <= 0) textos.push(`💱 R$ calculado: <strong>R$ ${(usdVal * cotacaoAtual).toFixed(2)}</strong>`);
+  if (usdVal > 0 && brlVal > 0) textos.push(`💵 USD: <strong>$ ${usdVal.toFixed(2)}</strong><br>✅ Será salvo R$ manual: <strong>R$ ${brlVal.toFixed(2)}</strong>`);
+  if (usdVal <= 0 && brlVal > 0) textos.push(`💰 Apenas R$: <strong>R$ ${brlVal.toFixed(2)}</strong>`);
   preview.style.display = "block";
   preview.innerHTML = textos.join("<br>");
 };
@@ -856,22 +964,17 @@ window.previewConversaoModal = function() {
 window.salvarCustoManual = async function() {
   const usdVal = parseFloat(document.getElementById("novoUSD").value);
   const brlVal = parseFloat(document.getElementById("novoBRL").value);
-  if ((!usdVal || usdVal <= 0) && (!brlVal || brlVal <= 0)) {
-    alert("Informe pelo menos o custo em Dólar ($) ou em Real (R$).");
-    return;
-  }
+  if ((!usdVal || usdVal <= 0) && (!brlVal || brlVal <= 0)) { alert("Informe pelo menos um valor."); return; }
   let novoUSD = usdVal > 0 ? usdVal : 0;
   let novoBRL = brlVal > 0 ? brlVal : (novoUSD > 0 ? novoUSD * cotacaoAtual : 0);
   const refDoc = doc(db, "produtos", editandoCustoId);
-  await updateDoc(refDoc, {
-    ultimaUSD: novoUSD, ultimaBRL: novoBRL, custoManual: true
-  });
+  await updateDoc(refDoc, { ultimaUSD: novoUSD, ultimaBRL: novoBRL, custoManual: true });
   await addDoc(collection(db, "compras"), {
     produtoId: editandoCustoId, produtoNome: editandoCustoNome, foto: "",
     tipo: "Ajuste Manual", qtd: 0, totalUSD: novoUSD, totalBRL: novoBRL,
     criadoEm: new Date().toISOString()
   });
-  alert(`✅ Custo atualizado!\nDólar: $ ${novoUSD.toFixed(2)}\nReal:  R$ ${novoBRL.toFixed(2)}`);
+  alert(`✅ Custo atualizado!\n$ ${novoUSD.toFixed(2)} | R$ ${novoBRL.toFixed(2)}`);
   fecharModais();
 };
 
@@ -884,36 +987,22 @@ window.abrirHistoricoCusto = async function(id, nome) {
   const historico = [];
   snapCompras.forEach(d => {
     const c = d.data();
-    if (c.produtoId === id && (c.tipo === "Compra" || c.tipo === "Ajuste Manual")) {
-      historico.push(c);
-    }
+    if (c.produtoId === id && (c.tipo === "Compra" || c.tipo === "Ajuste Manual")) historico.push(c);
   });
   historico.sort((a, b) => (b.criadoEm || "").localeCompare(a.criadoEm || ""));
   tbody.innerHTML = "";
-  if (historico.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Sem registros.</td></tr>";
-    return;
-  }
+  if (historico.length === 0) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Sem registros.</td></tr>"; return; }
   historico.forEach(h => {
     let unitUSD = h.qtd > 0 ? h.totalUSD / h.qtd : h.totalUSD;
     let unitBRL = h.qtd > 0 ? h.totalBRL / h.qtd : h.totalBRL;
     let data = new Date(h.criadoEm).toLocaleDateString("pt-BR");
-    let tipoTag = h.tipo === "Ajuste Manual"
-      ? `<span class="tag-manual">manual</span>`
-      : `<span class="tag-auto">compra</span>`;
-    tbody.innerHTML += `
-      <tr>
-        <td>${data} ${tipoTag}</td>
-        <td style="color:var(--primary);font-weight:600">$ ${unitUSD.toFixed(2)}</td>
-        <td style="color:var(--green);font-weight:600">R$ ${unitBRL.toFixed(2)}</td>
-      </tr>`;
+    let tipoTag = h.tipo === "Ajuste Manual" ? `<span class="tag-manual">manual</span>` : `<span class="tag-auto">compra</span>`;
+    tbody.innerHTML += `<tr><td>${data} ${tipoTag}</td><td style="color:var(--primary);font-weight:600">$ ${unitUSD.toFixed(2)}</td><td style="color:var(--green);font-weight:600">R$ ${unitBRL.toFixed(2)}</td></tr>`;
   });
 };
 
 window.deletarProduto = async function(id) {
-  if (confirm("Excluir definitivamente este produto?")) {
-    await deleteDoc(doc(db, "produtos", id));
-  }
+  if (confirm("Excluir definitivamente este produto?")) await deleteDoc(doc(db, "produtos", id));
 };
 
 document.getElementById("searchProdutos").addEventListener("input", function(e) {
