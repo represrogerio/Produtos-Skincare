@@ -5,10 +5,10 @@ const env = require("../../lib/env");
 async function getValidToken() {
   const snap = await db.collection("ml_tokens").get();
   if (snap.empty) throw new Error("Nenhum token encontrado. Conecte o Mercado Livre primeiro.");
-  
+
   const tokenDoc = snap.docs[0];
   const data = tokenDoc.data();
-  
+
   if (new Date(data.expires_at) > new Date()) {
     return data.access_token;
   }
@@ -33,14 +33,27 @@ async function getValidToken() {
     expires_at: expiresAt.toISOString(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
-  
+
   return nd.access_token;
+}
+
+function pegarFoto(item) {
+  if (item.pictures && item.pictures.length > 0) {
+    const p = item.pictures[0];
+    if (p.secure_url) return p.secure_url;
+    if (p.url) return p.url;
+  }
+  if (item.thumbnail) {
+    // o ML às vezes manda thumbnail com http e sufixo -I.jpg; usamos a versão grande
+    return item.thumbnail.replace("http://", "https://").replace(/-I\.jpg$/, "-O.jpg");
+  }
+  return "";
 }
 
 module.exports = async (req, res) => {
   try {
     const token = await getValidToken();
-    
+
     const snap = await db.collection("produtos").get();
     const resultados = [];
     let atualizados = 0;
@@ -48,7 +61,7 @@ module.exports = async (req, res) => {
 
     for (const docSnap of snap.docs) {
       const p = docSnap.data();
-      
+
       if (!p.ml_item_id) {
         resultados.push({ nome: p.nome || docSnap.id, status: "sem ml_item_id" });
         continue;
@@ -59,11 +72,11 @@ module.exports = async (req, res) => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const item = await r.json();
-        
+
         if (!r.ok) {
-          resultados.push({ 
-            nome: p.nome, 
-            status: "erro API: " + (item.message || item.error || "desconhecido") 
+          resultados.push({
+            nome: p.nome,
+            status: "erro API: " + (item.message || item.error || "desconhecido")
           });
           erros++;
           continue;
@@ -71,21 +84,23 @@ module.exports = async (req, res) => {
 
         const estoqueML = Number(item.available_quantity || 0);
         const estoqueAnterior = Number(p.estoque || 0);
-        
+        const fotoML = pegarFoto(item);
+
         await docSnap.ref.update({
           estoque: estoqueML,
+          foto: fotoML,
           ml_titulo: item.title || "",
           ml_preco: item.price || 0,
           ml_status: item.status || "",
           ml_permalink: item.permalink || "",
           ultimaSincronizacaoML: admin.firestore.FieldValue.serverTimestamp()
         });
-        
-        resultados.push({ 
-          nome: p.nome, 
+
+        resultados.push({
+          nome: p.nome,
           estoque_anterior: estoqueAnterior,
           estoque_novo: estoqueML,
-          status: "atualizado" 
+          status: "atualizado"
         });
         atualizados++;
       } catch (e) {
