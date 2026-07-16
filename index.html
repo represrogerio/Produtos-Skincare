@@ -1,24 +1,19 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skincare Estoque Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- Importando Chart.js para os gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
-  --bg:#f8fafc; 
-  --card:#fff; 
-  --text:#0f172a; 
-  --muted:#64748b;
-  --border:#e2e8f0; 
-  --primary:#6366f1;
-  --green:#10b981; 
-  --red:#ef4444; 
-  --radius:14px;
+  --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#64748b;
+  --border:#e2e8f0; --primary:#6366f1; --green:#10b981; 
+  --red:#ef4444; --warning:#f59e0b; --radius:14px;
 }
-
 *{box-sizing:border-box}
 body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
 .hidden{display:none!important}
@@ -29,42 +24,46 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--te
 .brand{font-size:18px;font-weight:800;margin-bottom:30px}
 .nav-btn{all:unset;cursor:pointer;padding:10px 14px;border-radius:8px;color:#94a3b8;font-size:14px;margin-bottom:6px}
 .nav-btn.active,.nav-btn:hover{background:#1e293b;color:#fff}
-.main{flex:1}
-.topbar{background:#fff;border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+.main{flex:1;height:100vh;overflow-y:auto;}
+.topbar{background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;}
 .content{padding:24px}
 
-/* Cards */
+/* Cards & Stats */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px}
-
-/* Stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:20px}
 .stat{background:#fff;border:1px solid var(--border);padding:16px;border-radius:var(--radius)}
 .stat h4{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
 .stat strong{font-size:22px}
 
 /* Buttons */
-.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px}
+.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
 .btn-primary{background:var(--primary);color:#fff}
 .btn-success{background:var(--green);color:#fff}
 .btn-danger{background:var(--red);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
 .btn-edit{background:#e0e7ff;color:#3730a3}
 .btn:hover{opacity:.9}
 
 /* Table */
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius)}
 table{width:100%;border-collapse:collapse}
-th{font-size:12px;text-transform:uppercase;color:var(--muted);padding:10px;border-bottom:1px solid var(--border);text-align:left}
-td{padding:10px;border-top:1px solid var(--border);font-size:13px}
+th{font-size:12px;text-transform:uppercase;color:var(--muted);padding:10px;border-bottom:1px solid var(--border);text-align:left;background:#f8fafc}
+td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
+tr:hover td{background:#f8fafc}
 .img-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover}
 
-/* Alerts */
-.alert-low{background:#fee2e2;color:#991b1c;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px}
-
-/* Tooltip */
+/* Alerts & Tooltips */
+.alert-low{background:#fee2e2;color:#991b1c;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px;cursor:pointer}
 .tooltip{position:fixed;display:none;z-index:9999;background:#fff;border:1px solid var(--border);padding:6px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 
-.input{width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
+.input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
+.actions-cell{display:flex;gap:4px;flex-wrap:wrap;max-width:250px}
 
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;padding:24px;border-radius:14px;width:90%;max-width:450px;box-shadow:0 10px 25px rgba(0,0,0,0.2)}
+.modal h3{margin-top:0;margin-bottom:16px}
 </style>
 </head>
 
@@ -72,9 +71,9 @@ td{padding:10px;border-top:1px solid var(--border);font-size:13px}
 <div class="app">
 <aside class="sidebar">
 <div class="brand">🧴 Skincare Pro</div>
-<button id="nav-dashboard" class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
-<button id="nav-produtos" class="nav-btn" onclick="showPage('produtos')">Produtos</button>
-<button id="nav-compras" class="nav-btn" onclick="showPage('compras')">Compras</button>
+<button id="nav-dashboard" class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
+<button id="nav-produtos" class="nav-btn" onclick="showPage('produtos')">🧴 Produtos</button>
+<button id="nav-compras" class="nav-btn" onclick="showPage('compras')">🛒 Compras / Vendas</button>
 <div style="margin-top:auto;font-size:12px;color:#94a3b8">
 <span id="dollar-info">USD carregando...</span>
 </div>
@@ -82,8 +81,11 @@ td{padding:10px;border-top:1px solid var(--border);font-size:13px}
 
 <main class="main">
 <header class="topbar">
-<h2 id="pageTitle">Dashboard</h2>
-<input id="searchProdutos" class="input" style="max-width:240px" placeholder="Buscar produto">
+<h2 id="pageTitle" style="margin:0;font-size:18px">Dashboard</h2>
+<div style="display:flex;gap:10px">
+<input id="searchProdutos" class="input" style="margin:0;max-width:200px" placeholder="Buscar produto...">
+<button class="btn btn-success" onclick="exportarExcel('tabelaProdutosExport', 'Estoque_Skincare')">📥 Exportar Excel</button>
+</div>
 </header>
 
 <div class="content">
@@ -93,41 +95,53 @@ td{padding:10px;border-top:1px solid var(--border);font-size:13px}
 <div class="stats">
 <div class="stat"><h4>Total Produtos</h4><strong id="totalProdutos">0</strong></div>
 <div class="stat"><h4>Total Estoque</h4><strong id="totalEstoque">0</strong></div>
-<div class="stat"><h4>Estoque Baixo</h4><strong id="totalBaixo">0</strong></div>
+<div class="stat"><h4>Estoque Baixo</h4><strong id="totalBaixo" style="color:var(--red)">0</strong></div>
+<div class="stat"><h4>Valor Estoque ($)</h4><strong id="totalValorUSD" style="color:var(--primary)">$0.00</strong></div>
+<div class="stat"><h4>Valor Estoque (R$)</h4><strong id="totalValorBRL" style="color:var(--green)">R$0.00</strong></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="margin:0">Alertas de Reposição</h3>
+<button class="btn btn-primary" onclick="importarGitHub()">Importar do GitHub</button>
+</div>
+<div id="alerts"></div>
 </div>
 
 <div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<h3>Alertas</h3>
-<button id="btnImportar" class="btn btn-primary" onclick="importarGitHub()">Importar GitHub</button>
+<h3 style="margin-top:0;margin-bottom:15px">Top 10 Produtos (Por Valor em R$)</h3>
+<div style="position:relative;height:250px;width:100%">
+<canvas id="chartValorTotal"></canvas>
 </div>
-<div id="alerts" style="margin-top:10px"></div>
+</div>
 </div>
 </div>
 
 <!-- PRODUTOS -->
 <div id="produtos" class="page hidden">
 <div class="card">
-<h3>Novo Produto</h3>
-<input id="nomeProduto" class="input" placeholder="Nome">
-<input id="estoqueProduto" type="number" class="input" placeholder="Estoque inicial">
-<input id="minimoProduto" type="number" class="input" placeholder="Estoque mínimo">
-<input id="fotoProduto" type="file" class="input" accept="image/*">
-<button class="btn btn-primary" onclick="salvarProduto()">Salvar</button>
+<h3 style="margin-top:0">Novo Produto</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+<input id="nomeProduto" class="input" style="margin:0" placeholder="Nome">
+<input id="estoqueProduto" type="number" class="input" style="margin:0" placeholder="Est. inicial">
+<input id="minimoProduto" type="number" class="input" style="margin:0" placeholder="Mínimo">
+<button class="btn btn-primary" onclick="salvarProduto()">Salvar Novo Produto</button>
+</div>
 </div>
 
 <div class="card">
-<h3>Lista</h3>
+<h3 style="margin-top:0">Estoque</h3>
 <div class="table-wrap">
-<table>
+<table id="tabelaProdutosExport">
 <thead>
 <tr>
 <th>Foto</th>
 <th>Nome</th>
-<th>Estoque</th>
+<th>Qtd</th>
 <th>Mín</th>
-<th>USD</th>
-<th>R$</th>
+<th>Custo $</th>
+<th>Custo R$</th>
 <th>Ações</th>
 </tr>
 </thead>
@@ -137,20 +151,42 @@ td{padding:10px;border-top:1px solid var(--border);font-size:13px}
 </div>
 </div>
 
-<!-- COMPRAS -->
+<!-- COMPRAS / VENDAS -->
 <div id="compras" class="page hidden">
 <div class="card">
-<h3>Registrar Compra</h3>
-<select id="produtoCompra" class="input"></select>
-<input id="quantidadeCompra" type="number" class="input" placeholder="Qtd">
-<select id="moedaCompra" class="input">
-<option value="BRL">Real</option>
-<option value="USD">Dólar</option>
+<h3 style="margin-top:0">Registrar Compra / Reposição</h3>
+<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px">
+<select id="produtoCompra" class="input" style="margin:0"></select>
+<input id="quantidadeCompra" type="number" class="input" style="margin:0" placeholder="Qtd">
+<select id="moedaCompra" class="input" style="margin:0">
+<option value="USD">Dólar ($)</option>
+<option value="BRL">Real (R$)</option>
 </select>
-<input id="valorCompra" type="number" step="0.01" class="input" placeholder="Valor TOTAL">
-<label style="font-size:12px">Cotação</label>
-<input id="cotacaoManual" type="number" step="0.01" class="input">
-<button class="btn btn-primary" onclick="registrarCompra()">Registrar</button>
+<input id="valorCompra" type="number" step="0.01" class="input" style="margin:0" placeholder="Valor TOTAL">
+<button class="btn btn-primary" onclick="registrarCompra()">Registrar Compra</button>
+</div>
+</div>
+
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+<h3 style="margin:0">Histórico de Movimentações</h3>
+<button class="btn btn-success" onclick="exportarExcel('tabelaMovsExport', 'Movimentacoes_Skincare')">📥 Exportar Histórico</button>
+</div>
+<div class="table-wrap">
+<table id="tabelaMovsExport">
+<thead>
+<tr>
+<th>Data/Hora</th>
+<th>Produto</th>
+<th>Tipo</th>
+<th>Qtd</th>
+<th>Unitário</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="listaMovs"></tbody>
+</table>
+</div>
 </div>
 </div>
 
@@ -158,12 +194,40 @@ td{padding:10px;border-top:1px solid var(--border);font-size:13px}
 </main>
 </div>
 
+<!-- Modal Vender -->
+<div class="modal-overlay" id="modalVenda">
+<div class="modal">
+<h3>Registrar Venda</h3>
+<input type="number" id="qtdVenda" class="input" placeholder="Quantidade vendida">
+<input type="number" id="valorVenda" class="input" step="0.01" placeholder="Valor TOTAL da venda (em R$)">
+<div style="display:flex;gap:10px;margin-top:15px">
+<button class="btn btn-success" style="flex:1" onclick="confirmarVenda()">Confirmar Venda</button>
+<button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Histórico de Custos -->
+<div class="modal-overlay" id="modalHistoricoCusto">
+<div class="modal" style="max-width:500px">
+<h3>Histórico de Variação de Custo</h3>
+<h4 id="nomeHistoricoCusto" style="color:var(--primary);margin-bottom:15px"></h4>
+<div class="table-wrap" style="max-height:250px;overflow-y:auto">
+<table>
+<thead><tr><th>Data</th><th>Custo $</th><th>Custo R$</th></tr></thead>
+<tbody id="listaHistoricoCusto"></tbody>
+</table>
+</div>
+<button class="btn btn-danger" style="width:100%;margin-top:15px" onclick="fecharModais()">Fechar</button>
+</div>
+</div>
+
+<!-- Tooltip Imagem -->
 <img id="tooltip" class="tooltip">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, increment, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBX6_4pbYSgyT9JDvyqLgfk63yyUbF8AcE",
@@ -176,20 +240,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 let cotacaoAtual = 5.11;
+let produtoSelId = null;
+let produtoSelNome = "";
+let produtoSelCusto = 0;
+let chartInstance = null; // Para o gráfico
 
-// Cotação automática
+// Buscar Cotação Automática
 fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
 .then(r=>r.json())
 .then(d=>{
   cotacaoAtual = parseFloat(d.USDBRL.bid);
-  document.getElementById("dollar-info").innerText =
-    "USD: R$ " + cotacaoAtual.toFixed(2);
-  document.getElementById("cotacaoManual").value =
-    cotacaoAtual.toFixed(2);
-});
+  document.getElementById("dollar-info").innerText = "Cotação USD: R$ " + cotacaoAtual.toFixed(2);
+}).catch(()=>{});
 
 // Navegação
 window.showPage = function(id){
@@ -197,191 +261,361 @@ window.showPage = function(id){
   document.getElementById(id).classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById("nav-"+id).classList.add("active");
-  document.getElementById("pageTitle").innerText =
-    id.charAt(0).toUpperCase()+id.slice(1);
+  const titles = {dashboard:"Dashboard",produtos:"Gestão de Produtos",compras:"Compras e Vendas"};
+  document.getElementById("pageTitle").innerText = titles[id];
 };
 
-// Salvar Produto
+window.fecharModais = function(){
+  document.querySelectorAll(".modal-overlay").forEach(m=>m.classList.remove("active"));
+};
+
+// Tooltip Imagens
+window.showTooltip = function(url,e){
+  if(!url || url === 'undefined') return;
+  const t = document.getElementById("tooltip");
+  t.src = url;
+  t.style.display = "block";
+  t.style.width = "120px";
+  t.style.height = "120px";
+  t.style.objectFit = "cover";
+  t.style.left = (e.pageX+15)+"px";
+  t.style.top = (e.pageY+15)+"px";
+};
+window.hideTooltip = function(){
+  document.getElementById("tooltip").style.display="none";
+};
+
+// Exportar para Excel (CSV)
+window.exportarExcel = function(tableId, filename) {
+  let csv = [];
+  let rows = document.querySelectorAll(`#${tableId} tr`);
+  for (let i = 0; i < rows.length; i++) {
+    let row = [], cols = rows[i].querySelectorAll("td, th");
+    for (let j = 0; j < cols.length; j++) {
+      if(j === 0 && tableId === 'tabelaProdutosExport' && i > 0) continue; // Pula a foto no Excel
+      if(j === 0 && tableId === 'tabelaProdutosExport' && i === 0) continue; // Pula header Foto
+      if(j === 6 && tableId === 'tabelaProdutosExport') continue; // Pula botões de ação
+      
+      let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+      row.push('"' + data + '"');
+    }
+    csv.push(row.join(","));
+  }
+  let csvFile = new Blob(["\uFEFF"+csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+  let a = document.createElement("a");
+  a.download = filename + ".csv";
+  a.href = window.URL.createObjectURL(csvFile);
+  a.click();
+};
+
+// Salvar Produto Novo
 window.salvarProduto = async function(){
   const nome = document.getElementById("nomeProduto").value.trim();
   const estoque = parseInt(document.getElementById("estoqueProduto").value)||0;
   const minimo = parseInt(document.getElementById("minimoProduto").value)||1;
-  const file = document.getElementById("fotoProduto").files[0];
-
   if(!nome) return alert("Informe o nome");
-
-  let url="";
-  if(file){
-    const storageRef = ref(storage,"produtos/"+Date.now()+"_"+file.name);
-    const snap = await uploadBytes(storageRef,file);
-    url = await getDownloadURL(snap.ref);
-  }
-
   await addDoc(collection(db,"produtos"),{
-    nome:nome,
-    estoque:estoque,
-    minimo:minimo,
-    foto:url,
-    ultimaUSD:0,
-    ultimaBRL:0
+    nome:nome, estoque:estoque, minimo:minimo, foto:"", ultimaUSD:0, ultimaBRL:0
   });
-
   alert("Produto salvo!");
+  document.getElementById("nomeProduto").value="";
 };
 
-// Importar com anti-duplicado
+// Importar GitHub Anti-Duplicado
 window.importarGitHub = async function(){
-
-  const owner="represrogerio";
-  const repo="Controle-de-Compras";
-
-  const repoInfo = await (await fetch(
-    `https://api.github.com/repos/${owner}/${repo}`
-  )).json();
-
-  const branch = repoInfo.default_branch;
-
-  const files = await (await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/contents?ref=${branch}`
-  )).json();
-
-  const existentes=[];
-  const snap = await getDocs(collection(db,"produtos"));
-  snap.forEach(d=>{
-    existentes.push(d.data().nome.toLowerCase().trim());
-  });
-
-  let criados=0;
-
-  for(const f of files){
-    if(/\.(png|jpg|jpeg|webp)$/i.test(f.name)){
-      const nome = f.name
-        .replace(/\.(png|jpg|jpeg|webp)$/i,"")
-        .replace(/[_\-\.]+/g," ")
-        .trim();
-
-      if(!existentes.includes(nome.toLowerCase())){
-        await addDoc(collection(db,"produtos"),{
-          nome:nome,
-          estoque:0,
-          minimo:1,
-          foto:f.download_url,
-          ultimaUSD:0,
-          ultimaBRL:0
-        });
-        criados++;
+  const btn = document.getElementById("btnImportar");
+  btn.innerText = "Importando...";
+  try{
+    const repoInfo = await (await fetch(`https://api.github.com/repos/represrogerio/Controle-de-Compras`)).json();
+    const branch = repoInfo.default_branch;
+    const files = await (await fetch(`https://api.github.com/repos/represrogerio/Controle-de-Compras/contents?ref=${branch}`)).json();
+    
+    const existentes = [];
+    const snap = await getDocs(collection(db,"produtos"));
+    snap.forEach(d=>existentes.push(d.data().nome.trim().toLowerCase()));
+    
+    let criados=0;
+    for(const f of files){
+      if(/\.(png|jpg|jpeg|webp)$/i.test(f.name)){
+        const nome = f.name.replace(/\.(png|jpg|jpeg|webp)$/i,"").replace(/[_\-\.]+/g," ").trim();
+        if(!existentes.includes(nome.toLowerCase())){
+          await addDoc(collection(db,"produtos"),{
+            nome:nome, estoque:0, minimo:1, foto:f.download_url, ultimaUSD:0, ultimaBRL:0
+          });
+          existentes.push(nome.toLowerCase());
+          criados++;
+        }
       }
     }
-  }
-
-  alert("Importados: "+criados);
+    alert("Importados novos: " + criados);
+  }catch(e){ alert("Erro ao importar."); }
+  btn.innerText = "Importar do GitHub";
 };
 
-// Listener Produtos
+// Listener Produtos & Atualização Gráfico
 onSnapshot(collection(db,"produtos"), snap=>{
   const tbody=document.getElementById("listaProdutos");
   const sel=document.getElementById("produtoCompra");
   const alerts=document.getElementById("alerts");
+  
   tbody.innerHTML=""; sel.innerHTML=""; alerts.innerHTML="";
-  let total=0, baixo=0;
+  
+  let totalP=0, totalQ=0, totalCrit=0, totalUSD=0, totalBRL=0;
+  let dadosGrafico = [];
 
   snap.forEach(d=>{
-    const p=d.data();
-    const id=d.id;
-    total+=p.estoque||0;
+    const p = d.data(); const id = d.id;
+    totalP++;
+    totalQ += p.estoque||0;
+    
+    let subUSD = (p.ultimaUSD||0) * (p.estoque||0);
+    let subBRL = (p.ultimaBRL||0) * (p.estoque||0);
+    totalUSD += subUSD;
+    totalBRL += subBRL;
 
-    if((p.estoque||0)<=(p.minimo||0)){
-      baixo++;
+    if((p.estoque||0) <= (p.minimo||0)){
+      totalCrit++;
       alerts.innerHTML+=`
-      <div class="alert-low"
-        onmousemove="showTooltip('${p.foto}',event)"
-        onmouseleave="hideTooltip()">
-        ⚠ ${p.nome} (${p.estoque}/${p.minimo})
+      <div class="alert-low" onmousemove="showTooltip('${p.foto}',event)" onmouseleave="hideTooltip()">
+        ⚠ <strong>${p.nome}</strong> - Estoque: ${p.estoque||0} (Mín: ${p.minimo||0})
       </div>`;
     }
 
+    dadosGrafico.push({ nome: p.nome, valor: subBRL });
+
     tbody.innerHTML+=`
     <tr>
-      <td>${p.foto?`<img src="${p.foto}" class="img-thumb">`:"🧴"}</td>
-      <td>${p.nome}</td>
+      <td>${p.foto?`<img src="${p.foto}" class="img-thumb" onmousemove="showTooltip('${p.foto}',event)" onmouseleave="hideTooltip()">`:"🧴"}</td>
+      <td><strong>${p.nome}</strong></td>
       <td>${p.estoque||0}</td>
       <td>${p.minimo||0}</td>
       <td>$ ${(p.ultimaUSD||0).toFixed(2)}</td>
       <td>R$ ${(p.ultimaBRL||0).toFixed(2)}</td>
-      <td>
-        <button class="btn btn-success" onclick="entrada('${id}')">+ Entrada</button>
-        <button class="btn btn-danger" onclick="saida('${id}')">- Saída</button>
+      <td class="actions-cell">
+        <button class="btn btn-warning" onclick="abrirVenda('${id}','${p.nome}', ${p.ultimaBRL||0})">🛒 Vender</button>
+        <button class="btn btn-edit" onclick="abrirHistoricoCusto('${id}', '${p.nome}')">📈 Custos</button>
+        <button class="btn btn-danger" onclick="deletarProduto('${id}')">Excluir</button>
       </td>
     </tr>`;
 
     sel.innerHTML+=`<option value="${id}">${p.nome}</option>`;
   });
 
-  document.getElementById("totalProdutos").innerText=snap.size;
-  document.getElementById("totalEstoque").innerText=total;
-  document.getElementById("totalBaixo").innerText=baixo;
+  document.getElementById("totalProdutos").innerText = totalP;
+  document.getElementById("totalEstoque").innerText = totalQ;
+  document.getElementById("totalBaixo").innerText = totalCrit;
+  document.getElementById("totalValorUSD").innerText = "$ " + totalUSD.toFixed(2);
+  document.getElementById("totalValorBRL").innerText = "R$ " + totalBRL.toFixed(2);
+
+  // Atualizar Gráfico Top 10 Valor
+  atualizarGrafico(dadosGrafico);
 });
 
-// Entrada/Saída
-window.entrada = async function(id){
-  const qtd=parseInt(prompt("Qtd entrada:"));
-  if(!qtd) return;
-  await updateDoc(doc(db,"produtos",id),{estoque:increment(qtd)});
+// Gráfico Chart.js
+function atualizarGrafico(dados) {
+  dados.sort((a,b) => b.valor - a.valor);
+  const top10 = dados.slice(0, 10);
+  const ctx = document.getElementById('chartValorTotal').getContext('2d');
+  
+  if(chartInstance) chartInstance.destroy();
+  
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top10.map(d => d.nome.substring(0,15)+'...'),
+      datasets: [{
+        label: 'Valor no Estoque (R$)',
+        data: top10.map(d => d.valor),
+        backgroundColor: '#6366f1',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// Histórico de Movimentações Global
+onSnapshot(collection(db,"compras"), snap=>{
+  const tbody=document.getElementById("listaMovs");
+  tbody.innerHTML="";
+  const arr = [];
+  snap.forEach(d => arr.push(d.data()));
+  arr.sort((a,b) => (b.criadoEm||"").localeCompare(a.criadoEm||"")); // Mais recente primeiro
+  
+  arr.forEach(c => {
+    let corTipo = c.tipo==="Compra" ? "color:#10b981" : "color:#ef4444";
+    let sinal = c.tipo==="Compra" ? "+" : "-";
+    let dataFormatada = c.criadoEm ? new Date(c.criadoEm).toLocaleString("pt-BR") : "N/A";
+    
+    let unitUSD = c.qtd > 0 ? (c.totalUSD / c.qtd) : 0;
+    let unitBRL = c.qtd > 0 ? (c.totalBRL / c.qtd) : 0;
+
+    tbody.innerHTML+=`
+    <tr>
+      <td style="color:var(--muted);font-size:12px">${dataFormatada}</td>
+      <td onmousemove="showTooltip('${c.foto}',event)" onmouseleave="hideTooltip()" style="font-weight:600;cursor:pointer;color:var(--primary)">${c.produtoNome}</td>
+      <td style="font-weight:700;${corTipo}">${c.tipo}</td>
+      <td>${sinal}${c.qtd}</td>
+      <td>$ ${unitUSD.toFixed(2)}</td>
+      <td>R$ ${unitBRL.toFixed(2)} <br><span style="font-size:10px;color:var(--muted)">(Total R$ ${(c.totalBRL||0).toFixed(2)})</span></td>
+    </tr>`;
+  });
+});
+
+// ABRIR MODAL VENDER
+window.abrirVenda = function(id, nome, custoBRL) {
+  produtoSelId = id;
+  produtoSelNome = nome;
+  produtoSelCusto = parseFloat(custoBRL); // Custo unitário salvo no produto
+  document.getElementById("qtdVenda").value = "";
+  document.getElementById("valorVenda").value = "";
+  document.getElementById("modalVenda").classList.add("active");
 };
 
-window.saida = async function(id){
-  const qtd=parseInt(prompt("Qtd saída:"));
-  if(!qtd) return;
-  await updateDoc(doc(db,"produtos",id),{estoque:increment(-qtd)});
+// CONFIRMAR VENDA
+window.confirmarVenda = async function() {
+  const qtd = parseInt(document.getElementById("qtdVenda").value);
+  const valorTotalVenda = parseFloat(document.getElementById("valorVenda").value);
+  
+  if(!qtd || !valorTotalVenda){ alert("Preencha Qtd e Valor Total"); return; }
+  
+  const refDoc = doc(db,"produtos",produtoSelId);
+  const snapProd = await getDoc(refDoc);
+  const estAtual = snapProd.data().estoque || 0;
+  
+  if(qtd > estAtual) { alert("Estoque insuficiente para esta venda!"); return; }
+  
+  // Lucro = Valor Venda - (Custo Unitário * Qtd)
+  const custoTotalVenda = produtoSelCusto * qtd;
+  const lucro = valorTotalVenda - custoTotalVenda;
+  
+  // Deduzir Estoque
+  await updateDoc(refDoc, { estoque: increment(-qtd) });
+  
+  // Registrar Histórico de Venda
+  await addDoc(collection(db,"compras"), {
+    produtoId: produtoSelId,
+    produtoNome: produtoSelNome,
+    foto: snapProd.data().foto || "",
+    tipo: "Venda",
+    qtd: qtd,
+    totalUSD: 0, // Venda é local
+    totalBRL: valorTotalVenda,
+    lucro: lucro,
+    criadoEm: new Date().toISOString()
+  });
+  
+  alert("Venda Registrada!\nLucro estimado: R$ " + lucro.toFixed(2));
+  fecharModais();
 };
 
-// Compra
+// REGISTRAR COMPRA (Entrada) e Calcula Conversão Automática
 window.registrarCompra = async function(){
   const id=document.getElementById("produtoCompra").value;
   const qtd=parseInt(document.getElementById("quantidadeCompra").value);
   const total=parseFloat(document.getElementById("valorCompra").value);
   const moeda=document.getElementById("moedaCompra").value;
-  const cot=parseFloat(document.getElementById("cotacaoManual").value)||cotacaoAtual;
-
-  if(!id||!qtd||!total) return alert("Preencha tudo");
-
+  
+  if(!id||!qtd||!total) return alert("Preencha produto, qtd e valor");
+  
   const refDoc=doc(db,"produtos",id);
   const snap=await getDoc(refDoc);
   const p=snap.data();
 
-  let totalUSD,totalBRL;
-
+  let totalUSD, totalBRL;
+  // Conversão automática baseada na cotação global do fetch
   if(moeda==="USD"){
-    totalUSD=total;
-    totalBRL=total*cot;
-  }else{
-    totalBRL=total;
-    totalUSD=total/cot;
+    totalUSD = total;
+    totalBRL = total * cotacaoAtual;
+  } else {
+    totalBRL = total;
+    totalUSD = total / cotacaoAtual;
   }
 
+  const unitUSD = totalUSD/qtd;
+  const unitBRL = totalBRL/qtd;
+
   await updateDoc(refDoc,{
-    estoque:increment(qtd),
-    ultimaUSD:(totalUSD/qtd),
-    ultimaBRL:(totalBRL/qtd)
+    estoque: increment(qtd),
+    ultimaUSD: unitUSD,
+    ultimaBRL: unitBRL
   });
 
-  alert("Compra registrada!");
+  await addDoc(collection(db,"compras"),{
+    produtoId: id,
+    produtoNome: p.nome,
+    foto: p.foto||"",
+    tipo: "Compra",
+    qtd: qtd,
+    totalUSD: totalUSD,
+    totalBRL: totalBRL,
+    criadoEm: new Date().toISOString()
+  });
+
+  alert("Compra registrada! Custo Unitário atualizado.");
+  document.getElementById("quantidadeCompra").value="";
+  document.getElementById("valorCompra").value="";
 };
 
-// Tooltip
-window.showTooltip=function(url,e){
-  if(!url) return;
-  const t=document.getElementById("tooltip");
-  t.innerHTML=`<img src="${url}" style="width:130px;height:130px;object-fit:cover;border-radius:10px">`;
-  t.style.display="block";
-  t.style.left=(e.pageX+10)+"px";
-  t.style.top=(e.pageY+10)+"px";
+// HISTÓRICO DE VARIAÇÃO DE CUSTO (Modal)
+window.abrirHistoricoCusto = async function(id, nome) {
+  document.getElementById("nomeHistoricoCusto").innerText = nome;
+  const tbody = document.getElementById("listaHistoricoCusto");
+  tbody.innerHTML = "<tr><td colspan='3'>Carregando histórico...</td></tr>";
+  document.getElementById("modalHistoricoCusto").classList.add("active");
+  
+  // Buscar na collection compras onde produtoId == id e tipo == 'Compra'
+  const snapCompras = await getDocs(collection(db, "compras"));
+  const historico = [];
+  
+  snapCompras.forEach(d => {
+    const c = d.data();
+    if(c.produtoId === id && c.tipo === "Compra") {
+      historico.push(c);
+    }
+  });
+  
+  historico.sort((a,b) => (b.criadoEm||"").localeCompare(a.criadoEm||""));
+  
+  tbody.innerHTML = "";
+  if(historico.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Nenhuma compra registrada.</td></tr>";
+    return;
+  }
+  
+  historico.forEach(h => {
+    let unitUSD = h.totalUSD / h.qtd;
+    let unitBRL = h.totalBRL / h.qtd;
+    let data = new Date(h.criadoEm).toLocaleDateString("pt-BR");
+    
+    tbody.innerHTML += `
+      <tr>
+        <td>${data}</td>
+        <td style="color:var(--primary);font-weight:600">$ ${unitUSD.toFixed(2)}</td>
+        <td style="color:var(--green);font-weight:600">R$ ${unitBRL.toFixed(2)}</td>
+      </tr>
+    `;
+  });
 };
 
-window.hideTooltip=function(){
-  document.getElementById("tooltip").style.display="none";
+window.deletarProduto = async function(id){
+  if(confirm("Excluir definitivamente este produto?")){
+    await deleteDoc(doc(db,"produtos",id));
+  }
 };
+
+// Busca na tabela
+document.getElementById("searchProdutos").addEventListener("input", function(e){
+  const term = e.target.value.toLowerCase();
+  document.querySelectorAll("#listaProdutos tr").forEach(tr => {
+    const name = tr.children[1] ? tr.children[1].innerText.toLowerCase() : "";
+    tr.style.display = name.includes(term) ? "" : "none";
+  });
+});
 </script>
-
 </body>
 </html>
