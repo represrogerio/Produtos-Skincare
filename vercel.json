@@ -1,9 +1,3 @@
 {
-  "name": "skincare-estoque-ml",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "firebase-admin": "^12.0.0",
-    "node-fetch": "^2.7.0"
-  }
+  "version": 2
 }
