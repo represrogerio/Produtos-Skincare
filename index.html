@@ -247,16 +247,20 @@ window.limparTodosProdutos = async function(){
 };
 
 window.criarProdutosML = async function(){
-  if(!confirm("Vai criar 20 produtos. Continuar?")) return;
-  let count = 0;
+  if(!confirm("Vai criar os 20 produtos (pulando os que já existem). Continuar?")) return;
+  const snap = await getDocs(collection(db,"produtos"));
+  const skusExistentes = new Set();
+  snap.forEach(d => { if(d.data().sku) skusExistentes.add(String(d.data().sku).toUpperCase()); });
+  let criados = 0, pulados = 0;
   for(let p of produtosML){
+    if(skusExistentes.has(p.sku.toUpperCase())){ pulados++; continue; }
     await addDoc(collection(db,"produtos"), {
       nome: p.nome, sku: p.sku, ml_item_id: p.ml_item_id,
       estoque: 0, minimo: 3, ultimaUSD: 0, ultimaBRL: 0, criadoEm: Date.now()
     });
-    count++;
+    criados++;
   }
-  alert("✅ " + count + " produtos criados!");
+  alert("✅ " + criados + " criados, " + pulados + " já existiam (pulados).");
 };
 
 window.puxarEstoqueML = async function(){
