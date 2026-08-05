@@ -53,7 +53,25 @@ tr:hover td{background:#f8fafc}
 .tooltip{position:fixed;display:none;z-index:9999;background:#fff;border:1px solid var(--border);padding:6px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 
 .input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
-.actions-cell{display:flex;gap:4px;flex-wrap:wrap;max-width:320px}
+
+/* ============================================
+   NOVO ESTILO: MENU DROPDOWN DE AÇÕES
+   ============================================ */
+.actions-cell{position:relative;width:50px}
+.menu-btn{all:unset;cursor:pointer;padding:8px;border-radius:6px;color:var(--muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
+.menu-btn:hover{background:#f1f5f9;color:var(--text)}
+.menu-dropdown{position:absolute;right:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.15);min-width:180px;z-index:100;display:none;flex-direction:column;padding:6px;margin-top:4px}
+.menu-dropdown.show{display:flex}
+.menu-item{all:unset;cursor:pointer;padding:10px 12px;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--text);text-align:left;width:100%}
+.menu-item:hover{background:#f8fafc}
+.menu-item.danger{color:var(--red)}
+.menu-item.danger:hover{background:#fee2e2}
+.menu-item.warning{color:var(--warning)}
+.menu-item.warning:hover{background:#fef3c7}
+.menu-item.edit{color:var(--primary)}
+.menu-item.edit:hover{background:#e0e7ff}
+.menu-divider{height:1px;background:var(--border);margin:6px 0}
+/* ============================================ */
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-overlay.active{display:flex}
@@ -303,7 +321,7 @@ placeholder="Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE23
     </div>
 </div>
 
-<!-- NOVO MODAL: Renomear Produto -->
+<!-- Modal Renomear Produto -->
 <div class="modal-overlay" id="modalRenomear">
     <div class="modal" style="max-width:450px">
     <h3>✏️ Corrigir Nome do Produto</h3>
@@ -314,6 +332,30 @@ placeholder="Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE23
     <input type="text" id="novoNomeProduto" class="input" placeholder="Ex: Creme Facial Hidratante 50g">
     <div style="display:flex;gap:10px">
     <button class="btn btn-success" style="flex:1" onclick="salvarRenomear()">💾 Salvar Alteração</button>
+    <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
+    </div>
+    </div>
+</div>
+
+<!-- Modal Editar SKU / ML ID -->
+<div class="modal-overlay" id="modalEditarSKU">
+    <div class="modal" style="max-width:450px">
+    <h3>🏷️ Editar SKU / ML ID</h3>
+    <p style="font-size:13px;color:var(--muted);margin-top:0">
+        Preencha os identificadores do produto. O <strong>ML ID</strong> é usado para sincronizar estoque com o Mercado Livre.
+    </p>
+    
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">SKU (Código Interno)</label>
+    <input type="text" id="editSku" class="input" placeholder="Ex: CREME001">
+    
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">ML Item ID (Mercado Livre)</label>
+    <input type="text" id="editMlId" class="input" placeholder="Ex: 123456789">
+    <p style="font-size:11px;color:var(--muted);margin-top:-5px;margin-bottom:10px">
+        ℹ️ Para encontrar o ML ID: abra o anúncio no ML → o número final da URL é o ID
+    </p>
+    
+    <div style="display:flex;gap:10px">
+    <button class="btn btn-success" style="flex:1" onclick="salvarEditarSKU()">💾 Salvar</button>
     <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
     </div>
     </div>
@@ -351,6 +393,9 @@ let editandoCustoBRLAtual = 0;
 
 // Variável para Renomear
 let renomearId = null;
+
+// Variável para Editar SKU/ML
+let editarSkuId = null;
 
 // Variável Global para Token ML
 let mlToken = localStorage.getItem('ml_access_token') || '';
@@ -684,7 +729,7 @@ window.processarSincronizacaoSKU = async function() {
 };
 
 // ==========================================================
-// FUNÇÕES NOVAS: INTEGRAÇÃO MERCADO LIVRE
+// FUNÇÕES: INTEGRAÇÃO MERCADO LIVRE
 // ==========================================================
 
 window.abrirConfigML = function() {
@@ -775,7 +820,7 @@ window.sincronizarEstoqueML = async function() {
 }
 
 // ==========================================================
-// FUNÇÕES NOVAS: RENOMEAR PRODUTO
+// FUNÇÕES: RENOMEAR PRODUTO
 // ==========================================================
 window.abrirRenomear = function(id, nomeAtual) {
     renomearId = id;
@@ -801,9 +846,85 @@ window.salvarRenomear = async function() {
     }
 }
 
+// ==========================================================
+// FUNÇÕES: EDITAR SKU / ML ID
+// ==========================================================
+window.abrirEditarSKU = function(id, skuAtual, mlIdAtual) {
+    editarSkuId = id;
+    document.getElementById("editSku").value = skuAtual || "";
+    document.getElementById("editMlId").value = mlIdAtual || "";
+    document.getElementById("modalEditarSKU").classList.add("active");
+}
+
+window.salvarEditarSKU = async function() {
+    const sku = document.getElementById("editSku").value.trim();
+    const mlId = document.getElementById("editMlId").value.trim();
+    
+    if (!sku && !mlId) {
+        return alert("Preencha pelo menos um campo (SKU ou ML ID).");
+    }
+    
+    // Validação simples do ML ID (deve ser numérico)
+    if (mlId && !/^\d+$/.test(mlId)) {
+        return alert("ML ID deve conter apenas números.");
+    }
+
+    try {
+        await updateDoc(doc(db, "produtos", editarSkuId), {
+            sku: sku,
+            mlItemId: mlId
+        });
+        alert("✅ SKU/ML ID atualizado com sucesso!");
+        fecharModais();
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao atualizar SKU/ML ID.");
+    }
+}
 
 // ==========================================================
-// LISTENER PRODUTOS — Renderiza SEM duplicidade nos alertas
+// NOVAS FUNÇÕES: MENU DROPDOWN DE AÇÕES
+// ==========================================================
+let menuAbertoId = null;
+
+window.toggleMenuAcoes = function(id, event) {
+    event.stopPropagation();
+    
+    // Fecha menu anterior se existir
+    if (menuAbertoId && menuAbertoId !== id) {
+        const menuAnterior = document.getElementById(`menu-${menuAbertoId}`);
+        if (menuAnterior) menuAnterior.classList.remove('show');
+    }
+    
+    // Alterna o menu atual
+    const menu = document.getElementById(`menu-${id}`);
+    const isOpen = menu.classList.contains('show');
+    
+    // Fecha todos os menus primeiro
+    document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('show'));
+    
+    if (!isOpen) {
+        menu.classList.add('show');
+        menuAbertoId = id;
+    } else {
+        menuAbertoId = null;
+    }
+}
+
+window.fecharTodosMenus = function() {
+    document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('show'));
+    menuAbertoId = null;
+}
+
+// Fecha menus ao clicar fora
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.actions-cell')) {
+        fecharTodosMenus();
+    }
+});
+
+// ==========================================================
+// LISTENER PRODUTOS
 // ==========================================================
 onSnapshot(collection(db, "produtos"), snap => {
   const tbody = document.getElementById("listaProdutos");
@@ -900,7 +1021,7 @@ onSnapshot(collection(db, "produtos"), snap => {
   }
 
   // ============================================
-  // TABELA COMPLETA
+  // TABELA COMPLETA COM MENU DROPDOWN
   // ============================================
   produtos.forEach(p => {
     const id = p.id;
@@ -940,6 +1061,9 @@ onSnapshot(collection(db, "produtos"), snap => {
     if (!p.sku && !p.mlItemId) skuHtml = `<span style="color:var(--muted);font-size:11px">—</span>`;
     if (isDup) skuHtml += `<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
 
+    // ============================================
+    // NOVO: COLUNA DE AÇÕES COM MENU DROPDOWN
+    // ============================================
     tbody.innerHTML += `
       <tr ${rowStyle}>
         <td>${p.foto ? `<img src="${p.foto}" class="img-thumb"
@@ -952,15 +1076,28 @@ onSnapshot(collection(db, "produtos"), snap => {
         <td style="color:var(--primary);font-weight:600">$ ${custoUSD.toFixed(2)}</td>
         <td style="color:var(--green);font-weight:600">R$ ${custoBRL.toFixed(2)} ${tagCusto}</td>
         <td class="actions-cell">
-          <button class="btn btn-warning"
-            onclick="abrirVenda('${id}','${p.nome.replace(/'/g, "\\'")}',${custoBRL})">🛒 Vender</button>
-          <button class="btn btn-edit"
-            onclick="abrirHistoricoCusto('${id}','${p.nome.replace(/'/g, "\\'")}')">📈 Custos</button>
-          <button class="btn btn-edit" style="background:#fef9c3;color:#854d0e"
-            onclick="abrirEditarCusto('${id}','${p.nome.replace(/'/g, "\\'")}',${custoUSD},${custoBRL})">✏️ Custo</button>
-          <button class="btn btn-edit" style="background:#e2e8f0;color:#475569"
-            onclick="abrirRenomear('${id}','${p.nome.replace(/'/g, "\\'")}')">✏️ Nome</button>
-          <button class="btn btn-danger" onclick="deletarProduto('${id}')">Excluir</button>
+          <button class="menu-btn" onclick="toggleMenuAcoes('${id}',event)" title="Ações">⋮</button>
+          <div id="menu-${id}" class="menu-dropdown">
+            <button class="menu-item warning" onclick="abrirVenda('${id}','${p.nome.replace(/'/g, "\\'")}',${custoBRL});fecharTodosMenus()">
+              🛒 Vender
+            </button>
+            <button class="menu-item edit" onclick="abrirHistoricoCusto('${id}','${p.nome.replace(/'/g, "\\'")}') ;fecharTodosMenus()">
+              📈 Histórico Custos
+            </button>
+            <button class="menu-item edit" onclick="abrirEditarCusto('${id}','${p.nome.replace(/'/g, "\\'")}',${custoUSD},${custoBRL});fecharTodosMenus()">
+              ✏️ Editar Custo
+            </button>
+            <button class="menu-item edit" onclick="abrirRenomear('${id}','${p.nome.replace(/'/g, "\\'")}') ;fecharTodosMenus()">
+              ✏️ Renomear
+            </button>
+            <button class="menu-item edit" onclick="abrirEditarSKU('${id}','${(p.sku || '').replace(/'/g, "\\'")}','${(p.mlItemId || '').replace(/'/g, "\\'")}') ;fecharTodosMenus()">
+              🏷️ SKU / ML ID
+            </button>
+            <div class="menu-divider"></div>
+            <button class="menu-item danger" onclick="deletarProduto('${id}');fecharTodosMenus()">
+              🗑️ Excluir
+            </button>
+          </div>
         </td>
       </tr>`;
 
