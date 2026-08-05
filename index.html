@@ -1,9 +1,9 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skincare Estoque Pro</title>
+<title>Skincare Estoque Pro + ML</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -20,7 +20,7 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--te
 .app{display:flex;min-height:100vh}
 .sidebar{width:260px;background:#0f172a;color:#fff;padding:24px 16px;display:flex;flex-direction:column}
 .brand{font-size:18px;font-weight:800;margin-bottom:30px}
-.nav-btn{all:unset;cursor:pointer;padding:10px 14px;border-radius:8px;color:#94a3b8;font-size:14px;margin-bottom:6px}
+.nav-btn{all:unset;cursor:pointer;padding:10px 14px;border-radius:8px;color:#94a3b8;font-size:14px;margin-bottom:6px;text-align:left;width:100%}
 .nav-btn.active,.nav-btn:hover{background:#1e293b;color:#fff}
 .main{flex:1;height:100vh;overflow-y:auto;}
 .topbar{background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;}
@@ -53,7 +53,7 @@ tr:hover td{background:#f8fafc}
 .tooltip{position:fixed;display:none;z-index:9999;background:#fff;border:1px solid var(--border);padding:6px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 
 .input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
-.actions-cell{display:flex;gap:4px;flex-wrap:wrap;max-width:280px}
+.actions-cell{display:flex;gap:4px;flex-wrap:wrap;max-width:320px}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-overlay.active{display:flex}
@@ -85,9 +85,10 @@ tr:hover td{background:#f8fafc}
 <main class="main">
 <header class="topbar">
 <h2 id="pageTitle" style="margin:0;font-size:18px">Dashboard</h2>
-<div style="display:flex;gap:10px">
-<input id="searchProdutos" class="input" style="margin:0;max-width:200px" placeholder="Buscar produto...">
-<button class="btn btn-success" onclick="exportarExcel('tabelaProdutosExport', 'Estoque_Skincare')">📥 Exportar Excel</button>
+<div style="display:flex;gap:10px;align-items:center">
+    <button class="btn btn-edit" onclick="abrirConfigML()" title="Configurar Token Mercado Livre">⚙️ Token ML</button>
+    <input id="searchProdutos" class="input" style="margin:0;max-width:200px" placeholder="Buscar produto...">
+    <button class="btn btn-success" onclick="exportarExcel('tabelaProdutosExport', 'Estoque_Skincare')">📥 Exportar Excel</button>
 </div>
 </header>
 
@@ -112,7 +113,6 @@ tr:hover td{background:#f8fafc}
 <button class="btn btn-warning" onclick="abrirSincronizarSKU()">🔄 Sincronizar SKU/ML</button>
 </div>
 </div>
-<!-- Aviso duplicidades detectadas -->
 <div id="dupWarning"></div>
 <div id="alerts"></div>
 </div>
@@ -141,7 +141,10 @@ tr:hover td{background:#f8fafc}
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
 <h3 style="margin:0">Estoque</h3>
-<button class="btn btn-danger" onclick="removerDuplicidadesGlobal()">🧹 Remover Duplicidades</button>
+<div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="sincronizarEstoqueML()" id="btnSyncML">🔄 Atualizar do ML</button>
+    <button class="btn btn-danger" onclick="removerDuplicidadesGlobal()">🧹 Remover Duplicidades</button>
+</div>
 </div>
 <div class="table-wrap">
 <table id="tabelaProdutosExport">
@@ -281,6 +284,41 @@ placeholder="Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE23
 </div>
 </div>
 
+<!-- Modal Configurar Token ML -->
+<div class="modal-overlay" id="modalConfigML">
+    <div class="modal" style="max-width:500px">
+    <h3>⚙️ Configurar Mercado Livre</h3>
+    <p style="font-size:13px;color:var(--muted)">
+        Para atualizar o estoque automaticamente, você precisa do <strong>Access Token</strong> da sua aplicação no Mercado Livre Developers.
+    </p>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Access Token</label>
+    <input type="text" id="mlAccessToken" class="input" placeholder="Cole seu token longo aqui...">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:15px">
+        O token será salvo no seu navegador. Ele expira em 6 horas.
+    </div>
+    <div style="display:flex;gap:10px">
+    <button class="btn btn-success" style="flex:1" onclick="salvarTokenML()">💾 Salvar Token</button>
+    <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
+    </div>
+    </div>
+</div>
+
+<!-- NOVO MODAL: Renomear Produto -->
+<div class="modal-overlay" id="modalRenomear">
+    <div class="modal" style="max-width:450px">
+    <h3>✏️ Corrigir Nome do Produto</h3>
+    <p style="font-size:13px;color:var(--muted);margin-top:0">
+        Digite o nome correto abaixo. O histórico e custos serão mantidos.
+    </p>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Novo Nome</label>
+    <input type="text" id="novoNomeProduto" class="input" placeholder="Ex: Creme Facial Hidratante 50g">
+    <div style="display:flex;gap:10px">
+    <button class="btn btn-success" style="flex:1" onclick="salvarRenomear()">💾 Salvar Alteração</button>
+    <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
+    </div>
+    </div>
+</div>
+
 <!-- Tooltip Imagem -->
 <img id="tooltip" class="tooltip">
 
@@ -310,6 +348,12 @@ let editandoCustoId = null;
 let editandoCustoNome = "";
 let editandoCustoUSDAtual = 0;
 let editandoCustoBRLAtual = 0;
+
+// Variável para Renomear
+let renomearId = null;
+
+// Variável Global para Token ML
+let mlToken = localStorage.getItem('ml_access_token') || '';
 
 // Cotação
 fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
@@ -414,7 +458,6 @@ window.importarGitHub = async function() {
 
 // ==========================================================
 // FUNÇÃO GLOBAL DE REMOÇÃO DE DUPLICIDADES
-// (usada no botão da tela Produtos e como base para dedupagem)
 // ==========================================================
 function normalizarNome(str) {
   return (str || "")
@@ -445,7 +488,6 @@ window.removerDuplicidadesGlobal = async function() {
   for (const k in gruposNome) {
     const g = gruposNome[k];
     if (g.length > 1) {
-      // Mantém o de maior estoque (empate → primeiro)
       g.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
       const manter = g[0];
       let estTotal = manter.estoque || 0;
@@ -642,6 +684,125 @@ window.processarSincronizacaoSKU = async function() {
 };
 
 // ==========================================================
+// FUNÇÕES NOVAS: INTEGRAÇÃO MERCADO LIVRE
+// ==========================================================
+
+window.abrirConfigML = function() {
+    document.getElementById("mlAccessToken").value = mlToken;
+    document.getElementById("modalConfigML").classList.add("active");
+}
+
+window.salvarTokenML = function() {
+    const token = document.getElementById("mlAccessToken").value.trim();
+    if(!token) return alert("Token não pode ser vazio");
+    mlToken = token;
+    localStorage.setItem('ml_access_token', token);
+    alert("Token salvo! Agora você pode usar a função 'Atualizar do ML'.");
+    fecharModais();
+}
+
+window.sincronizarEstoqueML = async function() {
+    if (!mlToken) {
+        alert("⚠️ Você precisa configurar o Token do Mercado Livre primeiro.\nClique no botão '⚙️ Token ML' no topo da página.");
+        abrirConfigML();
+        return;
+    }
+
+    const btn = document.getElementById("btnSyncML");
+    const textoOriginal = btn.innerText;
+    btn.innerText = "⏳ Atualizando...";
+    btn.disabled = true;
+
+    try {
+        const snap = await getDocs(collection(db, "produtos"));
+        const produtosML = [];
+        snap.forEach(d => {
+            const data = d.data();
+            if (data.mlItemId && data.mlItemId.trim() !== "") {
+                produtosML.push({ id: d.id, mlId: data.mlItemId, nome: data.nome });
+            }
+        });
+
+        if (produtosML.length === 0) {
+            alert("Nenhum produto com ID do Mercado Livre encontrado.");
+            btn.innerText = textoOriginal;
+            btn.disabled = false;
+            return;
+        }
+
+        let atualizados = 0;
+        let erros = 0;
+
+        for (const prod of produtosML) {
+            try {
+                const url = `https://api.mercadolibre.com/items/${prod.mlId}?access_token=${mlToken}`;
+                const response = await fetch(url);
+                
+                if (response.status === 401) {
+                    alert("❌ Token inválido ou expirado. Configure um novo token.");
+                    break;
+                }
+
+                const data = await response.json();
+                
+                if (data.available_quantity !== undefined) {
+                    const novoSaldo = data.available_quantity;
+                    await updateDoc(doc(db, "produtos", prod.id), {
+                        estoque: novoSaldo
+                    });
+                    atualizados++;
+                } else {
+                    erros++;
+                }
+
+                await new Promise(r => setTimeout(r, 200)); 
+
+            } catch (err) {
+                console.error("Erro no produto " + prod.nome, err);
+                erros++;
+            }
+        }
+
+        alert(`✅ Sincronização Finalizada!\n\n📦 Produtos atualizados: ${atualizados}\n⚠️ Erros/Não encontrados: ${erros}`);
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro geral na sincronização.");
+    } finally {
+        btn.innerText = textoOriginal;
+        btn.disabled = false;
+    }
+}
+
+// ==========================================================
+// FUNÇÕES NOVAS: RENOMEAR PRODUTO
+// ==========================================================
+window.abrirRenomear = function(id, nomeAtual) {
+    renomearId = id;
+    document.getElementById("novoNomeProduto").value = nomeAtual;
+    document.getElementById("modalRenomear").classList.add("active");
+}
+
+window.salvarRenomear = async function() {
+    const novoNome = document.getElementById("novoNomeProduto").value.trim();
+    if (!novoNome) return alert("O nome não pode estar vazio.");
+    
+    if (!confirm(`Tem certeza que deseja alterar o nome para:\n"${novoNome}"?`)) return;
+
+    try {
+        await updateDoc(doc(db, "produtos", renomearId), {
+            nome: novoNome
+        });
+        alert("✅ Nome atualizado com sucesso!");
+        fecharModais();
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao atualizar nome.");
+    }
+}
+
+
+// ==========================================================
 // LISTENER PRODUTOS — Renderiza SEM duplicidade nos alertas
 // ==========================================================
 onSnapshot(collection(db, "produtos"), snap => {
@@ -663,14 +824,12 @@ onSnapshot(collection(db, "produtos"), snap => {
 
   // ============================================
   // DETECÇÃO DE DUPLICIDADES para os ALERTAS
-  // Agrupa por nome normalizado E por SKU
   // ============================================
-  const agrupadosParaAlerta = {}; // chave = nome normalizado (ou SKU se tiver)
-  const contadorDuplicados = {};  // conta quantas cópias existem
-  const idsDuplicados = new Set(); // ids extras (para marcar/limpar)
+  const agrupadosParaAlerta = {}; 
+  const contadorDuplicados = {};  
+  const idsDuplicados = new Set(); 
 
   produtos.forEach(p => {
-    // Chave de agrupamento: prefere SKU se existir, senão nome
     let chave;
     if (p.sku && p.sku.trim()) {
       chave = "sku:" + p.sku.toUpperCase().trim();
@@ -679,18 +838,15 @@ onSnapshot(collection(db, "produtos"), snap => {
     }
 
     if (!agrupadosParaAlerta[chave]) {
-      // Primeiro produto desse grupo → é o "principal"
       agrupadosParaAlerta[chave] = { ...p, estoqueSomado: p.estoque || 0 };
       contadorDuplicados[chave] = 1;
     } else {
-      // Duplicado! Soma estoque no principal e marca id como duplicado
       agrupadosParaAlerta[chave].estoqueSomado += (p.estoque || 0);
       contadorDuplicados[chave]++;
       idsDuplicados.add(p.id);
     }
   });
 
-  // Total de duplicidades encontradas
   const totalDuplicados = idsDuplicados.size;
   if (totalDuplicados > 0) {
     dupWarning.innerHTML = `
@@ -701,8 +857,7 @@ onSnapshot(collection(db, "produtos"), snap => {
   }
 
   // ============================================
-  // RENDERIZAR ALERTAS — únicos, sem duplicidade
-  // Usa o estoque SOMADO para checar o mínimo
+  // RENDERIZAR ALERTAS
   // ============================================
   const chavesUnicas = Object.keys(agrupadosParaAlerta);
   const alertasArr = [];
@@ -723,7 +878,6 @@ onSnapshot(collection(db, "produtos"), snap => {
     }
   });
 
-  // Ordena alertas: primeiro por criticidade (menor estoque)
   alertasArr.sort((a, b) => (a.estoque - a.minimo) - (b.estoque - b.minimo));
 
   alertasArr.forEach(al => {
@@ -746,8 +900,7 @@ onSnapshot(collection(db, "produtos"), snap => {
   }
 
   // ============================================
-  // TABELA COMPLETA — mostra TODOS (inclusive duplicados)
-  // para você poder ver e limpar manualmente se quiser
+  // TABELA COMPLETA
   // ============================================
   produtos.forEach(p => {
     const id = p.id;
@@ -778,7 +931,6 @@ onSnapshot(collection(db, "produtos"), snap => {
 
     dadosGrafico.push({ nome: p.nome, valor: subBRL });
 
-    // Marca visualmente linhas duplicadas na tabela
     const isDup = idsDuplicados.has(id);
     const rowStyle = isDup ? 'style="background:#fef3c7"' : '';
 
@@ -805,7 +957,9 @@ onSnapshot(collection(db, "produtos"), snap => {
           <button class="btn btn-edit"
             onclick="abrirHistoricoCusto('${id}','${p.nome.replace(/'/g, "\\'")}')">📈 Custos</button>
           <button class="btn btn-edit" style="background:#fef9c3;color:#854d0e"
-            onclick="abrirEditarCusto('${id}','${p.nome.replace(/'/g, "\\'")}',${custoUSD},${custoBRL})">✏️ Editar Custo</button>
+            onclick="abrirEditarCusto('${id}','${p.nome.replace(/'/g, "\\'")}',${custoUSD},${custoBRL})">✏️ Custo</button>
+          <button class="btn btn-edit" style="background:#e2e8f0;color:#475569"
+            onclick="abrirRenomear('${id}','${p.nome.replace(/'/g, "\\'")}')">✏️ Nome</button>
           <button class="btn btn-danger" onclick="deletarProduto('${id}')">Excluir</button>
         </td>
       </tr>`;
