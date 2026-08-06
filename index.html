@@ -54,9 +54,7 @@ tr:hover td{background:#f8fafc}
 
 .input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
 
-/* ============================================
-   NOVO ESTILO: MENU DROPDOWN DE AÇÕES
-   ============================================ */
+/* Menu Dropdown de Ações */
 .actions-cell{position:relative;width:50px}
 .menu-btn{all:unset;cursor:pointer;padding:8px;border-radius:6px;color:var(--muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
 .menu-btn:hover{background:#f1f5f9;color:var(--text)}
@@ -71,7 +69,6 @@ tr:hover td{background:#f8fafc}
 .menu-item.edit{color:var(--primary)}
 .menu-item.edit:hover{background:#e0e7ff}
 .menu-divider{height:1px;background:var(--border);margin:6px 0}
-/* ============================================ */
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-overlay.active{display:flex}
@@ -85,6 +82,14 @@ tr:hover td{background:#f8fafc}
 .ml-tag{font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-weight:600;font-family:monospace}
 
 .dup-warning{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:10px;border-radius:8px;font-size:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+/* Estilo para Upload de Imagem */
+.upload-area{border:2px dashed var(--border);border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:all 0.3s}
+.upload-area:hover{border-color:var(--primary);background:#f0f4ff}
+.upload-area.has-image{border-style:solid;border-color:var(--green);background:#f0fdf4}
+.upload-preview{max-width:150px;max-height:150px;border-radius:8px;margin:10px auto;display:block}
+.upload-icon{font-size:40px;color:var(--muted);margin-bottom:10px}
+.upload-text{font-size:13px;color:var(--muted)}
 </style>
 </head>
 
@@ -361,6 +366,32 @@ placeholder="Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE23
     </div>
 </div>
 
+<!-- NOVO MODAL: Editar Imagem do Produto -->
+<div class="modal-overlay" id="modalEditarImagem">
+    <div class="modal" style="max-width:500px">
+    <h3>🖼️ Alterar Imagem do Produto</h3>
+    <p style="font-size:13px;color:var(--muted);margin-top:0">
+        Cole a URL da imagem ou faça upload de uma nova imagem.
+    </p>
+    
+    <div id="uploadArea" class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📷</div>
+        <div class="upload-text">Clique para selecionar uma imagem</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">ou arraste e solte aqui</div>
+        <img id="uploadPreview" class="upload-preview" style="display:none">
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewImagem(this)">
+    
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:15px;display:block">Ou cole a URL da imagem</label>
+    <input type="text" id="imagemURL" class="input" placeholder="https://exemplo.com/imagem.jpg">
+    
+    <div style="display:flex;gap:10px;margin-top:15px">
+    <button class="btn btn-success" style="flex:1" onclick="salvarImagem()">💾 Salvar Imagem</button>
+    <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
+    </div>
+    </div>
+</div>
+
 <!-- Tooltip Imagem -->
 <img id="tooltip" class="tooltip">
 
@@ -391,13 +422,11 @@ let editandoCustoNome = "";
 let editandoCustoUSDAtual = 0;
 let editandoCustoBRLAtual = 0;
 
-// Variável para Renomear
 let renomearId = null;
-
-// Variável para Editar SKU/ML
 let editarSkuId = null;
+let editarImagemId = null;
+let imagemBase64 = null;
 
-// Variável Global para Token ML
 let mlToken = localStorage.getItem('ml_access_token') || '';
 
 // Cotação
@@ -422,6 +451,12 @@ window.showPage = function(id) {
 
 window.fecharModais = function() {
   document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
+  // Resetar upload
+  imagemBase64 = null;
+  document.getElementById("uploadPreview").style.display = "none";
+  document.getElementById("uploadArea").classList.remove("has-image");
+  document.getElementById("fileInput").value = "";
+  document.getElementById("imagemURL").value = "";
 };
 
 window.showTooltip = function(url, e) {
@@ -521,7 +556,6 @@ window.removerDuplicidadesGlobal = async function() {
 
   let removidos = 0;
 
-  // Duplicidade por nome
   const gruposNome = {};
   produtos.forEach(p => {
     const k = normalizarNome(p.nome);
@@ -547,7 +581,6 @@ window.removerDuplicidadesGlobal = async function() {
     }
   }
 
-  // Recarrega e verifica por SKU
   const snap2 = await getDocs(collection(db, "produtos"));
   const produtos2 = [];
   snap2.forEach(d => produtos2.push({ id: d.id, ...d.data() }));
@@ -631,7 +664,6 @@ window.processarSincronizacaoSKU = async function() {
   if (registros.length === 0) return alert("Nenhuma linha válida.");
   if (!confirm(`Encontradas ${registros.length} linhas.\nProcessar agora?`)) return;
 
-  // Antes de sincronizar, remove duplicidades existentes
   const snap = await getDocs(collection(db, "produtos"));
   const produtos = [];
   snap.forEach(d => produtos.push({ id: d.id, ...d.data() }));
@@ -688,7 +720,6 @@ window.processarSincronizacaoSKU = async function() {
     }
   }
 
-  // Dedupe final por SKU
   const snap3 = await getDocs(collection(db, "produtos"));
   const produtosFinais = [];
   snap3.forEach(d => produtosFinais.push({ id: d.id, ...d.data() }));
@@ -864,7 +895,6 @@ window.salvarEditarSKU = async function() {
         return alert("Preencha pelo menos um campo (SKU ou ML ID).");
     }
     
-    // Validação simples do ML ID (deve ser numérico)
     if (mlId && !/^\d+$/.test(mlId)) {
         return alert("ML ID deve conter apenas números.");
     }
@@ -883,24 +913,76 @@ window.salvarEditarSKU = async function() {
 }
 
 // ==========================================================
-// NOVAS FUNÇÕES: MENU DROPDOWN DE AÇÕES
+// NOVAS FUNÇÕES: EDITAR IMAGEM DO PRODUTO
+// ==========================================================
+window.abrirEditarImagem = function(id, imagemAtual) {
+    editarImagemId = id;
+    imagemBase64 = null;
+    document.getElementById("imagemURL").value = imagemAtual || "";
+    document.getElementById("uploadPreview").style.display = "none";
+    document.getElementById("uploadArea").classList.remove("has-image");
+    document.getElementById("fileInput").value = "";
+    document.getElementById("modalEditarImagem").classList.add("active");
+}
+
+window.previewImagem = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagemBase64 = e.target.result;
+            const preview = document.getElementById("uploadPreview");
+            preview.src = imagemBase64;
+            preview.style.display = "block";
+            document.getElementById("uploadArea").classList.add("has-image");
+            document.querySelector(".upload-text").innerText = "Imagem selecionada!";
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+window.salvarImagem = async function() {
+    const urlInput = document.getElementById("imagemURL").value.trim();
+    let imagemFinal = "";
+    
+    // Prioridade: Upload Base64 > URL > Manter atual
+    if (imagemBase64) {
+        imagemFinal = imagemBase64;
+    } else if (urlInput) {
+        imagemFinal = urlInput;
+    }
+    
+    if (!imagemFinal) {
+        return alert("Selecione uma imagem ou cole uma URL.");
+    }
+
+    try {
+        await updateDoc(doc(db, "produtos", editarImagemId), {
+            foto: imagemFinal
+        });
+        alert("✅ Imagem atualizada com sucesso!");
+        fecharModais();
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao atualizar imagem. A imagem pode ser muito grande, tente usar uma URL.");
+    }
+}
+
+// ==========================================================
+// FUNÇÕES: MENU DROPDOWN DE AÇÕES
 // ==========================================================
 let menuAbertoId = null;
 
 window.toggleMenuAcoes = function(id, event) {
     event.stopPropagation();
     
-    // Fecha menu anterior se existir
     if (menuAbertoId && menuAbertoId !== id) {
         const menuAnterior = document.getElementById(`menu-${menuAbertoId}`);
         if (menuAnterior) menuAnterior.classList.remove('show');
     }
     
-    // Alterna o menu atual
     const menu = document.getElementById(`menu-${id}`);
     const isOpen = menu.classList.contains('show');
     
-    // Fecha todos os menus primeiro
     document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('show'));
     
     if (!isOpen) {
@@ -916,7 +998,6 @@ window.fecharTodosMenus = function() {
     menuAbertoId = null;
 }
 
-// Fecha menus ao clicar fora
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.actions-cell')) {
         fecharTodosMenus();
@@ -943,9 +1024,6 @@ onSnapshot(collection(db, "produtos"), snap => {
   snap.forEach(d => produtos.push({ id: d.id, ...d.data() }));
   produtos.sort((a, b) => a.nome.localeCompare(b.nome));
 
-  // ============================================
-  // DETECÇÃO DE DUPLICIDADES para os ALERTAS
-  // ============================================
   const agrupadosParaAlerta = {}; 
   const contadorDuplicados = {};  
   const idsDuplicados = new Set(); 
@@ -977,9 +1055,6 @@ onSnapshot(collection(db, "produtos"), snap => {
       </div>`;
   }
 
-  // ============================================
-  // RENDERIZAR ALERTAS
-  // ============================================
   const chavesUnicas = Object.keys(agrupadosParaAlerta);
   const alertasArr = [];
 
@@ -1020,9 +1095,6 @@ onSnapshot(collection(db, "produtos"), snap => {
     alerts.innerHTML = `<p style="color:var(--green);font-size:13px;font-weight:600">✅ Nenhum alerta no momento.</p>`;
   }
 
-  // ============================================
-  // TABELA COMPLETA COM MENU DROPDOWN
-  // ============================================
   produtos.forEach(p => {
     const id = p.id;
     totalP++;
@@ -1061,9 +1133,6 @@ onSnapshot(collection(db, "produtos"), snap => {
     if (!p.sku && !p.mlItemId) skuHtml = `<span style="color:var(--muted);font-size:11px">—</span>`;
     if (isDup) skuHtml += `<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
 
-    // ============================================
-    // NOVO: COLUNA DE AÇÕES COM MENU DROPDOWN
-    // ============================================
     tbody.innerHTML += `
       <tr ${rowStyle}>
         <td>${p.foto ? `<img src="${p.foto}" class="img-thumb"
@@ -1092,6 +1161,9 @@ onSnapshot(collection(db, "produtos"), snap => {
             </button>
             <button class="menu-item edit" onclick="abrirEditarSKU('${id}','${(p.sku || '').replace(/'/g, "\\'")}','${(p.mlItemId || '').replace(/'/g, "\\'")}') ;fecharTodosMenus()">
               🏷️ SKU / ML ID
+            </button>
+            <button class="menu-item edit" onclick="abrirEditarImagem('${id}','${(p.foto || '').replace(/'/g, "\\'")}') ;fecharTodosMenus()">
+              🖼️ Imagem
             </button>
             <div class="menu-divider"></div>
             <button class="menu-item danger" onclick="deletarProduto('${id}');fecharTodosMenus()">
