@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -70,6 +71,7 @@ tr:hover td{background:#f8fafc}
 .sku-tag{font-size:10px;background:#f1f5f9;color:#475569;padding:2px 6px;border-radius:4px;font-weight:600;font-family:monospace}
 .ml-tag{font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-weight:600;font-family:monospace}
 .dup-warning{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:10px;border-radius:8px;font-size:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sem-sku-info{background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .upload-area{border:2px dashed var(--border);border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:all 0.3s}
 .upload-area:hover,.upload-area.dragover{border-color:var(--primary);background:#f0f4ff}
 .upload-area.has-image{border-style:solid;border-color:var(--green);background:#f0fdf4}
@@ -83,6 +85,8 @@ tr:hover td{background:#f8fafc}
 .form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
 .form-grid-5{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px}
 .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.filtro-bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.badge-count{background:var(--primary);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700}
 @media(max-width:900px){
   .app{flex-direction:column}
   .sidebar{width:100%;padding:16px}
@@ -129,7 +133,7 @@ tr:hover td{background:#f8fafc}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
           <h3 style="margin:0">Alertas de Reposição</h3>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="btn btn-primary" id="btnImportar" onclick="importarGitHub()">📥 Importar do GitHub</button>
+            <button class="btn btn-primary" id="btnImportar" onclick="importarGitHub()">📥 Importar GitHub</button>
             <button class="btn btn-warning" onclick="abrirSincronizarSKU()">🔄 Sincronizar SKU/ML</button>
           </div>
         </div>
@@ -158,12 +162,20 @@ tr:hover td{background:#f8fafc}
     </div>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-        <h3 style="margin:0">Estoque</h3>
+        <h3 style="margin:0">Estoque <span id="badgeComSku" class="badge-count">0</span></h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="sincronizarEstoqueML()" id="btnSyncML">🔄 Atualizar do ML</button>
           <button class="btn btn-danger" onclick="removerDuplicidadesGlobal()">🧹 Remover Duplicidades</button>
         </div>
       </div>
+
+      <!-- Info produtos sem SKU -->
+      <div id="semSkuInfo" class="sem-sku-info" style="display:none">
+        <span>ℹ️ <strong id="semSkuCount">0</strong> produto(s) sem SKU estão ocultos. Use <strong>🔄 Sincronizar SKU/ML</strong> para cadastrá-los.</span>
+      </div>
+
+      <div id="dupWarningProdutos"></div>
+
       <div class="table-wrap">
         <table id="tabelaProdutosExport">
           <thead>
@@ -256,7 +268,7 @@ tr:hover td{background:#f8fafc}
     <input type="number" id="novoBRL" class="input" step="0.01" min="0" placeholder="Ex: 63.85 (opcional)" oninput="previewConversaoModal()">
     <div id="previewConversaoModal" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px;color:#166534;font-weight:600"></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
-      💡 Se deixar R$ em branco, será calculado automaticamente pela cotação atual
+      💡 Se deixar R$ em branco, será calculado automaticamente
       (<span id="cotacaoModalInfo"></span>)
     </div>
     <div style="display:flex;gap:10px">
@@ -470,10 +482,10 @@ async function verificarERenovarToken(){
     s.style.display="block"; s.className="token-status token-warning";
     s.innerHTML="🔄 ML: Renovando..."; s.onclick=null;
     const ok=await renovarTokenML();
-    if(ok){ s.className="token-status token-ok"; s.innerHTML="✅ ML: Renovado com sucesso"; return true; }
+    if(ok){ s.className="token-status token-ok"; s.innerHTML="✅ ML: Renovado"; return true; }
   }
   s.style.display="block"; s.className="token-status token-expired";
-  s.innerHTML="❌ ML: Token expirado (clique)"; s.style.cursor="pointer"; s.onclick=abrirConfigML; return false;
+  s.innerHTML="❌ ML: Expirado (clique)"; s.style.cursor="pointer"; s.onclick=abrirConfigML; return false;
 }
 async function renovarTokenML(){
   if(!mlRefreshToken||!mlAppId||!mlSecretKey) return false;
@@ -578,7 +590,7 @@ window.importarGitHub=async function(){
     }
     alert("Importados novos: "+criados);
   }catch(e){ console.error(e); alert("Erro ao importar: "+(e.message||"falha")); }
-  finally{ btn.innerText="📥 Importar do GitHub"; btn.disabled=false; }
+  finally{ btn.innerText="📥 Importar GitHub"; btn.disabled=false; }
 };
 
 // ── Mesclar duplicados ────────────────────────────────────────
@@ -805,27 +817,51 @@ document.addEventListener("click",e=>{
 });
 
 // ── Listener Produtos ─────────────────────────────────────────
+// EXIBE SOMENTE PRODUTOS COM SKU NA TABELA
 onSnapshot(collection(db,"produtos"),snap=>{
   const tbody=$("listaProdutos"),sel=$("produtoCompra"),alerts=$("alerts"),dupWarn=$("dupWarning");
   tbody.innerHTML=""; sel.innerHTML=""; alerts.innerHTML=""; dupWarn.innerHTML=""; produtosMap.clear();
+
   let totalP=0,totalQ=0,totalCrit=0,totalUSD=0,totalBRL=0;
   const dadosGrafico=[],produtos=[];
+
   snap.forEach(d=>{ const p=mapProduto(d.id,d.data()); produtos.push(p); produtosMap.set(p.id,p); });
   produtos.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
 
+  // Separa com e sem SKU
+  const comSku  = produtos.filter(p=>p.sku && p.sku.trim()!=="");
+  const semSku  = produtos.filter(p=>!p.sku || p.sku.trim()==="");
+
+  // Atualiza badge e aviso
+  $("badgeComSku").innerText = comSku.length;
+  const semSkuInfo=$("semSkuInfo");
+  if(semSku.length>0){
+    semSkuInfo.style.display="flex";
+    $("semSkuCount").innerText=semSku.length;
+  }else{
+    semSkuInfo.style.display="none";
+  }
+
+  // Duplicatas apenas entre os com SKU
   const agrup={},contDup={},idsDup=new Set();
-  produtos.forEach(p=>{
-    const chave=p.sku?"sku:"+p.sku.toUpperCase():"nome:"+normalizarNome(p.nome);
+  comSku.forEach(p=>{
+    const chave="sku:"+p.sku.toUpperCase();
     if(!agrup[chave]){ agrup[chave]={...p,estoqueSomado:p.estoque||0}; contDup[chave]=1; }
     else{ agrup[chave].estoqueSomado+=(p.estoque||0); contDup[chave]++; idsDup.add(p.id); idsDup.add(agrup[chave].id); }
   });
 
-  if(idsDup.size>0) dupWarn.innerHTML=`<div class="dup-warning"><span>⚠️ Detectados <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span><button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar Agora</button></div>`;
+  const dupWarnProd=$("dupWarningProdutos");
+  if(idsDup.size>0){
+    dupWarnProd.innerHTML=`<div class="dup-warning"><span>⚠️ Detectados <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span><button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar</button></div>`;
+  }else{ dupWarnProd.innerHTML=""; }
 
+  // Alertas (todos os produtos - com e sem SKU)
   const alertasArr=[];
-  Object.keys(agrup).forEach(chave=>{
-    const p=agrup[chave];
-    if((p.estoqueSomado||0)<=(p.minimo||0)){ totalCrit++; alertasArr.push({nome:p.nome,foto:p.foto,estoque:p.estoqueSomado,minimo:p.minimo||0,duplicado:contDup[chave]>1,qtdCopias:contDup[chave]}); }
+  produtos.forEach(p=>{
+    if((p.estoque||0)<=(p.minimo||0)){
+      totalCrit++;
+      alertasArr.push({nome:p.nome,foto:p.foto,estoque:p.estoque||0,minimo:p.minimo||0});
+    }
   });
   alertasArr.sort((a,b)=>(a.estoque-a.minimo)-(b.estoque-b.minimo));
 
@@ -836,29 +872,41 @@ onSnapshot(collection(db,"produtos"),snap=>{
     alertasArr.forEach(al=>{
       const div=document.createElement("div"); div.className="alert-low";
       if(al.foto) div.setAttribute("data-tooltip",al.foto);
-      div.innerHTML=`<span class="alert-info">⚠ <strong>${escapeHtml(al.nome)}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})</span>${al.duplicado?`<span class="badge-dup">${al.qtdCopias}x duplicado</span>`:""}`;
+      div.innerHTML=`<span class="alert-info">⚠ <strong>${escapeHtml(al.nome)}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})</span>`;
       frag.appendChild(div);
     });
     alerts.appendChild(frag);
   }
 
-  const optFrag=document.createDocumentFragment();
-  const ph=document.createElement("option"); ph.value=""; ph.textContent="Selecione um produto..."; optFrag.appendChild(ph);
-
+  // Stats gerais (todos)
   produtos.forEach(p=>{
     totalP++; totalQ+=(p.estoque||0);
+    const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
+    totalUSD+=custoUSD*(p.estoque||0); totalBRL+=custoBRL*(p.estoque||0);
+    dadosGrafico.push({nome:p.nome,valor:custoBRL*(p.estoque||0)});
+  });
+
+  // Select compras (todos os produtos)
+  const optFrag=document.createDocumentFragment();
+  const ph=document.createElement("option"); ph.value=""; ph.textContent="Selecione um produto..."; optFrag.appendChild(ph);
+  produtos.forEach(p=>{
+    const opt=document.createElement("option"); opt.value=p.id;
+    opt.textContent=p.sku?`${p.nome} (${p.sku})`:p.nome; optFrag.appendChild(opt);
+  });
+  sel.appendChild(optFrag);
+
+  // Tabela — SOMENTE produtos com SKU
+  comSku.forEach(p=>{
     const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
     let tagCusto="";
     if(p.custoManual&&(p.ultimaBRL||0)>0) tagCusto=`<span class="tag-manual">manual</span>`;
     else if(custoUSD>0) tagCusto=`<span class="tag-auto">auto</span>`;
-    totalUSD+=custoUSD*(p.estoque||0); totalBRL+=custoBRL*(p.estoque||0);
-    dadosGrafico.push({nome:p.nome,valor:custoBRL*(p.estoque||0)});
+
     const isDup=idsDup.has(p.id);
-    let skuHtml="";
-    if(p.sku) skuHtml+=`<span class="sku-tag">SKU: ${escapeHtml(p.sku)}</span>`;
-    if(p.mlItemId) skuHtml+=`${p.sku?"<br>":""}<span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
-    if(!p.sku&&!p.mlItemId) skuHtml=`<span style="color:var(--muted);font-size:11px">—</span>`;
+    let skuHtml=`<span class="sku-tag">SKU: ${escapeHtml(p.sku)}</span>`;
+    if(p.mlItemId) skuHtml+=`<br><span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
     if(isDup) skuHtml+=`<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
+
     const tr=document.createElement("tr"); if(isDup) tr.style.background="#fef3c7";
     tr.innerHTML=`
       <td>${p.foto?`<img src="${escapeHtml(p.foto)}" class="img-thumb" data-tooltip="${escapeHtml(p.foto)}" alt="">`:""}</td>
@@ -882,12 +930,12 @@ onSnapshot(collection(db,"produtos"),snap=>{
         </div>
       </td>`;
     tbody.appendChild(tr);
-    const opt=document.createElement("option"); opt.value=p.id;
-    opt.textContent=p.sku?`${p.nome} (${p.sku})`:p.nome; optFrag.appendChild(opt);
   });
-  sel.appendChild(optFrag);
-  $("totalProdutos").innerText=String(totalP); $("totalEstoque").innerText=String(totalQ);
-  $("totalBaixo").innerText=String(totalCrit); $("totalValorUSD").innerText="$ "+totalUSD.toFixed(2);
+
+  $("totalProdutos").innerText=String(totalP);
+  $("totalEstoque").innerText=String(totalQ);
+  $("totalBaixo").innerText=String(totalCrit);
+  $("totalValorUSD").innerText="$ "+totalUSD.toFixed(2);
   $("totalValorBRL").innerText="R$ "+totalBRL.toFixed(2);
   atualizarGrafico(dadosGrafico);
 });
@@ -1040,3 +1088,4 @@ verificarERenovarToken();
 </script>
 </body>
 </html>
+```
