@@ -729,29 +729,28 @@ window.removerDuplicidadesGlobal = async function() {
 // ── Sincronizar SKU/ML ──────────────────────────────────────
 window.abrirSincronizarSKU = function() { $("modalSincSKU").classList.add("active"); };
 
-window.carregarExemploSKU = function() {
-  $("dadosSKU").value =
-`Fino Premium Touc Hair Máscara Capilar 230g\t6845189982\tMASFINCRE230
-Medicube Pdrn Exosome 2000 Colágeno 30ml\t4671922511\tPDRMEDSER30M
-Vt Cosmetics Cica Cream Plus 100ml\t7104495842\tCICVTSER100
-Skin1004 Ampoule Centella De Madagascar 100ml\t4852430375\tAMPSKISER100
-Espuma de Limpeza Ampoule Fom\t7104034322\tAMPSKIESP125
-Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml\t4667484245\tNO9NAMCRE10M
-Pore + Dark Spot BrighteningCelimax 35ml\t6726179242\tPORCELCRE35M
-Retinal Shor Celimax 15ml\t6725246532\tRETCELCRE15M
-345 Relief Cream Dr Althea 50 ml\t4633597133\t345DRACRE55M
-Probio-Cica Intensive Ampoule Skin 1004 50 ml\t6669781578\tPROSKIAMP55M
-Light Cleasing Oil Skin 1004 200 ml\t4629595331\tLIGSKICLE200
-Hearleaf Pore Control Cleasing Oil Anua\t4629579899\tHEAANUCLE200
-PDRN Pink Caffeine Night Mask Medicube\t6662223372\tPDRMEDMAS75M
-Deep Vita C Pad Medicube\t6662204692\tDEEMEDPAD70U
-Toner Pads Zero Pore 70 Pads Medicube\t4634071405\tTONMEDPAD70U
-Medicube Collagen Lifting Mask Máscara Facial 1 Unid\t4633793035\tCOLMEDMAS1UN
-Vitamin With Niacinamide Mask OMG 1 unid\t4633775937\tVITOMGMAS1UN
-Collagen With PDRN Mask OMG\t6670185682\tCOLOMGMAS1UN
-Poremizing Clarifyng Mask Skin 1004 1 unid\t6670134408\tPORSKIMAS1UN
-Deep Peptide Radiance Mask Medicube 1 unid\t4633624291\tDEEMEDMAS1UN
-Sérum Olhos Axis-y Vegan Collagen Eye 10ml\t\tVEGAXISER10M`;
+window.carregarExemploSKU = function () {
+  document.getElementById("dadosSKU").value = `Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE230
+Medicube Pdrn Exosome 2000 Colágeno 30ml	4671922511	PDRMEDSER30M
+Vt Cosmetics Cica Cream Plus 100ml	7104495842	CICVTSER100
+Skin1004 Ampoule Centella De Madagascar 100ml	4852430375	AMPSKISER100
+Espuma de Limpeza Ampoule Fom	7104034322	AMPSKIESP125
+Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml	4667484245	NO9NAMCRE10M
+Pore + Dark Spot BrighteningCelimax 35ml	6726179242	PORCELCRE35M
+Retinal Shor Celimax 15ml	6725246532	RETCELCRE15M
+345 Relief Cream Dr Althea 50 ml	4633597133	345DRACRE55M
+Probio-Cica Intensive Ampoule Skin 1004 50 ml	6669781578	PROSKIAMP55M
+Light Cleasing Oil Skin 1004 200 ml	4629595331	LIGSKICLE200
+Hearleaf Pore Control Cleasing Oil Anua	4629579899	HEAANUCLE200
+PDRN Pink Caffeine Night Mask Medicube	6662223372	PDRMEDMAS75M
+Deep Vita C Pad Medicube	6662204692	DEEMEDPAD70U
+Toner Pads Zero Pore 70 Pads Medicube	4634071405	TONMEDPAD70U
+Medicube Collagen Lifting Mask Máscara Facial 1 Unid	4633793035	COLMEDMAS1UN
+Vitamin With Niacinamide Mask OMG 1 unid	4633775937	VITOMGMAS1UN
+Collagen With PDRN Mask OMG	6670185682	COLOMGMAS1UN
+Poremizing Clarifyng Mask Skin 1004 1 unid	6670134408	PORSKIMAS1UN
+Deep Peptide Radiance Mask Medicube 1 unid	4633624291	DEEMEDMAS1UN
+Sérum Olhos Axis-y Vegan Collagen Eye 10ml	4633624291	VEGAXISER10M`;
 };
 
 window.processarSincronizacaoSKU = async function() {
