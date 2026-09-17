@@ -43,15 +43,32 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);padding:10px;borde
 td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
 tr:hover td{background:#f8fafc}
 .img-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:zoom-in}
-.alert-low{background:#fee2e2;color:#991b1c;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px;cursor:default;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.alert-low .alert-info{flex:1}
-.alert-low .badge-dup{background:#991b1c;color:#fff;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+
+/* ── Alerta com menu cascata ── */
+.alert-low{background:#fee2e2;color:#991b1c;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;position:relative}
+.alert-low .alert-info{flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.alert-low .badge-dup{background:#991b1c;color:#fff;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;flex-shrink:0}
+.alert-menu-btn{all:unset;cursor:pointer;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#991b1c;flex-shrink:0;transition:background .15s}
+.alert-menu-btn:hover{background:rgba(153,27,28,.12)}
+.alert-actions{position:relative;flex-shrink:0}
+.alert-dropdown{position:absolute;right:0;top:110%;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);min-width:210px;z-index:200;display:none;flex-direction:column;padding:6px}
+.alert-dropdown.show{display:flex}
+.alert-dd-item{all:unset;cursor:pointer;padding:10px 14px;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--text);font-weight:500;width:100%}
+.alert-dd-item:hover{background:#f8fafc}
+.alert-dd-item.danger{color:var(--red)}
+.alert-dd-item.danger:hover{background:#fee2e2}
+.alert-dd-item.warning{color:var(--warning)}
+.alert-dd-item.warning:hover{background:#fef3c7}
+.alert-dd-item.edit{color:var(--primary)}
+.alert-dd-item.edit:hover{background:#e0e7ff}
+.alert-dd-sep{height:1px;background:var(--border);margin:4px 0}
+
 .tooltip{position:fixed;display:none;z-index:9999;background:#fff;border:1px solid var(--border);padding:6px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2);width:120px;height:120px;object-fit:cover;pointer-events:none}
 .input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:13px}
 .actions-cell{position:relative;width:50px}
 .menu-btn{all:unset;cursor:pointer;padding:8px;border-radius:6px;color:var(--muted);font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
 .menu-btn:hover{background:#f1f5f9;color:var(--text)}
-.menu-dropdown{position:absolute;right:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.15);min-width:180px;z-index:100;display:none;flex-direction:column;padding:6px;margin-top:4px}
+.menu-dropdown{position:absolute;right:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.15);min-width:190px;z-index:100;display:none;flex-direction:column;padding:6px;margin-top:4px}
 .menu-dropdown.show{display:flex}
 .menu-item{all:unset;cursor:pointer;padding:10px 12px;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--text);text-align:left;width:100%}
 .menu-item:hover{background:#f8fafc}
@@ -62,6 +79,7 @@ tr:hover td{background:#f8fafc}
 .menu-item.edit{color:var(--primary)}
 .menu-item.edit:hover{background:#e0e7ff}
 .menu-divider{height:1px;background:var(--border);margin:6px 0}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
 .modal-overlay.active{display:flex}
 .modal{background:#fff;padding:24px;border-radius:14px;width:90%;max-width:450px;box-shadow:0 10px 25px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto}
@@ -223,7 +241,7 @@ tr:hover td{background:#f8fafc}
 <!-- Modal Vender -->
 <div class="modal-overlay" id="modalVenda">
   <div class="modal">
-    <h3>Registrar Venda</h3>
+    <h3>💸 Registrar Venda</h3>
     <input type="number" id="qtdVenda" class="input" min="1" placeholder="Quantidade vendida">
     <input type="number" id="valorVenda" class="input" step="0.01" min="0" placeholder="Valor total da venda (em R$)">
     <div style="display:flex;gap:10px;margin-top:15px">
@@ -236,7 +254,7 @@ tr:hover td{background:#f8fafc}
 <!-- Modal Histórico Custos -->
 <div class="modal-overlay" id="modalHistoricoCusto">
   <div class="modal" style="max-width:500px">
-    <h3>Histórico de Variação de Custo</h3>
+    <h3>📈 Histórico de Custo</h3>
     <h4 id="nomeHistoricoCusto" style="color:var(--primary);margin-bottom:15px"></h4>
     <div class="table-wrap" style="max-height:250px;overflow-y:auto">
       <table>
@@ -257,7 +275,7 @@ tr:hover td{background:#f8fafc}
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Novo Custo em Dólar ($)</label>
     <input type="number" id="novoUSD" class="input" step="0.01" min="0" placeholder="Ex: 12.50" oninput="previewConversaoModal()">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Novo Custo em Real (R$) — opcional</label>
-    <input type="number" id="novoBRL" class="input" step="0.01" min="0" placeholder="Ex: 63.85 (opcional)" oninput="previewConversaoModal()">
+    <input type="number" id="novoBRL" class="input" step="0.01" min="0" placeholder="Ex: 63.85" oninput="previewConversaoModal()">
     <div id="previewConversaoModal" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px;color:#166534;font-weight:600"></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
       💡 Se R$ em branco, calculado automaticamente (<span id="cotacaoModalInfo"></span>)
@@ -300,7 +318,7 @@ tr:hover td{background:#f8fafc}
       💡 A API do ML pode bloquear chamadas diretas do navegador (CORS).
     </div>
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">App ID</label>
-    <input type="text" id="mlAppId" class="input" placeholder="Ex: 1234567890123456" autocomplete="off">
+    <input type="text" id="mlAppId" class="input" autocomplete="off">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Secret Key</label>
     <input type="password" id="mlSecretKey" class="input" autocomplete="off">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Access Token</label>
@@ -365,13 +383,27 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
+<!-- Modal Ajustar Estoque -->
+<div class="modal-overlay" id="modalAjustarEstoque">
+  <div class="modal" style="max-width:400px">
+    <h3>📦 Ajustar Estoque</h3>
+    <h4 id="nomeAjustarEstoque" style="color:var(--primary);margin:0 0 14px 0"></h4>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Novo Valor de Estoque</label>
+    <input type="number" id="novoEstoque" class="input" min="0" placeholder="Ex: 10">
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-success" style="flex:1" onclick="salvarAjusteEstoque()">💾 Salvar</button>
+      <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <img id="tooltip" class="tooltip" alt="Preview">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore, collection, addDoc, getDocs, onSnapshot,
-  doc, updateDoc, deleteDoc, getDoc
+  doc, updateDoc, deleteDoc, getDoc, query, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -389,7 +421,9 @@ const db  = getFirestore(app);
 let cotacaoAtual = 5.11;
 let produtoSelId=null,produtoSelNome="",produtoSelCusto=0,chartInstance=null;
 let editandoCustoId=null,editandoCustoNome="",editandoCustoUSDAtual=0,editandoCustoBRLAtual=0;
-let renomearId=null,editarSkuId=null,editarImagemId=null,imagemBase64=null,menuAbertoId=null;
+let renomearId=null,editarSkuId=null,editarImagemId=null,imagemBase64=null;
+let menuAbertoId=null, alertMenuAbertoId=null;
+let ajustarEstoqueId=null;
 const produtosMap=new Map();
 
 let mlAppId        = localStorage.getItem("ml_app_id")        ||"";
@@ -398,60 +432,60 @@ let mlAccessToken  = localStorage.getItem("ml_access_token")  ||"";
 let mlRefreshToken = localStorage.getItem("ml_refresh_token") ||"";
 let mlTokenExpiraEm= parseInt(localStorage.getItem("ml_token_expira_em")||"0",10)||0;
 
-// ── Lista fixa de produtos com SKU ────────────────────────────
-const LISTA_SKU = [
-  {nome:"Fino Premium Touc Hair Máscara Capilar 230g", mlItemId:"6845189982", sku:"MASFINCRE230"},
-  {nome:"Medicube Pdrn Exosome 2000 Colágeno 30ml",    mlItemId:"4671922511", sku:"PDRMEDSER30M"},
-  {nome:"Vt Cosmetics Cica Cream Plus 100ml",           mlItemId:"7104495842", sku:"CICVTSER100"},
-  {nome:"Skin1004 Ampoule Centella De Madagascar 100ml",mlItemId:"4852430375", sku:"AMPSKISER100"},
-  {nome:"Espuma de Limpeza Ampoule Fom",                mlItemId:"7104034322", sku:"AMPSKIESP125"},
+// Lista fixa SKU
+const LISTA_SKU=[
+  {nome:"Fino Premium Touc Hair Máscara Capilar 230g",   mlItemId:"6845189982", sku:"MASFINCRE230"},
+  {nome:"Medicube Pdrn Exosome 2000 Colágeno 30ml",      mlItemId:"4671922511", sku:"PDRMEDSER30M"},
+  {nome:"Vt Cosmetics Cica Cream Plus 100ml",             mlItemId:"7104495842", sku:"CICVTSER100"},
+  {nome:"Skin1004 Ampoule Centella De Madagascar 100ml",  mlItemId:"4852430375", sku:"AMPSKISER100"},
+  {nome:"Espuma de Limpeza Ampoule Fom",                  mlItemId:"7104034322", sku:"AMPSKIESP125"},
   {nome:"Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml",mlItemId:"4667484245",sku:"NO9NAMCRE10M"},
-  {nome:"Pore + Dark Spot BrighteningCelimax 35ml",    mlItemId:"6726179242", sku:"PORCELCRE35M"},
-  {nome:"Retinal Shor Celimax 15ml",                    mlItemId:"6725246532", sku:"RETCELCRE15M"},
-  {nome:"345 Relief Cream Dr Althea 50 ml",             mlItemId:"4633597133", sku:"345DRACRE55M"},
-  {nome:"Probio-Cica Intensive Ampoule Skin 1004 50 ml",mlItemId:"6669781578", sku:"PROSKIAMP55M"},
-  {nome:"Light Cleasing Oil Skin 1004 200 ml",          mlItemId:"4629595331", sku:"LIGSKICLE200"},
-  {nome:"Hearleaf Pore Control Cleasing Oil Anua",      mlItemId:"4629579899", sku:"HEAANUCLE200"},
-  {nome:"PDRN Pink Caffeine Night Mask Medicube",       mlItemId:"6662223372", sku:"PDRMEDMAS75M"},
-  {nome:"Deep Vita C Pad Medicube",                     mlItemId:"6662204692", sku:"DEEMEDPAD70U"},
-  {nome:"Toner Pads Zero Pore 70 Pads Medicube",        mlItemId:"4634071405", sku:"TONMEDPAD70U"},
-  {nome:"Medicube Collagen Lifting Mask 1 Unid",        mlItemId:"4633793035", sku:"COLMEDMAS1UN"},
-  {nome:"Vitamin With Niacinamide Mask OMG 1 unid",     mlItemId:"4633775937", sku:"VITOMGMAS1UN"},
-  {nome:"Collagen With PDRN Mask OMG",                  mlItemId:"6670185682", sku:"COLOMGMAS1UN"},
-  {nome:"Poremizing Clarifyng Mask Skin 1004 1 unid",   mlItemId:"6670134408", sku:"PORSKIMAS1UN"},
-  {nome:"Deep Peptide Radiance Mask Medicube 1 unid",   mlItemId:"4633624291", sku:"DEEMEDMAS1UN"},
-  {nome:"Sérum Olhos Axis-y Vegan Collagen Eye 10ml",   mlItemId:"",           sku:"VEGAXISER10M"}
+  {nome:"Pore + Dark Spot BrighteningCelimax 35ml",       mlItemId:"6726179242", sku:"PORCELCRE35M"},
+  {nome:"Retinal Shor Celimax 15ml",                      mlItemId:"6725246532", sku:"RETCELCRE15M"},
+  {nome:"345 Relief Cream Dr Althea 50 ml",               mlItemId:"4633597133", sku:"345DRACRE55M"},
+  {nome:"Probio-Cica Intensive Ampoule Skin 1004 50 ml",  mlItemId:"6669781578", sku:"PROSKIAMP55M"},
+  {nome:"Light Cleasing Oil Skin 1004 200 ml",            mlItemId:"4629595331", sku:"LIGSKICLE200"},
+  {nome:"Hearleaf Pore Control Cleasing Oil Anua",        mlItemId:"4629579899", sku:"HEAANUCLE200"},
+  {nome:"PDRN Pink Caffeine Night Mask Medicube",         mlItemId:"6662223372", sku:"PDRMEDMAS75M"},
+  {nome:"Deep Vita C Pad Medicube",                       mlItemId:"6662204692", sku:"DEEMEDPAD70U"},
+  {nome:"Toner Pads Zero Pore 70 Pads Medicube",          mlItemId:"4634071405", sku:"TONMEDPAD70U"},
+  {nome:"Medicube Collagen Lifting Mask 1 Unid",          mlItemId:"4633793035", sku:"COLMEDMAS1UN"},
+  {nome:"Vitamin With Niacinamide Mask OMG 1 unid",       mlItemId:"4633775937", sku:"VITOMGMAS1UN"},
+  {nome:"Collagen With PDRN Mask OMG",                    mlItemId:"6670185682", sku:"COLOMGMAS1UN"},
+  {nome:"Poremizing Clarifyng Mask Skin 1004 1 unid",     mlItemId:"6670134408", sku:"PORSKIMAS1UN"},
+  {nome:"Deep Peptide Radiance Mask Medicube 1 unid",     mlItemId:"4633624291", sku:"DEEMEDMAS1UN"},
+  {nome:"Sérum Olhos Axis-y Vegan Collagen Eye 10ml",     mlItemId:"",           sku:"VEGAXISER10M"}
 ];
 
 // ── Helpers ───────────────────────────────────────────────────
-function escapeHtml(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
-function normalizarNome(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim(); }
-function toNumber(v,fb=0){ const n=parseFloat(v); return Number.isFinite(n)?n:fb; }
-function toInt(v,fb=0)   { const n=parseInt(v,10); return Number.isFinite(n)?n:fb; }
+function escapeHtml(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function normalizarNome(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();}
+function toNumber(v,fb=0){const n=parseFloat(v);return Number.isFinite(n)?n:fb;}
+function toInt(v,fb=0)   {const n=parseInt(v,10);return Number.isFinite(n)?n:fb;}
 function mapProduto(id,d={}){
-  return {
+  return{
     id,
     nome:      d.nome     ||d.name         ||"Sem nome",
     estoque:   toInt(d.estoque   ??d.quantity,   0),
     minimo:    toInt(d.minimo    ??d.minimumStock,1),
     foto:      d.foto     ||d.photo        ||"",
-    ultimaUSD: toNumber(d.ultimaUSD ??d.custoUSD, 0),
-    ultimaBRL: toNumber(d.ultimaBRL ??d.custoBRL, 0),
+    ultimaUSD: toNumber(d.ultimaUSD??d.custoUSD, 0),
+    ultimaBRL: toNumber(d.ultimaBRL??d.custoBRL, 0),
     custoManual:!!d.custoManual,
     sku:       String(d.sku      ||"").trim(),
     mlItemId:  String(d.mlItemId ||d.mL_item_id||"").trim()
   };
 }
 function calcularCustoBRL(p){
-  if(p.custoManual&&(p.ultimaBRL||0)>0) return p.ultimaBRL;
-  if((p.ultimaUSD||0)>0&&(p.ultimaBRL||0)===0) return p.ultimaUSD*cotacaoAtual;
+  if(p.custoManual&&(p.ultimaBRL||0)>0)return p.ultimaBRL;
+  if((p.ultimaUSD||0)>0&&(p.ultimaBRL||0)===0)return p.ultimaUSD*cotacaoAtual;
   return p.ultimaBRL||0;
 }
 function formatMlItemId(raw){
   const id=String(raw||"").trim().toUpperCase();
-  if(!id) return "";
-  if(/^[A-Z]{3}\d+$/.test(id)) return id;
-  if(/^\d+$/.test(id)) return "MLB"+id;
+  if(!id)return"";
+  if(/^[A-Z]{3}\d+$/.test(id))return id;
+  if(/^\d+$/.test(id))return"MLB"+id;
   return id;
 }
 const $=id=>document.getElementById(id);
@@ -459,9 +493,9 @@ const $=id=>document.getElementById(id);
 // ── Cotação ───────────────────────────────────────────────────
 fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
   .then(r=>r.json())
-  .then(d=>{ const b=parseFloat(d?.USDBRL?.bid); if(Number.isFinite(b)&&b>0) cotacaoAtual=b;
-    $("dollar-info").innerText="Cotação USD: R$ "+cotacaoAtual.toFixed(2); })
-  .catch(()=>{ $("dollar-info").innerText="USD: R$ "+cotacaoAtual.toFixed(2)+" (offline)"; });
+  .then(d=>{const b=parseFloat(d?.USDBRL?.bid);if(Number.isFinite(b)&&b>0)cotacaoAtual=b;
+    $("dollar-info").innerText="Cotação USD: R$ "+cotacaoAtual.toFixed(2);})
+  .catch(()=>{$("dollar-info").innerText="USD: R$ "+cotacaoAtual.toFixed(2)+" (offline)";});
 
 // ── Token ML ──────────────────────────────────────────────────
 async function verificarERenovarToken(){
@@ -476,7 +510,7 @@ async function verificarERenovarToken(){
     s.innerHTML=`✅ ML: Válido (${h}h)`;s.onclick=null;s.style.cursor="default";return true;
   }
   if(mlRefreshToken){
-    s.style.display="block";s.className="token-status token-warning";s.innerHTML="🔄 ML: Renovando...";s.onclick=null;
+    s.style.display="block";s.className="token-status token-warning";s.innerHTML="🔄 Renovando...";s.onclick=null;
     const ok=await renovarTokenML();
     if(ok){s.className="token-status token-ok";s.innerHTML="✅ ML: Renovado";return true;}
   }
@@ -484,12 +518,12 @@ async function verificarERenovarToken(){
   s.innerHTML="❌ ML: Expirado (clique)";s.style.cursor="pointer";s.onclick=abrirConfigML;return false;
 }
 async function renovarTokenML(){
-  if(!mlRefreshToken||!mlAppId||!mlSecretKey) return false;
+  if(!mlRefreshToken||!mlAppId||!mlSecretKey)return false;
   try{
     const body=new URLSearchParams({grant_type:"refresh_token",client_id:mlAppId,client_secret:mlSecretKey,refresh_token:mlRefreshToken});
     const r=await fetch("https://api.mercadolibre.com/oauth/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/json"},body});
     const data=await r.json();
-    if(!r.ok||!data.access_token) return false;
+    if(!r.ok||!data.access_token)return false;
     mlAccessToken=data.access_token;mlRefreshToken=data.refresh_token||mlRefreshToken;
     mlTokenExpiraEm=Date.now()+(toNumber(data.expires_in,21600)*1000);
     localStorage.setItem("ml_access_token",mlAccessToken);
@@ -611,11 +645,9 @@ window.removerDuplicidadesGlobal=async function(){
 
 // ── Sincronizar SKU/ML ────────────────────────────────────────
 window.abrirSincronizarSKU=function(){$("modalSincSKU").classList.add("active");};
-
 window.carregarExemploSKU=function(){
   $("dadosSKU").value=LISTA_SKU.map(r=>`${r.nome}\t${r.mlItemId}\t${r.sku}`).join("\n");
 };
-
 window.processarSincronizacaoSKU=async function(){
   const raw=$("dadosSKU").value.trim();if(!raw)return alert("Cole os dados primeiro!");
   const linhas=raw.split("\n").map(l=>l.trim()).filter(Boolean),registros=[];
@@ -707,9 +739,106 @@ window.sincronizarEstoqueML=async function(){
       }catch(e){console.error(e);erros++;}
     }
     alert(`✅ Finalizado!\n📦 Atualizados: ${atualizados}\n⚠️ Erros: ${erros}`);
-  }catch(e){console.error(e);alert("Erro geral na sincronização.");}
+  }catch(e){console.error(e);alert("Erro geral.");}
   finally{btn.innerText=orig;btn.disabled=false;}
 };
+
+// ══════════════════════════════════════════════════════════════
+// MENU CASCATA DOS ALERTAS
+// ══════════════════════════════════════════════════════════════
+window.toggleAlertMenu=function(id,event){
+  event.stopPropagation();
+  if(alertMenuAbertoId&&alertMenuAbertoId!==id){
+    const m=$("alert-menu-"+alertMenuAbertoId);if(m)m.classList.remove("show");
+  }
+  const menu=$("alert-menu-"+id);if(!menu)return;
+  const isOpen=menu.classList.contains("show");
+  document.querySelectorAll(".alert-dropdown").forEach(m=>m.classList.remove("show"));
+  if(!isOpen){menu.classList.add("show");alertMenuAbertoId=id;}
+  else alertMenuAbertoId=null;
+};
+
+function fecharAlertMenus(){
+  document.querySelectorAll(".alert-dropdown").forEach(m=>m.classList.remove("show"));
+  alertMenuAbertoId=null;
+}
+
+// Vender pelo alerta
+window.alertVender=function(id){
+  fecharAlertMenus();
+  const p=produtosMap.get(id);if(!p)return alert("Produto não encontrado.");
+  produtoSelId=id;produtoSelNome=p.nome;produtoSelCusto=calcularCustoBRL(p);
+  $("qtdVenda").value="";$("valorVenda").value="";$("modalVenda").classList.add("active");
+};
+
+// Ajustar estoque pelo alerta
+window.alertAjustarEstoque=function(id){
+  fecharAlertMenus();
+  const p=produtosMap.get(id);if(!p)return;
+  ajustarEstoqueId=id;
+  $("nomeAjustarEstoque").innerText=p.nome;
+  $("novoEstoque").value=p.estoque||0;
+  $("modalAjustarEstoque").classList.add("active");
+};
+window.salvarAjusteEstoque=async function(){
+  const val=toInt($("novoEstoque").value,NaN);
+  if(!Number.isFinite(val)||val<0)return alert("Informe um valor válido (≥ 0).");
+  try{
+    await updateDoc(doc(db,"produtos",ajustarEstoqueId),{estoque:val});
+    alert("✅ Estoque atualizado!");fecharModais();
+  }catch(e){console.error(e);alert("Erro ao ajustar estoque.");}
+};
+
+// Editar custo pelo alerta
+window.alertEditarCusto=function(id){fecharAlertMenus();abrirEditarCusto(id);};
+
+// Renomear pelo alerta
+window.alertRenomear=function(id){fecharAlertMenus();abrirRenomear(id);};
+
+// Editar SKU/ML pelo alerta
+window.alertEditarSKU=function(id){fecharAlertMenus();abrirEditarSKU(id);};
+
+// Limpar histórico do produto
+window.alertLimparHistorico=async function(id){
+  fecharAlertMenus();
+  const p=produtosMap.get(id);if(!p)return;
+  if(!confirm(`🗑️ Limpar TODO o histórico de movimentações de:\n"${p.nome}"?\n\nEsta ação não pode ser desfeita.`))return;
+  try{
+    const snap=await getDocs(collection(db,"compras"));
+    const promises=[];
+    snap.forEach(d=>{if(d.data().produtoId===id)promises.push(deleteDoc(doc(db,"compras",d.id)));});
+    await Promise.all(promises);
+    alert(`✅ Histórico limpo!\n🗑️ ${promises.length} registro(s) removido(s).`);
+  }catch(e){console.error(e);alert("Erro ao limpar histórico.");}
+};
+
+// Excluir produto pelo alerta
+window.alertExcluirProduto=async function(id){
+  fecharAlertMenus();
+  const p=produtosMap.get(id);if(!p)return;
+  if(!confirm(`⚠️ Excluir definitivamente:\n"${p.nome}"?\n\nO histórico de movimentações será mantido.`))return;
+  try{await deleteDoc(doc(db,"produtos",id));alert("✅ Produto excluído!");}
+  catch(e){console.error(e);alert("Erro ao excluir produto.");}
+};
+
+// Excluir produto E histórico pelo alerta
+window.alertExcluirTudo=async function(id){
+  fecharAlertMenus();
+  const p=produtosMap.get(id);if(!p)return;
+  if(!confirm(`🔴 Excluir PRODUTO e TODO o histórico de:\n"${p.nome}"?\n\nEsta ação NÃO pode ser desfeita!`))return;
+  try{
+    const snap=await getDocs(collection(db,"compras"));
+    const promises=[];
+    snap.forEach(d=>{if(d.data().produtoId===id)promises.push(deleteDoc(doc(db,"compras",d.id)));});
+    await Promise.all(promises);
+    await deleteDoc(doc(db,"produtos",id));
+    alert("✅ Produto e histórico excluídos!");
+  }catch(e){console.error(e);alert("Erro ao excluir.");}
+};
+
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".alert-actions"))fecharAlertMenus();
+});
 
 // ── Renomear ──────────────────────────────────────────────────
 window.abrirRenomear=function(id){const p=produtosMap.get(id);if(!p)return;renomearId=id;$("novoNomeProduto").value=p.nome;$("modalRenomear").classList.add("active");};
@@ -759,7 +888,7 @@ window.salvarImagem=async function(){
   catch(e){console.error(e);alert("Erro ao salvar imagem.");}
 };
 
-// ── Menu Ações ────────────────────────────────────────────────
+// ── Menu tabela ───────────────────────────────────────────────
 window.toggleMenuAcoes=function(id,event){
   event.stopPropagation();
   if(menuAbertoId&&menuAbertoId!==id){const m=$("menu-"+menuAbertoId);if(m)m.classList.remove("show");}
@@ -770,7 +899,7 @@ window.toggleMenuAcoes=function(id,event){
 };
 window.fecharTodosMenus=function(){document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show"));menuAbertoId=null;};
 document.addEventListener("click",e=>{if(!e.target.closest(".actions-cell"))fecharTodosMenus();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")fecharModais();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){fecharModais();fecharAlertMenus();fecharTodosMenus();}});
 document.addEventListener("click",e=>{
   const btn=e.target.closest("[data-action]");if(!btn)return;
   const action=btn.getAttribute("data-action"),id=btn.getAttribute("data-id");
@@ -786,7 +915,6 @@ document.addEventListener("click",e=>{
 });
 
 // ── Listener Produtos ─────────────────────────────────────────
-// Exibe SOMENTE produtos com SKU na tabela
 onSnapshot(collection(db,"produtos"),snap=>{
   const tbody=$("listaProdutos"),sel=$("produtoCompra"),alerts=$("alerts"),dupWarn=$("dupWarning");
   tbody.innerHTML="";sel.innerHTML="";alerts.innerHTML="";dupWarn.innerHTML="";produtosMap.clear();
@@ -797,7 +925,6 @@ onSnapshot(collection(db,"produtos"),snap=>{
   snap.forEach(d=>{const p=mapProduto(d.id,d.data());produtos.push(p);produtosMap.set(p.id,p);});
   produtos.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
 
-  // Separação com/sem SKU
   const comSku=produtos.filter(p=>p.sku&&p.sku.trim()!=="");
   const semSku=produtos.filter(p=>!p.sku||p.sku.trim()==="");
 
@@ -806,7 +933,6 @@ onSnapshot(collection(db,"produtos"),snap=>{
   if(semSku.length>0){infoSem.style.display="flex";$("semSkuCount").innerText=semSku.length;}
   else infoSem.style.display="none";
 
-  // Duplicatas apenas entre com SKU
   const agrup={},contDup={},idsDup=new Set();
   comSku.forEach(p=>{
     const chave="sku:"+p.sku.toUpperCase();
@@ -815,10 +941,10 @@ onSnapshot(collection(db,"produtos"),snap=>{
   });
 
   const dwp=$("dupWarningProdutos");
-  if(idsDup.size>0) dwp.innerHTML=`<div class="dup-warning"><span>⚠️ <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span><button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar</button></div>`;
+  if(idsDup.size>0)dwp.innerHTML=`<div class="dup-warning"><span>⚠️ <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span><button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar</button></div>`;
   else dwp.innerHTML="";
 
-  // Stats — todos os produtos
+  // Stats gerais
   produtos.forEach(p=>{
     totalP++;totalQ+=(p.estoque||0);
     const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
@@ -826,12 +952,12 @@ onSnapshot(collection(db,"produtos"),snap=>{
     dadosGrafico.push({nome:p.nome,valor:custoBRL*(p.estoque||0)});
   });
 
-  // Alertas — todos os produtos
+  // ── Alertas com menu cascata ──────────────────────────────
   const alertasArr=[];
   produtos.forEach(p=>{
     if((p.estoque||0)<=(p.minimo||0)){
       totalCrit++;
-      alertasArr.push({nome:p.nome,foto:p.foto,estoque:p.estoque||0,minimo:p.minimo||0});
+      alertasArr.push({id:p.id,nome:p.nome,foto:p.foto,estoque:p.estoque||0,minimo:p.minimo||0});
     }
   });
   alertasArr.sort((a,b)=>(a.estoque-a.minimo)-(b.estoque-b.minimo));
@@ -841,15 +967,35 @@ onSnapshot(collection(db,"produtos"),snap=>{
   }else{
     const frag=document.createDocumentFragment();
     alertasArr.forEach(al=>{
-      const div=document.createElement("div");div.className="alert-low";
+      const div=document.createElement("div");
+      div.className="alert-low";
       if(al.foto)div.setAttribute("data-tooltip",al.foto);
-      div.innerHTML=`<span class="alert-info">⚠ <strong>${escapeHtml(al.nome)}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})</span>`;
+
+      div.innerHTML=`
+        <span class="alert-info">
+          ⚠ <strong>${escapeHtml(al.nome)}</strong>
+          <span style="font-weight:400;font-size:12px">Estoque: <strong>${al.estoque}</strong> (Mín: ${al.minimo})</span>
+        </span>
+        <div class="alert-actions">
+          <button class="alert-menu-btn" onclick="toggleAlertMenu('${al.id}',event)" title="Ações">⋮</button>
+          <div id="alert-menu-${al.id}" class="alert-dropdown">
+            <button class="alert-dd-item warning" onclick="alertVender('${al.id}')">💸 Registrar Venda</button>
+            <button class="alert-dd-item edit"    onclick="alertAjustarEstoque('${al.id}')">📦 Ajustar Estoque</button>
+            <button class="alert-dd-item edit"    onclick="alertEditarCusto('${al.id}')">✏️ Editar Custo</button>
+            <button class="alert-dd-item edit"    onclick="alertRenomear('${al.id}')">✏️ Renomear Produto</button>
+            <button class="alert-dd-item edit"    onclick="alertEditarSKU('${al.id}')">🏷️ SKU / ML ID</button>
+            <div class="alert-dd-sep"></div>
+            <button class="alert-dd-item danger"  onclick="alertLimparHistorico('${al.id}')">🗑️ Limpar Histórico</button>
+            <button class="alert-dd-item danger"  onclick="alertExcluirProduto('${al.id}')">❌ Excluir Produto</button>
+            <button class="alert-dd-item danger"  onclick="alertExcluirTudo('${al.id}')">🔴 Excluir Produto + Histórico</button>
+          </div>
+        </div>`;
       frag.appendChild(div);
     });
     alerts.appendChild(frag);
   }
 
-  // Select compras — todos os produtos
+  // Select compras
   const optFrag=document.createDocumentFragment();
   const ph=document.createElement("option");ph.value="";ph.textContent="Selecione um produto...";optFrag.appendChild(ph);
   produtos.forEach(p=>{
@@ -862,14 +1008,12 @@ onSnapshot(collection(db,"produtos"),snap=>{
   comSku.forEach(p=>{
     const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
     let tagCusto="";
-    if(p.custoManual&&(p.ultimaBRL||0)>0) tagCusto=`<span class="tag-manual">manual</span>`;
-    else if(custoUSD>0) tagCusto=`<span class="tag-auto">auto</span>`;
-
+    if(p.custoManual&&(p.ultimaBRL||0)>0)tagCusto=`<span class="tag-manual">manual</span>`;
+    else if(custoUSD>0)tagCusto=`<span class="tag-auto">auto</span>`;
     const isDup=idsDup.has(p.id);
     let skuHtml=`<span class="sku-tag">SKU: ${escapeHtml(p.sku)}</span>`;
-    if(p.mlItemId) skuHtml+=`<br><span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
-    if(isDup) skuHtml+=`<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
-
+    if(p.mlItemId)skuHtml+=`<br><span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
+    if(isDup)skuHtml+=`<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
     const tr=document.createElement("tr");if(isDup)tr.style.background="#fef3c7";
     tr.innerHTML=`
       <td>${p.foto?`<img src="${escapeHtml(p.foto)}" class="img-thumb" data-tooltip="${escapeHtml(p.foto)}" alt="">`:""}</td>
