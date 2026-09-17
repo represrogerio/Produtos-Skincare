@@ -96,7 +96,7 @@ tr:hover td{background:#f8fafc}
 .form-grid-5{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px}
 .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
 
-@media (max-width:900px){
+@media(max-width:900px){
   .app{flex-direction:column}
   .sidebar{width:100%;padding:16px}
   .form-grid-4,.form-grid-5{grid-template-columns:1fr}
@@ -122,11 +122,12 @@ tr:hover td{background:#f8fafc}
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <button class="btn btn-edit" onclick="abrirConfigML()" title="Configurar Token Mercado Livre">⚙️ Token ML</button>
     <input id="searchProdutos" class="input" style="margin:0;max-width:200px" placeholder="Buscar produto...">
-    <button class="btn btn-success" onclick="exportarExcel('tabelaProdutosExport', 'Estoque_Skincare')">📥 Exportar Excel</button>
+    <button class="btn btn-success" onclick="exportarExcel('tabelaProdutosExport','Estoque_Skincare')">📥 Exportar Excel</button>
   </div>
 </header>
 
 <div class="content">
+
   <!-- DASHBOARD -->
   <div id="dashboard" class="page">
     <div class="stats">
@@ -136,7 +137,6 @@ tr:hover td{background:#f8fafc}
       <div class="stat"><h4>Valor Estoque ($)</h4><strong id="totalValorUSD" style="color:var(--primary)">$0.00</strong></div>
       <div class="stat"><h4>Valor Estoque (R$)</h4><strong id="totalValorBRL" style="color:var(--green)">R$0.00</strong></div>
     </div>
-
     <div class="dashboard-grid">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
@@ -149,7 +149,6 @@ tr:hover td{background:#f8fafc}
         <div id="dupWarning"></div>
         <div id="alerts"></div>
       </div>
-
       <div class="card">
         <h3 style="margin-top:0;margin-bottom:15px">Top 10 Produtos (Por Valor em R$)</h3>
         <div style="position:relative;height:250px;width:100%">
@@ -170,7 +169,6 @@ tr:hover td{background:#f8fafc}
         <button class="btn btn-primary" onclick="salvarProduto()">Salvar Novo Produto</button>
       </div>
     </div>
-
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <h3 style="margin:0">Estoque</h3>
@@ -183,14 +181,8 @@ tr:hover td{background:#f8fafc}
         <table id="tabelaProdutosExport">
           <thead>
             <tr>
-              <th>Foto</th>
-              <th>Nome</th>
-              <th>SKU / ML ID</th>
-              <th>Qtd</th>
-              <th>Mín</th>
-              <th>Custo $</th>
-              <th>Custo R$</th>
-              <th>Ações</th>
+              <th>Foto</th><th>Nome</th><th>SKU / ML ID</th>
+              <th>Qtd</th><th>Mín</th><th>Custo $</th><th>Custo R$</th><th>Ações</th>
             </tr>
           </thead>
           <tbody id="listaProdutos"></tbody>
@@ -214,22 +206,17 @@ tr:hover td{background:#f8fafc}
         <button class="btn btn-primary" onclick="registrarCompra()">Registrar Compra</button>
       </div>
     </div>
-
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px">
         <h3 style="margin:0">Histórico de Movimentações</h3>
-        <button class="btn btn-success" onclick="exportarExcel('tabelaMovsExport', 'Movimentacoes_Skincare')">📥 Exportar Histórico</button>
+        <button class="btn btn-success" onclick="exportarExcel('tabelaMovsExport','Movimentacoes_Skincare')">📥 Exportar Histórico</button>
       </div>
       <div class="table-wrap">
         <table id="tabelaMovsExport">
           <thead>
             <tr>
-              <th>Data/Hora</th>
-              <th>Produto</th>
-              <th>Tipo</th>
-              <th>Qtd</th>
-              <th>Unitário</th>
-              <th>Total</th>
+              <th>Data/Hora</th><th>Produto</th><th>Tipo</th>
+              <th>Qtd</th><th>Unitário</th><th>Total</th>
             </tr>
           </thead>
           <tbody id="listaMovs"></tbody>
@@ -237,6 +224,7 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
   </div>
+
 </div>
 </main>
 </div>
@@ -300,11 +288,11 @@ tr:hover td{background:#f8fafc}
       <strong>Nome do Produto ⇥ ml_item_id ⇥ SKU</strong> (separados por TAB ou ; ou ,)
     </p>
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <button class="btn btn-edit" onclick="carregarExemploSKU()" style="font-size:11px">📋 Carregar Exemplo</button>
+      <button class="btn btn-edit" onclick="carregarExemploSKU()" style="font-size:11px">📋 Carregar Lista</button>
       <button class="btn btn-danger" onclick="document.getElementById('dadosSKU').value=''" style="font-size:11px">🗑️ Limpar</button>
     </div>
     <textarea id="dadosSKU" class="input" rows="10" style="font-family:monospace;font-size:11px;resize:vertical"
-      placeholder="Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE230"></textarea>
+      placeholder="Nome do Produto&#9;ml_item_id&#9;SKU"></textarea>
     <div style="background:#fef3c7;border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#92400e">
       ⚠️ Duplicidades serão mescladas automaticamente. Estoque do primeiro produto encontrado será mantido (somando dos duplicados).
     </div>
@@ -323,18 +311,18 @@ tr:hover td{background:#f8fafc}
       Para atualizar o estoque automaticamente, você precisa das credenciais da sua aplicação no Mercado Livre Developers.
     </p>
     <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:15px;font-size:12px;color:#92400e">
-      💡 <strong>Atenção:</strong> a API do ML pode bloquear chamadas diretas do navegador (CORS). Se a sincronização falhar por isso, use um backend/proxy.
+      💡 A API do ML pode bloquear chamadas diretas do navegador (CORS). Se a sincronização falhar, use um backend/proxy.
     </div>
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">App ID (Client ID)</label>
     <input type="text" id="mlAppId" class="input" placeholder="Ex: 1234567890123456" autocomplete="off">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Secret Key (Client Secret)</label>
     <input type="password" id="mlSecretKey" class="input" placeholder="Ex: abc123def456..." autocomplete="off">
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Access Token (Opcional - Se já tiver)</label>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Access Token (Opcional)</label>
     <input type="text" id="mlAccessToken" class="input" placeholder="Cole seu token longo aqui..." autocomplete="off">
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Refresh Token (Opcional - Se já tiver)</label>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Refresh Token (Opcional)</label>
     <input type="text" id="mlRefreshToken" class="input" placeholder="Cole seu refresh token aqui..." autocomplete="off">
     <div style="font-size:11px;color:var(--muted);margin-bottom:15px">
-      ⏱️ Access Token expira em ~6 horas | Refresh Token expira em ~6 meses (política atual do ML)
+      ⏱️ Access Token expira em ~6 horas | Refresh Token expira em ~6 meses
     </div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-success" style="flex:1" onclick="salvarTokenML()">💾 Salvar Credenciais</button>
@@ -352,9 +340,7 @@ tr:hover td{background:#f8fafc}
 <div class="modal-overlay" id="modalRenomear">
   <div class="modal" style="max-width:450px">
     <h3>✏️ Corrigir Nome do Produto</h3>
-    <p style="font-size:13px;color:var(--muted);margin-top:0">
-      Digite o nome correto abaixo. O histórico e custos serão mantidos.
-    </p>
+    <p style="font-size:13px;color:var(--muted);margin-top:0">O histórico e custos serão mantidos.</p>
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Novo Nome</label>
     <input type="text" id="novoNomeProduto" class="input" placeholder="Ex: Creme Facial Hidratante 50g">
     <div style="display:flex;gap:10px">
@@ -369,14 +355,14 @@ tr:hover td{background:#f8fafc}
   <div class="modal" style="max-width:450px">
     <h3>🏷️ Editar SKU / ML ID</h3>
     <p style="font-size:13px;color:var(--muted);margin-top:0">
-      Preencha os identificadores do produto. O <strong>ML ID</strong> é usado para sincronizar estoque com o Mercado Livre.
+      O <strong>ML ID</strong> é usado para sincronizar estoque com o Mercado Livre.
     </p>
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">SKU (Código Interno)</label>
     <input type="text" id="editSku" class="input" placeholder="Ex: CREME001">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">ML Item ID (Mercado Livre)</label>
     <input type="text" id="editMlId" class="input" placeholder="Ex: 123456789 ou MLB123456789">
     <p style="font-size:11px;color:var(--muted);margin-top:-5px;margin-bottom:10px">
-      ℹ️ Para encontrar o ML ID: abra o anúncio no ML → o número final da URL é o ID. Números puros recebem prefixo MLB automaticamente.
+      ℹ️ Números puros recebem prefixo MLB automaticamente.
     </p>
     <div style="display:flex;gap:10px">
       <button class="btn btn-success" style="flex:1" onclick="salvarEditarSKU()">💾 Salvar</button>
@@ -385,12 +371,12 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
-<!-- Modal Editar Imagem do Produto -->
+<!-- Modal Editar Imagem -->
 <div class="modal-overlay" id="modalEditarImagem">
   <div class="modal" style="max-width:500px">
     <h3>🖼️ Alterar Imagem do Produto</h3>
     <p style="font-size:13px;color:var(--muted);margin-top:0">
-      Cole a URL da imagem ou faça upload de uma nova imagem (evite arquivos muito grandes no Firestore).
+      Cole a URL da imagem ou faça upload (evite arquivos grandes no Firestore).
     </p>
     <div id="uploadArea" class="upload-area">
       <div class="upload-icon">📷</div>
@@ -427,86 +413,68 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db  = getFirestore(app);
 
-let cotacaoAtual = 5.11;
-let produtoSelId = null;
-let produtoSelNome = "";
-let produtoSelCusto = 0;
-let chartInstance = null;
+let cotacaoAtual     = 5.11;
+let produtoSelId     = null;
+let produtoSelNome   = "";
+let produtoSelCusto  = 0;
+let chartInstance    = null;
 
-let editandoCustoId = null;
-let editandoCustoNome = "";
+let editandoCustoId       = null;
+let editandoCustoNome     = "";
 let editandoCustoUSDAtual = 0;
 let editandoCustoBRLAtual = 0;
 
-let renomearId = null;
-let editarSkuId = null;
-let editarImagemId = null;
-let imagemBase64 = null;
-let menuAbertoId = null;
+let renomearId      = null;
+let editarSkuId     = null;
+let editarImagemId  = null;
+let imagemBase64    = null;
+let menuAbertoId    = null;
 
-/** Cache em memória dos produtos normalizados (para ações do menu sem quebrar com aspas) */
 const produtosMap = new Map();
 
-// ============================================
-// TOKENS DO MERCADO LIVRE
-// ============================================
-let mlAppId = localStorage.getItem("ml_app_id") || "";
-let mlSecretKey = localStorage.getItem("ml_secret_key") || "";
-let mlAccessToken = localStorage.getItem("ml_access_token") || "";
+// ── Tokens ML ──────────────────────────────────────────────
+let mlAppId        = localStorage.getItem("ml_app_id")        || "";
+let mlSecretKey    = localStorage.getItem("ml_secret_key")    || "";
+let mlAccessToken  = localStorage.getItem("ml_access_token")  || "";
 let mlRefreshToken = localStorage.getItem("ml_refresh_token") || "";
 let mlTokenExpiraEm = parseInt(localStorage.getItem("ml_token_expira_em") || "0", 10) || 0;
 
-// ---------- Utils ----------
+// ── Helpers ─────────────────────────────────────────────────
 function escapeHtml(str) {
   return String(str ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
 
 function normalizarNome(str) {
-  return String(str || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return String(str || "").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ").trim();
 }
 
-function toNumber(value, fallback = 0) {
-  const n = parseFloat(value);
-  return Number.isFinite(n) ? n : fallback;
-}
+function toNumber(v, fb = 0) { const n = parseFloat(v); return Number.isFinite(n) ? n : fb; }
+function toInt(v, fb = 0)    { const n = parseInt(v,10); return Number.isFinite(n) ? n : fb; }
 
-function toInt(value, fallback = 0) {
-  const n = parseInt(value, 10);
-  return Number.isFinite(n) ? n : fallback;
-}
-
-/** Normaliza documento de produto (PT/EN) */
-function mapProduto(id, data = {}) {
+function mapProduto(id, d = {}) {
   return {
     id,
-    nome: data.nome || data.name || "Sem nome",
-    estoque: toInt(data.estoque ?? data.quantity, 0),
-    minimo: toInt(data.minimo ?? data.minimumStock, 1),
-    foto: data.foto || data.photo || "",
-    ultimaUSD: toNumber(data.ultimaUSD ?? data.custoUSD, 0),
-    ultimaBRL: toNumber(data.ultimaBRL ?? data.custoBRL, 0),
-    custoManual: !!data.custoManual,
-    sku: (data.sku || "").trim(),
-    mlItemId: String(data.mlItemId || data.mL_item_id || "").trim()
+    nome:        d.nome        || d.name          || "Sem nome",
+    estoque:     toInt(d.estoque    ?? d.quantity,  0),
+    minimo:      toInt(d.minimo     ?? d.minimumStock, 1),
+    foto:        d.foto        || d.photo         || "",
+    ultimaUSD:   toNumber(d.ultimaUSD   ?? d.custoUSD, 0),
+    ultimaBRL:   toNumber(d.ultimaBRL   ?? d.custoBRL, 0),
+    custoManual: !!d.custoManual,
+    sku:         String(d.sku        || "").trim(),
+    mlItemId:    String(d.mlItemId   || d.mL_item_id || "").trim()
   };
 }
 
 function calcularCustoBRL(p) {
-  const custoUSD = p.ultimaUSD || 0;
   if (p.custoManual && (p.ultimaBRL || 0) > 0) return p.ultimaBRL;
-  if (custoUSD > 0 && (p.ultimaBRL || 0) === 0) return custoUSD * cotacaoAtual;
+  if ((p.ultimaUSD || 0) > 0 && (p.ultimaBRL || 0) === 0) return p.ultimaUSD * cotacaoAtual;
   return p.ultimaBRL || 0;
 }
 
@@ -518,11 +486,9 @@ function formatMlItemId(raw) {
   return id;
 }
 
-function $(id) {
-  return document.getElementById(id);
-}
+const $ = id => document.getElementById(id);
 
-// Cotação USD/BRL
+// ── Cotação ─────────────────────────────────────────────────
 fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
   .then(r => r.json())
   .then(d => {
@@ -534,9 +500,7 @@ fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
     $("dollar-info").innerText = "USD: R$ " + cotacaoAtual.toFixed(2) + " (offline)";
   });
 
-// ============================================
-// TOKEN ML
-// ============================================
+// ── Token ML ────────────────────────────────────────────────
 async function verificarERenovarToken() {
   const agora = Date.now();
   const statusDiv = $("tokenStatusML");
@@ -550,12 +514,11 @@ async function verificarERenovarToken() {
     return false;
   }
 
-  // renova 1h antes de expirar
   if (mlAccessToken && agora < mlTokenExpiraEm - 3600000) {
     statusDiv.style.display = "block";
     statusDiv.className = "token-status token-ok";
-    const horasRestantes = Math.max(0, Math.floor((mlTokenExpiraEm - agora) / 3600000));
-    statusDiv.innerHTML = `✅ ML: Válido (${horasRestantes}h)`;
+    const h = Math.max(0, Math.floor((mlTokenExpiraEm - agora) / 3600000));
+    statusDiv.innerHTML = `✅ ML: Válido (${h}h)`;
     statusDiv.onclick = null;
     statusDiv.style.cursor = "default";
     return true;
@@ -566,7 +529,6 @@ async function verificarERenovarToken() {
     statusDiv.className = "token-status token-warning";
     statusDiv.innerHTML = "🔄 ML: Renovando...";
     statusDiv.onclick = null;
-
     const renovado = await renovarTokenML();
     if (renovado) {
       statusDiv.className = "token-status token-ok";
@@ -585,137 +547,92 @@ async function verificarERenovarToken() {
 
 async function renovarTokenML() {
   if (!mlRefreshToken || !mlAppId || !mlSecretKey) return false;
-
   try {
     const body = new URLSearchParams({
-      grant_type: "refresh_token",
-      client_id: mlAppId,
-      client_secret: mlSecretKey,
-      refresh_token: mlRefreshToken
+      grant_type: "refresh_token", client_id: mlAppId,
+      client_secret: mlSecretKey, refresh_token: mlRefreshToken
     });
-
-    const response = await fetch("https://api.mercadolibre.com/oauth/token", {
+    const r = await fetch("https://api.mercadolibre.com/oauth/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
       body
     });
-
-    const data = await response.json();
-    if (!response.ok || !data.access_token) {
-      console.error("Falha ao renovar token ML:", data);
-      return false;
-    }
-
-    mlAccessToken = data.access_token;
+    const data = await r.json();
+    if (!r.ok || !data.access_token) return false;
+    mlAccessToken  = data.access_token;
     mlRefreshToken = data.refresh_token || mlRefreshToken;
     mlTokenExpiraEm = Date.now() + (toNumber(data.expires_in, 21600) * 1000);
-
-    localStorage.setItem("ml_access_token", mlAccessToken);
+    localStorage.setItem("ml_access_token",  mlAccessToken);
     localStorage.setItem("ml_refresh_token", mlRefreshToken);
     localStorage.setItem("ml_token_expira_em", String(mlTokenExpiraEm));
     return true;
-  } catch (error) {
-    console.error("Erro ao renovar token:", error);
-    return false;
-  }
+  } catch (e) { console.error(e); return false; }
 }
 
-// Navegação
-window.showPage = function (id) {
+// ── Navegação ───────────────────────────────────────────────
+window.showPage = function(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-  const page = $(id);
-  if (page) page.classList.remove("hidden");
-
+  const pg = $(id); if (pg) pg.classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-  const nav = $("nav-" + id);
-  if (nav) nav.classList.add("active");
-
-  const titles = {
-    dashboard: "Dashboard",
-    produtos: "Gestão de Produtos",
-    compras: "Compras e Vendas"
-  };
+  const nb = $("nav-" + id); if (nb) nb.classList.add("active");
+  const titles = { dashboard:"Dashboard", produtos:"Gestão de Produtos", compras:"Compras e Vendas" };
   $("pageTitle").innerText = titles[id] || id;
 };
 
-window.fecharModais = function () {
+window.fecharModais = function() {
   document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
   imagemBase64 = null;
-
-  const preview = $("uploadPreview");
-  const area = $("uploadArea");
-  const fileInput = $("fileInput");
-  const imagemURL = $("imagemURL");
-  const uploadText = $("uploadText");
-
-  if (preview) {
-    preview.style.display = "none";
-    preview.removeAttribute("src");
-  }
-  if (area) area.classList.remove("has-image", "dragover");
-  if (fileInput) fileInput.value = "";
-  if (imagemURL) imagemURL.value = "";
-  if (uploadText) uploadText.innerText = "Clique para selecionar uma imagem";
+  const prev = $("uploadPreview");
+  if (prev) { prev.style.display = "none"; prev.removeAttribute("src"); }
+  const area = $("uploadArea"); if (area) area.classList.remove("has-image","dragover");
+  const fi = $("fileInput"); if (fi) fi.value = "";
+  const iu = $("imagemURL"); if (iu) iu.value = "";
+  const ut = $("uploadText"); if (ut) ut.innerText = "Clique para selecionar uma imagem";
 };
 
-// Tooltip seguro (sem inline URL — suporta base64)
-window.showTooltip = function (url, e) {
+// ── Tooltip ─────────────────────────────────────────────────
+window.showTooltip = function(url, e) {
   if (!url) return;
   const t = $("tooltip");
   t.src = url;
   t.style.display = "block";
-  const x = Math.min(e.clientX + 15, window.innerWidth - 140);
-  const y = Math.min(e.clientY + 15, window.innerHeight - 140);
-  t.style.left = x + "px";
-  t.style.top = y + "px";
+  t.style.left = Math.min(e.clientX + 15, window.innerWidth  - 140) + "px";
+  t.style.top  = Math.min(e.clientY + 15, window.innerHeight - 140) + "px";
 };
-
-window.hideTooltip = function () {
+window.hideTooltip = function() {
   const t = $("tooltip");
   t.style.display = "none";
   t.removeAttribute("src");
 };
 
-document.addEventListener("mousemove", (e) => {
+document.addEventListener("mouseover", e => {
+  const el = e.target.closest("[data-tooltip]");
+  if (el) showTooltip(el.getAttribute("data-tooltip"), e);
+});
+document.addEventListener("mouseout", e => {
+  if (e.target.closest("[data-tooltip]")) hideTooltip();
+});
+document.addEventListener("mousemove", e => {
   const t = $("tooltip");
   if (!t || t.style.display === "none") return;
-  const x = Math.min(e.clientX + 15, window.innerWidth - 140);
-  const y = Math.min(e.clientY + 15, window.innerHeight - 140);
-  t.style.left = x + "px";
-  t.style.top = y + "px";
+  t.style.left = Math.min(e.clientX + 15, window.innerWidth  - 140) + "px";
+  t.style.top  = Math.min(e.clientY + 15, window.innerHeight - 140) + "px";
 });
 
-// Event delegation para tooltips
-document.addEventListener("mouseover", (e) => {
-  const el = e.target.closest("[data-tooltip]");
-  if (!el) return;
-  showTooltip(el.getAttribute("data-tooltip"), e);
-});
-document.addEventListener("mouseout", (e) => {
-  const el = e.target.closest("[data-tooltip]");
-  if (!el) return;
-  hideTooltip();
-});
-
-window.exportarExcel = function (tableId, filename) {
-  const table = $(tableId);
-  if (!table) return alert("Tabela não encontrada.");
-
+// ── Exportar Excel ──────────────────────────────────────────
+window.exportarExcel = function(tableId, filename) {
+  const table = $(tableId); if (!table) return;
   const csv = [];
-  const rows = table.querySelectorAll("tr");
-
-  rows.forEach((row) => {
-    const cols = row.querySelectorAll("td, th");
+  table.querySelectorAll("tr").forEach(row => {
+    const cols = row.querySelectorAll("td,th");
     const out = [];
     cols.forEach((col, j) => {
       if (tableId === "tabelaProdutosExport" && (j === 0 || j === cols.length - 1)) return;
-      let data = col.innerText.replace(/\r?\n|\r/g, " ").trim().replace(/"/g, '""');
-      out.push('"' + data + '"');
+      out.push('"' + col.innerText.replace(/\r?\n|\r/g," ").trim().replace(/"/g,'""') + '"');
     });
     if (out.length) csv.push(out.join(","));
   });
-
-  const blob = new Blob(["\uFEFF" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob(["\uFEFF" + csv.join("\n")], { type:"text/csv;charset=utf-8;" });
   const a = document.createElement("a");
   a.download = filename + ".csv";
   a.href = URL.createObjectURL(blob);
@@ -723,1135 +640,721 @@ window.exportarExcel = function (tableId, filename) {
   URL.revokeObjectURL(a.href);
 };
 
-window.salvarProduto = async function () {
-  const nome = $("nomeProduto").value.trim();
+// ── Salvar Produto ──────────────────────────────────────────
+window.salvarProduto = async function() {
+  const nome    = $("nomeProduto").value.trim();
   const estoque = toInt($("estoqueProduto").value, 0);
-  const minimo = toInt($("minimoProduto").value, 1);
+  const minimo  = toInt($("minimoProduto").value, 1);
   if (!nome) return alert("Informe o nome");
-
   try {
-    await addDoc(collection(db, "produtos"), {
-      nome,
-      estoque,
-      minimo,
-      foto: "",
-      ultimaUSD: 0,
-      ultimaBRL: 0,
-      custoManual: false,
-      sku: "",
-      mlItemId: ""
+    await addDoc(collection(db,"produtos"), {
+      nome, estoque, minimo, foto:"", ultimaUSD:0, ultimaBRL:0,
+      custoManual:false, sku:"", mlItemId:""
     });
     alert("Produto salvo!");
     $("nomeProduto").value = "";
     $("estoqueProduto").value = "";
     $("minimoProduto").value = "";
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao salvar produto.");
-  }
+  } catch(e) { console.error(e); alert("Erro ao salvar produto."); }
 };
 
-window.importarGitHub = async function () {
+// ── Importar GitHub ─────────────────────────────────────────
+window.importarGitHub = async function() {
   const btn = $("btnImportar");
-  const original = btn.innerText;
-  btn.innerText = "Importando...";
-  btn.disabled = true;
-
+  btn.innerText = "Importando..."; btn.disabled = true;
   try {
-    const repoInfo = await (await fetch("https://api.github.com/repos/represrogerio/Controle-de-Compras")).json();
-    if (repoInfo.message) throw new Error(repoInfo.message);
-
-    const branch = repoInfo.default_branch || "main";
-    const files = await (await fetch(`https://api.github.com/repos/represrogerio/Controle-de-Compras/contents?ref=${branch}`)).json();
-    if (!Array.isArray(files)) throw new Error("Não foi possível listar arquivos do repositório.");
-
+    const info  = await (await fetch("https://api.github.com/repos/represrogerio/Controle-de-Compras")).json();
+    if (info.message) throw new Error(info.message);
+    const files = await (await fetch(`https://api.github.com/repos/represrogerio/Controle-de-Compras/contents?ref=${info.default_branch}`)).json();
+    if (!Array.isArray(files)) throw new Error("Não listou arquivos.");
+    const snap = await getDocs(collection(db,"produtos"));
     const existentes = new Set();
-    const snap = await getDocs(collection(db, "produtos"));
-    snap.forEach(d => existentes.add(normalizarNome(mapProduto(d.id, d.data()).nome)));
-
+    snap.forEach(d => existentes.add(normalizarNome(mapProduto(d.id,d.data()).nome)));
     let criados = 0;
     for (const f of files) {
-      if (!/\.(png|jpg|jpeg|webp)$/i.test(f.name || "")) continue;
-      const nome = f.name.replace(/\.(png|jpg|jpeg|webp)$/i, "").replace(/[_\-.]+/g, " ").trim();
-      const key = normalizarNome(nome);
+      if (!/\.(png|jpg|jpeg|webp)$/i.test(f.name||"")) continue;
+      const nome = f.name.replace(/\.(png|jpg|jpeg|webp)$/i,"").replace(/[_\-.]+/g," ").trim();
+      const key  = normalizarNome(nome);
       if (!key || existentes.has(key)) continue;
-
-      await addDoc(collection(db, "produtos"), {
-        nome,
-        estoque: 0,
-        minimo: 1,
-        foto: f.download_url || "",
-        ultimaUSD: 0,
-        ultimaBRL: 0,
-        custoManual: false,
-        sku: "",
-        mlItemId: ""
+      await addDoc(collection(db,"produtos"),{
+        nome, estoque:0, minimo:1, foto:f.download_url||"",
+        ultimaUSD:0, ultimaBRL:0, custoManual:false, sku:"", mlItemId:""
       });
-      existentes.add(key);
-      criados++;
+      existentes.add(key); criados++;
     }
     alert("Importados novos: " + criados);
-  } catch (e) {
-    console.error(e);
-    alert("Erro ao importar: " + (e.message || "falha de rede/API"));
-  } finally {
-    btn.innerText = original;
-    btn.disabled = false;
-  }
+  } catch(e) { console.error(e); alert("Erro ao importar: " + (e.message||"falha")); }
+  finally { btn.innerText = "📥 Importar do GitHub"; btn.disabled = false; }
 };
 
+// ── Mesclar duplicados ──────────────────────────────────────
 async function mesclarGrupo(grupo) {
   if (!grupo || grupo.length < 2) return 0;
-  grupo.sort((a, b) => (b.estoque || 0) - (a.estoque || 0));
+  grupo.sort((a,b) => (b.estoque||0) - (a.estoque||0));
   const manter = grupo[0];
   let estTotal = manter.estoque || 0;
   let removidos = 0;
-
   for (let i = 1; i < grupo.length; i++) {
     estTotal += grupo[i].estoque || 0;
-    await deleteDoc(doc(db, "produtos", grupo[i].id));
+    await deleteDoc(doc(db,"produtos",grupo[i].id));
     removidos++;
   }
-
-  if (estTotal !== (manter.estoque || 0)) {
-    await updateDoc(doc(db, "produtos", manter.id), { estoque: estTotal });
-  }
+  if (estTotal !== (manter.estoque||0))
+    await updateDoc(doc(db,"produtos",manter.id),{ estoque: estTotal });
   return removidos;
 }
 
-window.removerDuplicidadesGlobal = async function () {
-  if (!confirm("🧹 Remover duplicidades?\n\nProdutos com mesmo nome (ou mesmo SKU) serão mesclados. Estoques serão somados no principal.")) return;
-
+window.removerDuplicidadesGlobal = async function() {
+  if (!confirm("🧹 Remover duplicidades?\n\nProdutos com mesmo nome (ou mesmo SKU) serão mesclados.")) return;
   try {
-    const snap = await getDocs(collection(db, "produtos"));
-    const produtos = [];
-    snap.forEach(d => produtos.push(mapProduto(d.id, d.data())));
-
     let removidos = 0;
-    const gruposNome = {};
-    produtos.forEach(p => {
-      const k = normalizarNome(p.nome);
-      if (!k) return;
-      if (!gruposNome[k]) gruposNome[k] = [];
-      gruposNome[k].push(p);
-    });
+    const snap1 = await getDocs(collection(db,"produtos"));
+    const prods1 = []; snap1.forEach(d => prods1.push(mapProduto(d.id,d.data())));
 
-    for (const k of Object.keys(gruposNome)) {
-      removidos += await mesclarGrupo(gruposNome[k]);
-    }
+    const gNome = {};
+    prods1.forEach(p => { const k = normalizarNome(p.nome); if (!k) return; (gNome[k]=gNome[k]||[]).push(p); });
+    for (const k of Object.keys(gNome)) removidos += await mesclarGrupo(gNome[k]);
 
-    const snap2 = await getDocs(collection(db, "produtos"));
-    const produtos2 = [];
-    snap2.forEach(d => produtos2.push(mapProduto(d.id, d.data())));
+    const snap2 = await getDocs(collection(db,"produtos"));
+    const prods2 = []; snap2.forEach(d => prods2.push(mapProduto(d.id,d.data())));
 
-    const gruposSku = {};
-    produtos2.forEach(p => {
-      if (!p.sku) return;
-      const k = p.sku.toUpperCase();
-      if (!gruposSku[k]) gruposSku[k] = [];
-      gruposSku[k].push(p);
-    });
-
-    for (const k of Object.keys(gruposSku)) {
-      removidos += await mesclarGrupo(gruposSku[k]);
-    }
+    const gSku = {};
+    prods2.forEach(p => { if (!p.sku) return; const k = p.sku.toUpperCase(); (gSku[k]=gSku[k]||[]).push(p); });
+    for (const k of Object.keys(gSku)) removidos += await mesclarGrupo(gSku[k]);
 
     alert(`✅ Limpeza concluída!\n🗑️ Duplicidades removidas: ${removidos}`);
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao remover duplicidades.");
-  }
+  } catch(e) { console.error(e); alert("Erro ao remover duplicidades."); }
 };
 
-window.abrirSincronizarSKU = function () {
-  $("modalSincSKU").classList.add("active");
+// ── Sincronizar SKU/ML ──────────────────────────────────────
+window.abrirSincronizarSKU = function() { $("modalSincSKU").classList.add("active"); };
+
+window.carregarExemploSKU = function() {
+  $("dadosSKU").value =
+`Fino Premium Touc Hair Máscara Capilar 230g\t6845189982\tMASFINCRE230
+Medicube Pdrn Exosome 2000 Colágeno 30ml\t4671922511\tPDRMEDSER30M
+Vt Cosmetics Cica Cream Plus 100ml\t7104495842\tCICVTSER100
+Skin1004 Ampoule Centella De Madagascar 100ml\t4852430375\tAMPSKISER100
+Espuma de Limpeza Ampoule Fom\t7104034322\tAMPSKIESP125
+Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml\t4667484245\tNO9NAMCRE10M
+Pore + Dark Spot BrighteningCelimax 35ml\t6726179242\tPORCELCRE35M
+Retinal Shor Celimax 15ml\t6725246532\tRETCELCRE15M
+345 Relief Cream Dr Althea 50 ml\t4633597133\t345DRACRE55M
+Probio-Cica Intensive Ampoule Skin 1004 50 ml\t6669781578\tPROSKIAMP55M
+Light Cleasing Oil Skin 1004 200 ml\t4629595331\tLIGSKICLE200
+Hearleaf Pore Control Cleasing Oil Anua\t4629579899\tHEAANUCLE200
+PDRN Pink Caffeine Night Mask Medicube\t6662223372\tPDRMEDMAS75M
+Deep Vita C Pad Medicube\t6662204692\tDEEMEDPAD70U
+Toner Pads Zero Pore 70 Pads Medicube\t4634071405\tTONMEDPAD70U
+Medicube Collagen Lifting Mask Máscara Facial 1 Unid\t4633793035\tCOLMEDMAS1UN
+Vitamin With Niacinamide Mask OMG 1 unid\t4633775937\tVITOMGMAS1UN
+Collagen With PDRN Mask OMG\t6670185682\tCOLOMGMAS1UN
+Poremizing Clarifyng Mask Skin 1004 1 unid\t6670134408\tPORSKIMAS1UN
+Deep Peptide Radiance Mask Medicube 1 unid\t4633624291\tDEEMEDMAS1UN
+Sérum Olhos Axis-y Vegan Collagen Eye 10ml\t\tVEGAXISER10M`;
 };
 
-window.carregarExemploSKU = function () {
-  $("dadosSKU").value = `Fino Premium Touc Hair Máscara Capilar 230g	6845189982	MASFINCRE230
-Medicube Pdrn Exosome 2000 Colágeno 30ml	4671922511	PDRMEDSER30M
-Vt Cosmetics Cica Cream Plus 100ml	7104495842	CICVTSER100
-Skin1004 Ampoule Centella De Madagascar 100ml	4852430375	AMPSKISER100
-Espuma de Limpeza Ampoule Fom	7104034322	AMPSKIESP125
-Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml	4667484245	NO9NAMCRE10M
-Pore + Dark Spot BrighteningCelimax 35ml	6726179242	PORCELCRE35M
-Retinal Shor Celimax 15ml	6725246532	RETCELCRE15M
-345 Relief Cream Dr Althea 50 ml	4633597133	345DRACRE55M
-Probio-Cica Intensive Ampoule Skin 1004 50 ml	6669781578	PROSKIAMP55M
-Light Cleasing Oil Skin 1004 200 ml	4629595331	LIGSKICLE200
-Hearleaf Pore Control Cleasing Oil Anua	4629579899	HEAANUCLE200
-PDRN Pink Caffeine Night Mask Medicube	6662223372	PDRMEDMAS75M
-Deep Vita C Pad Medicube	6662204692	DEEMEDPAD70U
-Toner Pads Zero Pore 70 Pads Medicube	4634071405	TONMEDPAD70U
-Medicube Collagen Lifting Mask Máscara Facial 1 Unid	4633793035	COLMEDMAS1UN
-Vitamin With Niacinamide Mask OMG 1 unid	4633775937	VITOMGMAS1UN
-Collagen With PDRN Mask OMG	6670185682	COLOMGMAS1UN
-Poremizing Clarifyng Mask Skin 1004 1 Unid	6670134408	PORSKIMAS1UN
-Deep Peptide Radiance Mask Medicube 1 unid	4633624291	DEEMEDMAS1UN`;
-};
-
-window.processarSincronizacaoSKU = async function () {
+window.processarSincronizacaoSKU = async function() {
   const raw = $("dadosSKU").value.trim();
   if (!raw) return alert("Cole os dados primeiro!");
-
-  const linhas = raw.split("\n").map(l => l.trim()).filter(Boolean);
+  const linhas = raw.split("\n").map(l=>l.trim()).filter(Boolean);
   const registros = [];
-
   for (const linha of linhas) {
-    let partes = linha.split("\t");
-    if (partes.length < 3) partes = linha.split(";");
-    if (partes.length < 3) partes = linha.split(",");
-    if (partes.length < 3) continue;
-
-    const nome = partes[0].trim();
-    const mlItemId = partes[1].trim();
-    const sku = partes[2].trim();
+    let p = linha.split("\t");
+    if (p.length < 3) p = linha.split(";");
+    if (p.length < 3) p = linha.split(",");
+    if (p.length < 3) continue;
+    const nome = p[0].trim(), mlItemId = p[1].trim(), sku = p[2].trim();
     if (nome && sku) registros.push({ nome, mlItemId, sku });
   }
-
   if (!registros.length) return alert("Nenhuma linha válida.");
   if (!confirm(`Encontradas ${registros.length} linhas.\nProcessar agora?`)) return;
 
   try {
-    let atualizados = 0;
-    let criados = 0;
-    let duplicadosRemovidos = 0;
+    let atualizados = 0, criados = 0, duplicadosRemovidos = 0;
 
-    const snap = await getDocs(collection(db, "produtos"));
-    const produtos = [];
-    snap.forEach(d => produtos.push(mapProduto(d.id, d.data())));
+    const s1 = await getDocs(collection(db,"produtos"));
+    const p1 = []; s1.forEach(d => p1.push(mapProduto(d.id,d.data())));
+    const gn = {};
+    p1.forEach(p => { const k = normalizarNome(p.nome); (gn[k]=gn[k]||[]).push(p); });
+    for (const k of Object.keys(gn)) duplicadosRemovidos += await mesclarGrupo(gn[k]);
 
-    const grupos = {};
-    produtos.forEach(p => {
-      const k = normalizarNome(p.nome);
-      if (!grupos[k]) grupos[k] = [];
-      grupos[k].push(p);
-    });
-    for (const k of Object.keys(grupos)) duplicadosRemovidos += await mesclarGrupo(grupos[k]);
-
-    const snap2 = await getDocs(collection(db, "produtos"));
-    const produtosLimpos = [];
-    snap2.forEach(d => produtosLimpos.push(mapProduto(d.id, d.data())));
+    const s2 = await getDocs(collection(db,"produtos"));
+    const p2 = []; s2.forEach(d => p2.push(mapProduto(d.id,d.data())));
 
     for (const reg of registros) {
-      const nomeNorm = normalizarNome(reg.nome);
-      const existente = produtosLimpos.find(p =>
-        normalizarNome(p.nome) === nomeNorm ||
+      const nNorm = normalizarNome(reg.nome);
+      const ex = p2.find(p =>
+        normalizarNome(p.nome) === nNorm ||
         (p.sku && p.sku.toUpperCase() === reg.sku.toUpperCase())
       );
-
-      if (existente) {
-        await updateDoc(doc(db, "produtos", existente.id), {
-          nome: reg.nome,
-          sku: reg.sku,
-          mlItemId: reg.mlItemId
-        });
-        existente.nome = reg.nome;
-        existente.sku = reg.sku;
-        existente.mlItemId = reg.mlItemId;
+      if (ex) {
+        await updateDoc(doc(db,"produtos",ex.id),{ nome:reg.nome, sku:reg.sku, mlItemId:reg.mlItemId });
+        ex.nome=reg.nome; ex.sku=reg.sku; ex.mlItemId=reg.mlItemId;
         atualizados++;
       } else {
-        const ref = await addDoc(collection(db, "produtos"), {
-          nome: reg.nome,
-          sku: reg.sku,
-          mlItemId: reg.mlItemId,
-          estoque: 0,
-          minimo: 1,
-          foto: "",
-          ultimaUSD: 0,
-          ultimaBRL: 0,
-          custoManual: false
+        const ref = await addDoc(collection(db,"produtos"),{
+          nome:reg.nome, sku:reg.sku, mlItemId:reg.mlItemId,
+          estoque:0, minimo:1, foto:"", ultimaUSD:0, ultimaBRL:0, custoManual:false
         });
-        produtosLimpos.push({
-          id: ref.id,
-          nome: reg.nome,
-          sku: reg.sku,
-          mlItemId: reg.mlItemId,
-          estoque: 0
-        });
+        p2.push({ id:ref.id, nome:reg.nome, sku:reg.sku, mlItemId:reg.mlItemId, estoque:0 });
         criados++;
       }
     }
 
-    const snap3 = await getDocs(collection(db, "produtos"));
-    const produtosFinais = [];
-    snap3.forEach(d => produtosFinais.push(mapProduto(d.id, d.data())));
+    const s3 = await getDocs(collection(db,"produtos"));
+    const p3 = []; s3.forEach(d => p3.push(mapProduto(d.id,d.data())));
+    const gs = {};
+    p3.forEach(p => { if (!p.sku) return; const k=p.sku.toUpperCase(); (gs[k]=gs[k]||[]).push(p); });
+    for (const k of Object.keys(gs)) duplicadosRemovidos += await mesclarGrupo(gs[k]);
 
-    const gruposSku = {};
-    produtosFinais.forEach(p => {
-      if (!p.sku) return;
-      const k = p.sku.toUpperCase();
-      if (!gruposSku[k]) gruposSku[k] = [];
-      gruposSku[k].push(p);
-    });
-    for (const k of Object.keys(gruposSku)) duplicadosRemovidos += await mesclarGrupo(gruposSku[k]);
-
-    alert(
-      `✅ Sincronização concluída!\n\n` +
-      `📝 Atualizados: ${atualizados}\n` +
-      `✨ Criados: ${criados}\n` +
-      `🗑️ Duplicidades removidas: ${duplicadosRemovidos}`
-    );
+    alert(`✅ Sincronização concluída!\n\n📝 Atualizados: ${atualizados}\n✨ Criados: ${criados}\n🗑️ Duplicidades removidas: ${duplicadosRemovidos}`);
     fecharModais();
-  } catch (err) {
-    console.error(err);
-    alert("Erro na sincronização de SKU/ML.");
-  }
+  } catch(e) { console.error(e); alert("Erro na sincronização."); }
 };
 
-window.abrirConfigML = function () {
-  $("mlAppId").value = mlAppId;
-  $("mlSecretKey").value = mlSecretKey;
+// ── Config ML ───────────────────────────────────────────────
+window.abrirConfigML = function() {
+  $("mlAppId").value       = mlAppId;
+  $("mlSecretKey").value   = mlSecretKey;
   $("mlAccessToken").value = mlAccessToken;
-  $("mlRefreshToken").value = mlRefreshToken;
+  $("mlRefreshToken").value= mlRefreshToken;
   $("modalConfigML").classList.add("active");
 };
 
-window.abrirGeradorToken = function () {
-  if (!mlAppId) {
-    alert("Preencha o App ID primeiro!");
-    return;
-  }
-  const url = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${encodeURIComponent(mlAppId)}&redirect_uri=${encodeURIComponent("https://localhost")}`;
-  window.open(url, "_blank");
-  alert("Autorize no Mercado Livre.\n\nDepois troque o CODE por access_token/refresh_token (endpoint /oauth/token) e cole nos campos.");
+window.abrirGeradorToken = function() {
+  if (!mlAppId) return alert("Preencha o App ID primeiro!");
+  window.open(
+    `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${encodeURIComponent(mlAppId)}&redirect_uri=${encodeURIComponent("https://localhost")}`,
+    "_blank"
+  );
+  alert("Autorize no Mercado Livre e cole o access_token e refresh_token nos campos.");
 };
 
-window.salvarTokenML = async function () {
-  const appId = $("mlAppId").value.trim();
-  const secretKey = $("mlSecretKey").value.trim();
+window.salvarTokenML = async function() {
+  const appId       = $("mlAppId").value.trim();
+  const secretKey   = $("mlSecretKey").value.trim();
   const accessToken = $("mlAccessToken").value.trim();
-  const refreshToken = $("mlRefreshToken").value.trim();
-
+  const refreshToken= $("mlRefreshToken").value.trim();
   if (!appId || !secretKey) return alert("App ID e Secret Key são obrigatórios!");
-
-  mlAppId = appId;
-  mlSecretKey = secretKey;
-  localStorage.setItem("ml_app_id", mlAppId);
-  localStorage.setItem("ml_secret_key", mlSecretKey);
-
+  mlAppId = appId; mlSecretKey = secretKey;
+  localStorage.setItem("ml_app_id",    mlAppId);
+  localStorage.setItem("ml_secret_key",mlSecretKey);
   if (accessToken) {
-    mlAccessToken = accessToken;
+    mlAccessToken  = accessToken;
     mlRefreshToken = refreshToken || mlRefreshToken;
-    // se o usuário colou token manualmente e não temos expires, assume 6h
-    if (!mlTokenExpiraEm || mlTokenExpiraEm < Date.now()) {
-      mlTokenExpiraEm = Date.now() + (6 * 3600 * 1000);
-    }
-
-    localStorage.setItem("ml_access_token", mlAccessToken);
-    localStorage.setItem("ml_refresh_token", mlRefreshToken);
-    localStorage.setItem("ml_token_expira_em", String(mlTokenExpiraEm));
-
+    if (!mlTokenExpiraEm || mlTokenExpiraEm < Date.now())
+      mlTokenExpiraEm = Date.now() + 6 * 3600 * 1000;
+    localStorage.setItem("ml_access_token",   mlAccessToken);
+    localStorage.setItem("ml_refresh_token",  mlRefreshToken);
+    localStorage.setItem("ml_token_expira_em",String(mlTokenExpiraEm));
     alert("✅ Credenciais salvas!");
     fecharModais();
     verificarERenovarToken();
   } else {
-    alert("📝 Agora gere o Access Token e cole aqui com o Refresh Token.");
+    alert("📝 Gere o Access Token e cole aqui com o Refresh Token.");
     abrirGeradorToken();
   }
 };
 
+// ── Sincronizar Estoque ML ──────────────────────────────────
 async function fetchItemML(mlId) {
-  const itemId = formatMlItemId(mlId);
-  const response = await fetch(`https://api.mercadolibre.com/items/${encodeURIComponent(itemId)}`, {
-    headers: {
-      Authorization: `Bearer ${mlAccessToken}`,
-      Accept: "application/json"
-    }
+  return fetch(`https://api.mercadolibre.com/items/${encodeURIComponent(formatMlItemId(mlId))}`, {
+    headers: { Authorization:`Bearer ${mlAccessToken}`, Accept:"application/json" }
   });
-  return response;
 }
 
-window.sincronizarEstoqueML = async function () {
-  const tokenValido = await verificarERenovarToken();
-  if (!tokenValido && !mlAccessToken) {
-    alert("⚠️ Você precisa configurar o Token do Mercado Livre primeiro.\nClique no botão '⚙️ Token ML' no topo da página.");
-    abrirConfigML();
-    return;
+window.sincronizarEstoqueML = async function() {
+  const ok = await verificarERenovarToken();
+  if (!ok && !mlAccessToken) {
+    alert("⚠️ Configure o Token ML primeiro.");
+    abrirConfigML(); return;
   }
-
   const btn = $("btnSyncML");
-  const textoOriginal = btn.innerText;
-  btn.innerText = "🔄 Atualizando...";
-  btn.disabled = true;
-
+  const orig = btn.innerText;
+  btn.innerText = "🔄 Atualizando..."; btn.disabled = true;
   try {
-    const snap = await getDocs(collection(db, "produtos"));
-    const produtosML = [];
-    snap.forEach(d => {
-      const p = mapProduto(d.id, d.data());
-      if (p.mlItemId) produtosML.push(p);
-    });
-
-    if (!produtosML.length) {
-      alert("Nenhum produto com ID do Mercado Livre encontrado.");
-      return;
-    }
-
-    let atualizados = 0;
-    let erros = 0;
-
-    for (const prod of produtosML) {
+    const snap = await getDocs(collection(db,"produtos"));
+    const lista = [];
+    snap.forEach(d => { const p=mapProduto(d.id,d.data()); if(p.mlItemId) lista.push(p); });
+    if (!lista.length) { alert("Nenhum produto com ML ID encontrado."); return; }
+    let atualizados=0, erros=0;
+    for (const prod of lista) {
       try {
-        let response = await fetchItemML(prod.mlItemId);
-
-        if (response.status === 401) {
-          const renovado = await renovarTokenML();
-          if (!renovado) {
-            alert("❌ Token inválido ou expirado. Configure um novo token.");
-            break;
-          }
-          response = await fetchItemML(prod.mlItemId);
+        let r = await fetchItemML(prod.mlItemId);
+        if (r.status === 401) {
+          const ren = await renovarTokenML();
+          if (!ren) { alert("❌ Token inválido. Configure um novo."); break; }
+          r = await fetchItemML(prod.mlItemId);
         }
-
-        if (!response.ok) {
-          erros++;
-          continue;
-        }
-
-        const data = await response.json();
-        if (data.available_quantity !== undefined && data.available_quantity !== null) {
-          await updateDoc(doc(db, "produtos", prod.id), {
-            estoque: toInt(data.available_quantity, 0)
-          });
+        if (!r.ok) { erros++; continue; }
+        const data = await r.json();
+        if (data.available_quantity != null) {
+          await updateDoc(doc(db,"produtos",prod.id),{ estoque: toInt(data.available_quantity,0) });
           atualizados++;
-        } else {
-          erros++;
-        }
-
-        await new Promise(r => setTimeout(r, 200));
-      } catch (err) {
-        console.error("Erro no produto " + prod.nome, err);
-        erros++;
-      }
+        } else erros++;
+        await new Promise(r=>setTimeout(r,200));
+      } catch(e) { console.error(e); erros++; }
     }
-
-    alert(`✅ Sincronização finalizada!\n\n📦 Produtos atualizados: ${atualizados}\n⚠️ Erros/Não encontrados: ${erros}`);
-  } catch (error) {
-    console.error(error);
-    alert("Erro geral na sincronização. Verifique CORS/token/rede.");
-  } finally {
-    btn.innerText = textoOriginal;
-    btn.disabled = false;
-  }
+    alert(`✅ Sincronização finalizada!\n\n📦 Atualizados: ${atualizados}\n⚠️ Erros: ${erros}`);
+  } catch(e) { console.error(e); alert("Erro geral na sincronização."); }
+  finally { btn.innerText=orig; btn.disabled=false; }
 };
 
-window.abrirRenomear = function (id) {
-  const p = produtosMap.get(id);
-  if (!p) return alert("Produto não encontrado.");
+// ── Renomear ────────────────────────────────────────────────
+window.abrirRenomear = function(id) {
+  const p = produtosMap.get(id); if(!p) return;
   renomearId = id;
   $("novoNomeProduto").value = p.nome;
   $("modalRenomear").classList.add("active");
 };
-
-window.salvarRenomear = async function () {
-  const novoNome = $("novoNomeProduto").value.trim();
-  if (!novoNome) return alert("O nome não pode estar vazio.");
-  if (!confirm(`Tem certeza que deseja alterar o nome para:\n"${novoNome}"?`)) return;
-
+window.salvarRenomear = async function() {
+  const nome = $("novoNomeProduto").value.trim();
+  if (!nome) return alert("Nome não pode ser vazio.");
+  if (!confirm(`Alterar para:\n"${nome}"?`)) return;
   try {
-    await updateDoc(doc(db, "produtos", renomearId), { nome: novoNome });
-    alert("✅ Nome atualizado com sucesso!");
-    fecharModais();
-  } catch (error) {
-    console.error(error);
-    alert("Erro ao atualizar nome.");
-  }
+    await updateDoc(doc(db,"produtos",renomearId),{ nome });
+    alert("✅ Nome atualizado!"); fecharModais();
+  } catch(e) { console.error(e); alert("Erro ao renomear."); }
 };
 
-window.abrirEditarSKU = function (id) {
-  const p = produtosMap.get(id);
-  if (!p) return alert("Produto não encontrado.");
+// ── SKU / ML ID ─────────────────────────────────────────────
+window.abrirEditarSKU = function(id) {
+  const p = produtosMap.get(id); if(!p) return;
   editarSkuId = id;
-  $("editSku").value = p.sku || "";
-  $("editMlId").value = p.mlItemId || "";
+  $("editSku").value  = p.sku     || "";
+  $("editMlId").value = p.mlItemId|| "";
   $("modalEditarSKU").classList.add("active");
 };
-
-window.salvarEditarSKU = async function () {
-  const sku = $("editSku").value.trim();
-  let mlId = $("editMlId").value.trim();
-
-  if (!sku && !mlId) return alert("Preencha pelo menos um campo (SKU ou ML ID).");
-
+window.salvarEditarSKU = async function() {
+  const sku  = $("editSku").value.trim();
+  const mlId = $("editMlId").value.trim();
+  if (!sku && !mlId) return alert("Preencha pelo menos um campo.");
   if (mlId) {
-    const clean = mlId.toUpperCase().replace(/^MLB/, "");
-    if (!/^\d+$/.test(clean) && !/^[A-Z]{3}\d+$/.test(mlId.toUpperCase())) {
-      return alert("ML ID inválido. Use só números ou o formato MLB123456789.");
-    }
-    // mantém o valor digitado; na API normalizamos
+    const clean = mlId.toUpperCase().replace(/^MLB/,"");
+    if (!/^\d+$/.test(clean) && !/^[A-Z]{3}\d+$/.test(mlId.toUpperCase()))
+      return alert("ML ID inválido.");
   }
-
   try {
-    await updateDoc(doc(db, "produtos", editarSkuId), { sku, mlItemId: mlId });
-    alert("✅ SKU/ML ID atualizado com sucesso!");
-    fecharModais();
-  } catch (error) {
-    console.error(error);
-    alert("Erro ao atualizar SKU/ML ID.");
-  }
+    await updateDoc(doc(db,"produtos",editarSkuId),{ sku, mlItemId:mlId });
+    alert("✅ SKU/ML ID atualizado!"); fecharModais();
+  } catch(e) { console.error(e); alert("Erro ao atualizar SKU."); }
 };
 
-window.abrirEditarImagem = function (id) {
-  const p = produtosMap.get(id);
-  if (!p) return alert("Produto não encontrado.");
-  editarImagemId = id;
-  imagemBase64 = null;
-  $("imagemURL").value = p.foto && !String(p.foto).startsWith("data:") ? p.foto : "";
+// ── Imagem ──────────────────────────────────────────────────
+window.abrirEditarImagem = function(id) {
+  const p = produtosMap.get(id); if(!p) return;
+  editarImagemId = id; imagemBase64 = null;
+  $("imagemURL").value = (!String(p.foto).startsWith("data:") ? p.foto : "") || "";
   $("uploadPreview").style.display = "none";
   $("uploadPreview").removeAttribute("src");
-  $("uploadArea").classList.remove("has-image", "dragover");
+  $("uploadArea").classList.remove("has-image","dragover");
   $("fileInput").value = "";
   $("uploadText").innerText = "Clique para selecionar uma imagem";
   $("modalEditarImagem").classList.add("active");
 };
 
 function lerArquivoImagem(file) {
-  if (!file || !file.type.startsWith("image/")) {
-    alert("Selecione um arquivo de imagem válido.");
-    return;
-  }
-  // Firestore doc ~1MiB; base64 estoura fácil
-  if (file.size > 700 * 1024) {
-    alert("Imagem grande demais para salvar no Firestore (máx. ~700KB). Use uma URL.");
-    return;
-  }
-
+  if (!file || !file.type.startsWith("image/")) return alert("Arquivo inválido.");
+  if (file.size > 700*1024) return alert("Imagem grande demais (~700KB max). Use uma URL.");
   const reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = e => {
     imagemBase64 = e.target.result;
-    const preview = $("uploadPreview");
-    preview.src = imagemBase64;
-    preview.style.display = "block";
+    const prev = $("uploadPreview");
+    prev.src = imagemBase64; prev.style.display = "block";
     $("uploadArea").classList.add("has-image");
     $("uploadText").innerText = "Imagem selecionada!";
   };
   reader.readAsDataURL(file);
 }
 
-window.previewImagem = function (input) {
+window.previewImagem = function(input) {
   if (input.files && input.files[0]) lerArquivoImagem(input.files[0]);
 };
 
-// Upload area: click + drag/drop
-(function setupUploadArea() {
-  const area = $("uploadArea");
-  const fileInput = $("fileInput");
-  if (!area || !fileInput) return;
-
-  area.addEventListener("click", () => fileInput.click());
-  fileInput.addEventListener("change", () => previewImagem(fileInput));
-
-  ["dragenter", "dragover"].forEach(ev => {
-    area.addEventListener(ev, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      area.classList.add("dragover");
-    });
-  });
-  ["dragleave", "drop"].forEach(ev => {
-    area.addEventListener(ev, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      area.classList.remove("dragover");
-    });
-  });
-  area.addEventListener("drop", (e) => {
-    const file = e.dataTransfer?.files?.[0];
-    if (file) lerArquivoImagem(file);
+(function setupUpload() {
+  const area = $("uploadArea"), fi = $("fileInput"); if(!area||!fi) return;
+  area.addEventListener("click", () => fi.click());
+  fi.addEventListener("change", () => previewImagem(fi));
+  ["dragenter","dragover"].forEach(ev => area.addEventListener(ev, e=>{
+    e.preventDefault(); e.stopPropagation(); area.classList.add("dragover");
+  }));
+  ["dragleave","drop"].forEach(ev => area.addEventListener(ev, e=>{
+    e.preventDefault(); e.stopPropagation(); area.classList.remove("dragover");
+  }));
+  area.addEventListener("drop", e => {
+    const f = e.dataTransfer?.files?.[0]; if(f) lerArquivoImagem(f);
   });
 })();
 
-window.salvarImagem = async function () {
-  const urlInput = $("imagemURL").value.trim();
-  let imagemFinal = "";
-
-  if (imagemBase64) imagemFinal = imagemBase64;
-  else if (urlInput) imagemFinal = urlInput;
-
-  if (!imagemFinal) return alert("Selecione uma imagem ou cole uma URL.");
-
+window.salvarImagem = async function() {
+  const url = $("imagemURL").value.trim();
+  const img = imagemBase64 || url;
+  if (!img) return alert("Selecione uma imagem ou cole uma URL.");
   try {
-    await updateDoc(doc(db, "produtos", editarImagemId), { foto: imagemFinal });
-    alert("✅ Imagem atualizada com sucesso!");
-    fecharModais();
-  } catch (error) {
-    console.error(error);
-    alert("Erro ao atualizar imagem. Ela pode ser muito grande — tente usar uma URL.");
-  }
+    await updateDoc(doc(db,"produtos",editarImagemId),{ foto:img });
+    alert("✅ Imagem atualizada!"); fecharModais();
+  } catch(e) { console.error(e); alert("Erro ao salvar imagem. Tente uma URL."); }
 };
 
-window.toggleMenuAcoes = function (id, event) {
+// ── Menu de ações ────────────────────────────────────────────
+window.toggleMenuAcoes = function(id, event) {
   event.stopPropagation();
-
   if (menuAbertoId && menuAbertoId !== id) {
-    const menuAnterior = $("menu-" + menuAbertoId);
-    if (menuAnterior) menuAnterior.classList.remove("show");
+    const m = $("menu-"+menuAbertoId); if(m) m.classList.remove("show");
   }
-
-  const menu = $("menu-" + id);
-  if (!menu) return;
-
+  const menu = $("menu-"+id); if(!menu) return;
   const isOpen = menu.classList.contains("show");
-  document.querySelectorAll(".menu-dropdown").forEach(m => m.classList.remove("show"));
-
-  if (!isOpen) {
-    menu.classList.add("show");
-    menuAbertoId = id;
-  } else {
-    menuAbertoId = null;
-  }
+  document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show"));
+  if (!isOpen) { menu.classList.add("show"); menuAbertoId=id; }
+  else menuAbertoId=null;
 };
-
-window.fecharTodosMenus = function () {
-  document.querySelectorAll(".menu-dropdown").forEach(m => m.classList.remove("show"));
-  menuAbertoId = null;
+window.fecharTodosMenus = function() {
+  document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show"));
+  menuAbertoId=null;
 };
-
-document.addEventListener("click", (e) => {
+document.addEventListener("click", e => {
   if (!e.target.closest(".actions-cell")) fecharTodosMenus();
 });
+document.addEventListener("keydown", e => {
+  if (e.key==="Escape") fecharModais();
+});
 
-// ============================================
-// LISTENER PRODUTOS
-// ============================================
-onSnapshot(collection(db, "produtos"), (snap) => {
-  const tbody = $("listaProdutos");
-  const sel = $("produtoCompra");
-  const alerts = $("alerts");
-  const dupWarning = $("dupWarning");
+// Delegação do menu de ações
+document.addEventListener("click", e => {
+  const btn = e.target.closest("[data-action]"); if(!btn) return;
+  const action = btn.getAttribute("data-action");
+  const id     = btn.getAttribute("data-id");
+  if (action==="menu") { toggleMenuAcoes(id,e); return; }
+  fecharTodosMenus();
+  if (action==="vender")    abrirVenda(id);
+  else if (action==="historico") abrirHistoricoCusto(id);
+  else if (action==="custo")     abrirEditarCusto(id);
+  else if (action==="renomear")  abrirRenomear(id);
+  else if (action==="sku")       abrirEditarSKU(id);
+  else if (action==="imagem")    abrirEditarImagem(id);
+  else if (action==="deletar")   deletarProduto(id);
+});
 
-  tbody.innerHTML = "";
-  sel.innerHTML = "";
-  alerts.innerHTML = "";
-  dupWarning.innerHTML = "";
+// ── Listener Produtos ────────────────────────────────────────
+onSnapshot(collection(db,"produtos"), snap => {
+  const tbody     = $("listaProdutos");
+  const sel       = $("produtoCompra");
+  const alerts    = $("alerts");
+  const dupWarn   = $("dupWarning");
+
+  tbody.innerHTML = ""; sel.innerHTML = "";
+  alerts.innerHTML = ""; dupWarn.innerHTML = "";
   produtosMap.clear();
 
-  let totalP = 0, totalQ = 0, totalCrit = 0, totalUSD = 0, totalBRL = 0;
-  const dadosGrafico = [];
-  const produtos = [];
+  let totalP=0,totalQ=0,totalCrit=0,totalUSD=0,totalBRL=0;
+  const dadosGrafico=[];
+  const produtos=[];
 
   snap.forEach(d => {
-    const p = mapProduto(d.id, d.data());
-    produtos.push(p);
-    produtosMap.set(p.id, p);
+    const p = mapProduto(d.id,d.data());
+    produtos.push(p); produtosMap.set(p.id,p);
   });
+  produtos.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
 
-  produtos.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-
-  const agrupadosParaAlerta = {};
-  const contadorDuplicados = {};
-  const idsDuplicados = new Set();
-
+  // Detectar duplicatas
+  const agrup={}, contDup={};
+  const idsDup=new Set();
   produtos.forEach(p => {
-    const chave = p.sku ? "sku:" + p.sku.toUpperCase() : "nome:" + normalizarNome(p.nome);
-
-    if (!agrupadosParaAlerta[chave]) {
-      agrupadosParaAlerta[chave] = { ...p, estoqueSomado: p.estoque || 0 };
-      contadorDuplicados[chave] = 1;
-    } else {
-      agrupadosParaAlerta[chave].estoqueSomado += (p.estoque || 0);
-      contadorDuplicados[chave]++;
-      idsDuplicados.add(p.id);
-      idsDuplicados.add(agrupadosParaAlerta[chave].id);
+    const chave = p.sku ? "sku:"+p.sku.toUpperCase() : "nome:"+normalizarNome(p.nome);
+    if (!agrup[chave]) { agrup[chave]={...p,estoqueSomado:p.estoque||0}; contDup[chave]=1; }
+    else {
+      agrup[chave].estoqueSomado += (p.estoque||0);
+      contDup[chave]++;
+      idsDup.add(p.id);
+      idsDup.add(agrup[chave].id);
     }
   });
 
-  const totalDuplicados = idsDuplicados.size;
-  if (totalDuplicados > 0) {
-    dupWarning.innerHTML = `
-      <div class="dup-warning">
-        <span>⚠️ Foram detectados <strong>${totalDuplicados}</strong> produto(s) duplicado(s) no banco.</span>
-        <button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar Agora</button>
-      </div>`;
+  if (idsDup.size>0) {
+    dupWarn.innerHTML=`<div class="dup-warning">
+      <span>⚠️ Detectados <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span>
+      <button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar Agora</button>
+    </div>`;
   }
 
-  const alertasArr = [];
-  Object.keys(agrupadosParaAlerta).forEach(chave => {
-    const p = agrupadosParaAlerta[chave];
-    if ((p.estoqueSomado || 0) <= (p.minimo || 0)) {
+  // Alertas
+  const alertasArr=[];
+  Object.keys(agrup).forEach(chave => {
+    const p=agrup[chave];
+    if ((p.estoqueSomado||0)<=(p.minimo||0)) {
       totalCrit++;
-      const qtdCopias = contadorDuplicados[chave];
-      alertasArr.push({
-        nome: p.nome,
-        foto: p.foto,
-        estoque: p.estoqueSomado,
-        minimo: p.minimo || 0,
-        duplicado: qtdCopias > 1,
-        qtdCopias
-      });
+      alertasArr.push({ nome:p.nome,foto:p.foto,estoque:p.estoqueSomado,minimo:p.minimo||0,
+        duplicado:contDup[chave]>1, qtdCopias:contDup[chave] });
     }
   });
-
-  alertasArr.sort((a, b) => (a.estoque - a.minimo) - (b.estoque - b.minimo));
+  alertasArr.sort((a,b)=>(a.estoque-a.minimo)-(b.estoque-b.minimo));
 
   if (!alertasArr.length) {
-    alerts.innerHTML = `<p style="color:var(--green);font-size:13px;font-weight:600">✅ Nenhum alerta no momento.</p>`;
+    alerts.innerHTML=`<p style="color:var(--green);font-size:13px;font-weight:600">✅ Nenhum alerta no momento.</p>`;
   } else {
-    const frag = document.createDocumentFragment();
-    alertasArr.forEach(al => {
-      const div = document.createElement("div");
-      div.className = "alert-low";
-      if (al.foto) div.setAttribute("data-tooltip", al.foto);
-      div.innerHTML = `
-        <span class="alert-info">⚠ <strong>${escapeHtml(al.nome)}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})</span>
-        ${al.duplicado ? `<span class="badge-dup">${al.qtdCopias}x duplicado</span>` : ""}
-      `;
+    const frag=document.createDocumentFragment();
+    alertasArr.forEach(al=>{
+      const div=document.createElement("div");
+      div.className="alert-low";
+      if(al.foto) div.setAttribute("data-tooltip",al.foto);
+      div.innerHTML=`<span class="alert-info">⚠ <strong>${escapeHtml(al.nome)}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})</span>
+        ${al.duplicado?`<span class="badge-dup">${al.qtdCopias}x duplicado</span>`:""}`;
       frag.appendChild(div);
     });
     alerts.appendChild(frag);
   }
 
-  const optionsFrag = document.createDocumentFragment();
-  const placeholder = document.createElement("option");
-  placeholder.value = "";
-  placeholder.textContent = "Selecione um produto...";
-  optionsFrag.appendChild(placeholder);
+  // Tabela + select
+  const optFrag=document.createDocumentFragment();
+  const ph=document.createElement("option");
+  ph.value=""; ph.textContent="Selecione um produto...";
+  optFrag.appendChild(ph);
 
   produtos.forEach(p => {
-    totalP++;
-    totalQ += p.estoque || 0;
-
-    const custoUSD = p.ultimaUSD || 0;
+    totalP++; totalQ+=(p.estoque||0);
+    const custoUSD = p.ultimaUSD||0;
     const custoBRL = calcularCustoBRL(p);
-    let tagCusto = "";
-    if (p.custoManual && (p.ultimaBRL || 0) > 0) tagCusto = `<span class="tag-manual">manual</span>`;
-    else if (custoUSD > 0) tagCusto = `<span class="tag-auto">auto</span>`;
+    let tagCusto="";
+    if (p.custoManual&&(p.ultimaBRL||0)>0) tagCusto=`<span class="tag-manual">manual</span>`;
+    else if (custoUSD>0) tagCusto=`<span class="tag-auto">auto</span>`;
 
-    const subUSD = custoUSD * (p.estoque || 0);
-    const subBRL = custoBRL * (p.estoque || 0);
-    totalUSD += subUSD;
-    totalBRL += subBRL;
-    dadosGrafico.push({ nome: p.nome, valor: subBRL });
+    totalUSD += custoUSD*(p.estoque||0);
+    totalBRL += custoBRL*(p.estoque||0);
+    dadosGrafico.push({ nome:p.nome, valor:custoBRL*(p.estoque||0) });
 
-    const isDup = idsDuplicados.has(p.id);
-    let skuHtml = "";
-    if (p.sku) skuHtml += `<span class="sku-tag">SKU: ${escapeHtml(p.sku)}</span>`;
-    if (p.mlItemId) skuHtml += `${p.sku ? "<br>" : ""}<span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
-    if (!p.sku && !p.mlItemId) skuHtml = `<span style="color:var(--muted);font-size:11px">—</span>`;
-    if (isDup) skuHtml += `<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
+    const isDup=idsDup.has(p.id);
+    let skuHtml="";
+    if (p.sku)      skuHtml+=`<span class="sku-tag">SKU: ${escapeHtml(p.sku)}</span>`;
+    if (p.mlItemId) skuHtml+=`${p.sku?"<br>":""}<span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
+    if (!p.sku&&!p.mlItemId) skuHtml=`<span style="color:var(--muted);font-size:11px">—</span>`;
+    if (isDup) skuHtml+=`<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
 
-    const tr = document.createElement("tr");
-    if (isDup) tr.style.background = "#fef3c7";
-
-    const fotoCell = p.foto
-      ? `<img src="${escapeHtml(p.foto)}" class="img-thumb" data-tooltip="${escapeHtml(p.foto)}" alt="">`
-      : "";
-
-    tr.innerHTML = `
-      <td>${fotoCell}</td>
+    const tr=document.createElement("tr");
+    if (isDup) tr.style.background="#fef3c7";
+    tr.innerHTML=`
+      <td>${p.foto?`<img src="${escapeHtml(p.foto)}" class="img-thumb" data-tooltip="${escapeHtml(p.foto)}" alt="">`:""}</td>
       <td><strong>${escapeHtml(p.nome)}</strong></td>
       <td>${skuHtml}</td>
-      <td>${p.estoque || 0}</td>
-      <td>${p.minimo || 0}</td>
+      <td>${p.estoque||0}</td>
+      <td>${p.minimo||0}</td>
       <td style="color:var(--primary);font-weight:600">$ ${custoUSD.toFixed(2)}</td>
       <td style="color:var(--green);font-weight:600">R$ ${custoBRL.toFixed(2)} ${tagCusto}</td>
       <td class="actions-cell">
         <button class="menu-btn" data-action="menu" data-id="${p.id}" title="Ações">⋮</button>
         <div id="menu-${p.id}" class="menu-dropdown">
-          <button class="menu-item warning" data-action="vender" data-id="${p.id}">💸 Vender</button>
-          <button class="menu-item edit" data-action="historico" data-id="${p.id}">📈 Histórico Custos</button>
-          <button class="menu-item edit" data-action="custo" data-id="${p.id}">✏️ Editar Custo</button>
-          <button class="menu-item edit" data-action="renomear" data-id="${p.id}">✏️ Renomear</button>
-          <button class="menu-item edit" data-action="sku" data-id="${p.id}">🏷️ SKU / ML ID</button>
-          <button class="menu-item edit" data-action="imagem" data-id="${p.id}">🖼️ Imagem</button>
+          <button class="menu-item warning" data-action="vender"   data-id="${p.id}">💸 Vender</button>
+          <button class="menu-item edit"    data-action="historico" data-id="${p.id}">📈 Histórico Custos</button>
+          <button class="menu-item edit"    data-action="custo"    data-id="${p.id}">✏️ Editar Custo</button>
+          <button class="menu-item edit"    data-action="renomear" data-id="${p.id}">✏️ Renomear</button>
+          <button class="menu-item edit"    data-action="sku"      data-id="${p.id}">🏷️ SKU / ML ID</button>
+          <button class="menu-item edit"    data-action="imagem"   data-id="${p.id}">🖼️ Imagem</button>
           <div class="menu-divider"></div>
-          <button class="menu-item danger" data-action="deletar" data-id="${p.id}">🗑️ Excluir</button>
+          <button class="menu-item danger"  data-action="deletar"  data-id="${p.id}">🗑️ Excluir</button>
         </div>
       </td>`;
     tbody.appendChild(tr);
 
-    const opt = document.createElement("option");
-    opt.value = p.id;
-    opt.textContent = p.sku ? `${p.nome} (${p.sku})` : p.nome;
-    optionsFrag.appendChild(opt);
+    const opt=document.createElement("option");
+    opt.value=p.id;
+    opt.textContent=p.sku?`${p.nome} (${p.sku})`:p.nome;
+    optFrag.appendChild(opt);
   });
-
-  sel.appendChild(optionsFrag);
+  sel.appendChild(optFrag);
 
   $("totalProdutos").innerText = String(totalP);
-  $("totalEstoque").innerText = String(totalQ);
-  $("totalBaixo").innerText = String(totalCrit);
-  $("totalValorUSD").innerText = "$ " + totalUSD.toFixed(2);
-  $("totalValorBRL").innerText = "R$ " + totalBRL.toFixed(2);
-
+  $("totalEstoque").innerText  = String(totalQ);
+  $("totalBaixo").innerText    = String(totalCrit);
+  $("totalValorUSD").innerText = "$ "+totalUSD.toFixed(2);
+  $("totalValorBRL").innerText = "R$ "+totalBRL.toFixed(2);
   atualizarGrafico(dadosGrafico);
 });
 
-// Delegação de eventos do menu de ações
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-action]");
-  if (!btn) return;
-
-  const action = btn.getAttribute("data-action");
-  const id = btn.getAttribute("data-id");
-  if (!action) return;
-
-  if (action === "menu") {
-    toggleMenuAcoes(id, e);
-    return;
-  }
-
-  const p = produtosMap.get(id);
-  if (!p && action !== "deletar") return;
-
-  fecharTodosMenus();
-
-  if (action === "vender") abrirVenda(id);
-  else if (action === "historico") abrirHistoricoCusto(id);
-  else if (action === "custo") abrirEditarCusto(id);
-  else if (action === "renomear") abrirRenomear(id);
-  else if (action === "sku") abrirEditarSKU(id);
-  else if (action === "imagem") abrirEditarImagem(id);
-  else if (action === "deletar") deletarProduto(id);
-});
-
 function atualizarGrafico(dados) {
-  const canvas = $("chartValorTotal");
-  if (!canvas) return;
-
-  dados = [...dados].sort((a, b) => b.valor - a.valor);
-  const top10 = dados.slice(0, 10);
-  const ctx = canvas.getContext("2d");
-
+  const canvas=$("chartValorTotal"); if(!canvas) return;
+  const top10=[...dados].sort((a,b)=>b.valor-a.valor).slice(0,10);
   if (chartInstance) chartInstance.destroy();
-
-  chartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: top10.map(d => {
-        const n = d.nome || "";
-        return n.length > 15 ? n.substring(0, 15) + "…" : n;
-      }),
-      datasets: [{
-        label: "Valor no Estoque (R$)",
-        data: top10.map(d => d.valor),
-        backgroundColor: "#6366f1",
-        borderRadius: 4
-      }]
+  chartInstance=new Chart(canvas.getContext("2d"),{
+    type:"bar",
+    data:{
+      labels:top10.map(d=>{ const n=d.nome||""; return n.length>15?n.substring(0,15)+"…":n; }),
+      datasets:[{ label:"Valor no Estoque (R$)", data:top10.map(d=>d.valor),
+        backgroundColor:"#6366f1", borderRadius:4 }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true }
-      }
-    }
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
   });
 }
 
-onSnapshot(collection(db, "compras"), (snap) => {
-  const tbody = $("listaMovs");
-  tbody.innerHTML = "";
-  const arr = [];
-  snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
-  arr.sort((a, b) => String(b.criadoEm || "").localeCompare(String(a.criadoEm || "")));
-
-  arr.forEach(c => {
-    const corTipo = c.tipo === "Compra" ? "color:#10b981" : (c.tipo === "Venda" ? "color:#ef4444" : "color:#854d0e");
-    const sinal = c.tipo === "Compra" ? "+" : (c.tipo === "Venda" ? "-" : "");
-    const dataFormatada = c.criadoEm ? new Date(c.criadoEm).toLocaleString("pt-BR") : "N/A";
-    const qtd = toNumber(c.qtd, 0);
-    const totalUSD = toNumber(c.totalUSD, 0);
-    const totalBRL = toNumber(c.totalBRL, 0);
-    const unitUSD = qtd > 0 ? totalUSD / qtd : totalUSD;
-    const unitBRL = qtd > 0 ? totalBRL / qtd : totalBRL;
-
-    const tr = document.createElement("tr");
-    const nomeCell = document.createElement("td");
-    nomeCell.style.fontWeight = "600";
-    nomeCell.style.cursor = c.foto ? "pointer" : "default";
-    nomeCell.style.color = "var(--primary)";
-    nomeCell.textContent = c.produtoNome || "—";
-    if (c.foto) nomeCell.setAttribute("data-tooltip", c.foto);
-
-    tr.innerHTML = `
-      <td style="color:var(--muted);font-size:12px"></td>
-      <td></td>
-      <td style="font-weight:700;${corTipo}"></td>
-      <td></td>
-      <td></td>
-      <td></td>`;
-
-    tr.cells[0].textContent = dataFormatada;
-    tr.cells[1].replaceWith(nomeCell);
-    tr.cells[2].textContent = c.tipo || "—";
-    tr.cells[3].textContent = `${sinal}${qtd}`;
-    tr.cells[4].textContent = `$ ${unitUSD.toFixed(2)}`;
-    tr.cells[5].innerHTML = `R$ ${unitBRL.toFixed(2)}<br><span style="font-size:10px;color:var(--muted)">(Total R$ ${totalBRL.toFixed(2)})</span>`;
+// ── Listener Movimentações ───────────────────────────────────
+onSnapshot(collection(db,"compras"), snap => {
+  const tbody=$("listaMovs"); tbody.innerHTML="";
+  const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+  arr.sort((a,b)=>String(b.criadoEm||"").localeCompare(String(a.criadoEm||"")));
+  arr.forEach(c=>{
+    const cor=c.tipo==="Compra"?"color:#10b981":(c.tipo==="Venda"?"color:#ef4444":"color:#854d0e");
+    const sinal=c.tipo==="Compra"?"+":(c.tipo==="Venda"?"-":"");
+    const data=c.criadoEm?new Date(c.criadoEm).toLocaleString("pt-BR"):"N/A";
+    const qtd=toNumber(c.qtd,0);
+    const tUSD=toNumber(c.totalUSD,0), tBRL=toNumber(c.totalBRL,0);
+    const uUSD=qtd>0?tUSD/qtd:tUSD, uBRL=qtd>0?tBRL/qtd:tBRL;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="color:var(--muted);font-size:12px">${data}</td>
+      <td style="font-weight:600;color:var(--primary)"${c.foto?` data-tooltip="${escapeHtml(c.foto)}"`:""}>
+        ${escapeHtml(c.produtoNome||"—")}</td>
+      <td style="font-weight:700;${cor}">${escapeHtml(c.tipo||"—")}</td>
+      <td>${sinal}${qtd}</td>
+      <td>$ ${uUSD.toFixed(2)}</td>
+      <td>R$ ${uBRL.toFixed(2)}<br>
+        <span style="font-size:10px;color:var(--muted)">(Total R$ ${tBRL.toFixed(2)})</span></td>`;
     tbody.appendChild(tr);
   });
 });
 
-window.abrirVenda = function (id) {
-  const p = produtosMap.get(id);
-  if (!p) return alert("Produto não encontrado.");
-  produtoSelId = id;
-  produtoSelNome = p.nome;
-  produtoSelCusto = calcularCustoBRL(p);
-  $("qtdVenda").value = "";
-  $("valorVenda").value = "";
+// ── Venda ────────────────────────────────────────────────────
+window.abrirVenda = function(id) {
+  const p=produtosMap.get(id); if(!p) return alert("Produto não encontrado.");
+  produtoSelId=id; produtoSelNome=p.nome; produtoSelCusto=calcularCustoBRL(p);
+  $("qtdVenda").value=""; $("valorVenda").value="";
   $("modalVenda").classList.add("active");
 };
 
-window.confirmarVenda = async function () {
-  const qtd = toInt($("qtdVenda").value, 0);
-  const valorTotalVenda = toNumber($("valorVenda").value, NaN);
-
-  if (!qtd || qtd <= 0 || !Number.isFinite(valorTotalVenda) || valorTotalVenda < 0) {
-    alert("Preencha Qtd e Valor Total válidos");
-    return;
-  }
-
+window.confirmarVenda = async function() {
+  const qtd=toInt($("qtdVenda").value,0);
+  const valor=toNumber($("valorVenda").value,NaN);
+  if (!qtd||qtd<=0||!Number.isFinite(valor)||valor<0) return alert("Preencha Qtd e Valor válidos.");
   try {
-    const refDoc = doc(db, "produtos", produtoSelId);
-    const snapProd = await getDoc(refDoc);
-    if (!snapProd.exists()) return alert("Produto não existe mais.");
-
-    const p = mapProduto(snapProd.id, snapProd.data());
-    if (qtd > p.estoque) return alert("Estoque insuficiente!");
-
-    const custoTotalVenda = produtoSelCusto * qtd;
-    const lucro = valorTotalVenda - custoTotalVenda;
-
-    // set absoluto evita bug do increment quando o doc só tem "quantity"
-    await updateDoc(refDoc, { estoque: p.estoque - qtd });
-
-    await addDoc(collection(db, "compras"), {
-      produtoId: produtoSelId,
-      produtoNome: produtoSelNome,
-      foto: p.foto || "",
-      tipo: "Venda",
-      qtd,
-      totalUSD: 0,
-      totalBRL: valorTotalVenda,
-      lucro,
-      criadoEm: new Date().toISOString()
+    const refDoc=doc(db,"produtos",produtoSelId);
+    const sn=await getDoc(refDoc); if(!sn.exists()) return alert("Produto não existe.");
+    const p=mapProduto(sn.id,sn.data());
+    if (qtd>p.estoque) return alert("Estoque insuficiente!");
+    const lucro=valor-(produtoSelCusto*qtd);
+    await updateDoc(refDoc,{ estoque:p.estoque-qtd });
+    await addDoc(collection(db,"compras"),{
+      produtoId:produtoSelId, produtoNome:produtoSelNome, foto:p.foto||"",
+      tipo:"Venda", qtd, totalUSD:0, totalBRL:valor, lucro,
+      criadoEm:new Date().toISOString()
     });
-
-    alert("Venda registrada!\nLucro: R$ " + lucro.toFixed(2));
+    alert("Venda registrada!\nLucro: R$ "+lucro.toFixed(2));
     fecharModais();
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao registrar venda.");
-  }
+  } catch(e) { console.error(e); alert("Erro ao registrar venda."); }
 };
 
-window.registrarCompra = async function () {
-  const id = $("produtoCompra").value;
-  const qtd = toInt($("quantidadeCompra").value, 0);
-  const total = toNumber($("valorCompra").value, NaN);
+// ── Compra ───────────────────────────────────────────────────
+window.registrarCompra = async function() {
+  const id    = $("produtoCompra").value;
+  const qtd   = toInt($("quantidadeCompra").value,0);
+  const total = toNumber($("valorCompra").value,NaN);
   const moeda = $("moedaCompra").value;
-
-  if (!id || !qtd || qtd <= 0 || !Number.isFinite(total) || total < 0) {
-    return alert("Preencha produto, qtd e valor");
-  }
-
+  if (!id||!qtd||qtd<=0||!Number.isFinite(total)||total<0) return alert("Preencha produto, qtd e valor.");
   try {
-    const refDoc = doc(db, "produtos", id);
-    const snap = await getDoc(refDoc);
-    if (!snap.exists()) return alert("Produto não encontrado.");
-
-    const p = mapProduto(snap.id, snap.data());
-
-    let totalUSD, totalBRL;
-    if (moeda === "USD") {
-      totalUSD = total;
-      totalBRL = total * cotacaoAtual;
-    } else {
-      totalBRL = total;
-      totalUSD = cotacaoAtual > 0 ? total / cotacaoAtual : 0;
-    }
-
-    const unitUSD = totalUSD / qtd;
-    const unitBRL = totalBRL / qtd;
-
-    await updateDoc(refDoc, {
-      estoque: p.estoque + qtd,
-      ultimaUSD: unitUSD,
-      ultimaBRL: unitBRL,
-      custoManual: false
+    const refDoc=doc(db,"produtos",id);
+    const sn=await getDoc(refDoc); if(!sn.exists()) return alert("Produto não encontrado.");
+    const p=mapProduto(sn.id,sn.data());
+    const tUSD=moeda==="USD"?total:total/cotacaoAtual;
+    const tBRL=moeda==="BRL"?total:total*cotacaoAtual;
+    await updateDoc(refDoc,{ estoque:p.estoque+qtd, ultimaUSD:tUSD/qtd, ultimaBRL:tBRL/qtd, custoManual:false });
+    await addDoc(collection(db,"compras"),{
+      produtoId:id, produtoNome:p.nome, foto:p.foto,
+      tipo:"Compra", qtd, totalUSD:tUSD, totalBRL:tBRL,
+      criadoEm:new Date().toISOString()
     });
-
-    await addDoc(collection(db, "compras"), {
-      produtoId: id,
-      produtoNome: p.nome,
-      foto: p.foto,
-      tipo: "Compra",
-      qtd,
-      totalUSD,
-      totalBRL,
-      criadoEm: new Date().toISOString()
-    });
-
     alert("Compra registrada!");
-    $("quantidadeCompra").value = "";
-    $("valorCompra").value = "";
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao registrar compra.");
-  }
+    $("quantidadeCompra").value=""; $("valorCompra").value="";
+  } catch(e) { console.error(e); alert("Erro ao registrar compra."); }
 };
 
-window.abrirEditarCusto = function (id) {
-  const p = produtosMap.get(id);
-  if (!p) return alert("Produto não encontrado.");
-
-  editandoCustoId = id;
-  editandoCustoNome = p.nome;
-  editandoCustoUSDAtual = p.ultimaUSD || 0;
-  editandoCustoBRLAtual = calcularCustoBRL(p);
-
-  $("nomeEditarCusto").innerText = p.nome;
-  $("novoUSD").value = "";
-  $("novoBRL").value = "";
-  $("previewConversaoModal").style.display = "none";
-  $("cotacaoModalInfo").innerText = "R$ " + cotacaoAtual.toFixed(4);
-
-  const brlAuto = editandoCustoUSDAtual > 0 ? (editandoCustoUSDAtual * cotacaoAtual).toFixed(2) : "—";
-  $("infoAtualCusto").innerHTML = `
-    <strong>Custo atual salvo:</strong> $ ${editandoCustoUSDAtual.toFixed(2)} | R$ ${editandoCustoBRLAtual.toFixed(2)}
+// ── Editar Custo ─────────────────────────────────────────────
+window.abrirEditarCusto = function(id) {
+  const p=produtosMap.get(id); if(!p) return;
+  editandoCustoId=id; editandoCustoNome=p.nome;
+  editandoCustoUSDAtual=p.ultimaUSD||0;
+  editandoCustoBRLAtual=calcularCustoBRL(p);
+  $("nomeEditarCusto").innerText=p.nome;
+  $("novoUSD").value=""; $("novoBRL").value="";
+  $("previewConversaoModal").style.display="none";
+  $("cotacaoModalInfo").innerText="R$ "+cotacaoAtual.toFixed(4);
+  const brlAuto=editandoCustoUSDAtual>0?(editandoCustoUSDAtual*cotacaoAtual).toFixed(2):"—";
+  $("infoAtualCusto").innerHTML=`<strong>Custo atual:</strong> $ ${editandoCustoUSDAtual.toFixed(2)} | R$ ${editandoCustoBRLAtual.toFixed(2)}
     <br><span style="font-size:11px">R$ pela cotação atual: R$ ${brlAuto}</span>`;
-
   $("modalEditarCusto").classList.add("active");
 };
 
-window.previewConversaoModal = function () {
-  const usdVal = toNumber($("novoUSD").value, 0);
-  const brlVal = toNumber($("novoBRL").value, 0);
-  const preview = $("previewConversaoModal");
-
-  if (usdVal <= 0 && brlVal <= 0) {
-    preview.style.display = "none";
-    return;
-  }
-
-  const textos = [];
-  if (usdVal > 0 && brlVal <= 0) {
-    textos.push(`R$ calculado: <strong>R$ ${(usdVal * cotacaoAtual).toFixed(2)}</strong>`);
-  }
-  if (usdVal > 0 && brlVal > 0) {
-    textos.push(`USD: <strong>$ ${usdVal.toFixed(2)}</strong><br>✅ Será salvo R$ manual: <strong>R$ ${brlVal.toFixed(2)}</strong>`);
-  }
-  if (usdVal <= 0 && brlVal > 0) {
-    textos.push(`💰 Apenas R$: <strong>R$ ${brlVal.toFixed(2)}</strong>`);
-  }
-
-  preview.style.display = "block";
-  preview.innerHTML = textos.join("<br>");
+window.previewConversaoModal = function() {
+  const uv=toNumber($("novoUSD").value,0);
+  const bv=toNumber($("novoBRL").value,0);
+  const prev=$("previewConversaoModal");
+  if (uv<=0&&bv<=0) { prev.style.display="none"; return; }
+  const t=[];
+  if (uv>0&&bv<=0) t.push(`R$ calculado: <strong>R$ ${(uv*cotacaoAtual).toFixed(2)}</strong>`);
+  if (uv>0&&bv>0)  t.push(`USD: <strong>$ ${uv.toFixed(2)}</strong><br>✅ R$ manual: <strong>R$ ${bv.toFixed(2)}</strong>`);
+  if (uv<=0&&bv>0) t.push(`💰 Apenas R$: <strong>R$ ${bv.toFixed(2)}</strong>`);
+  prev.style.display="block"; prev.innerHTML=t.join("<br>");
 };
 
-window.salvarCustoManual = async function () {
-  const usdRaw = $("novoUSD").value;
-  const brlRaw = $("novoBRL").value;
-  const usdVal = usdRaw === "" ? NaN : toNumber(usdRaw, NaN);
-  const brlVal = brlRaw === "" ? NaN : toNumber(brlRaw, NaN);
-
-  if ((!Number.isFinite(usdVal) || usdVal <= 0) && (!Number.isFinite(brlVal) || brlVal <= 0)) {
-    alert("Informe pelo menos um valor.");
-    return;
-  }
-
-  const novoUSD = Number.isFinite(usdVal) && usdVal > 0 ? usdVal : 0;
-  const novoBRL = Number.isFinite(brlVal) && brlVal > 0
-    ? brlVal
-    : (novoUSD > 0 ? novoUSD * cotacaoAtual : 0);
-
+window.salvarCustoManual = async function() {
+  const uv=toNumber($("novoUSD").value,NaN);
+  const bv=toNumber($("novoBRL").value,NaN);
+  if ((!Number.isFinite(uv)||uv<=0)&&(!Number.isFinite(bv)||bv<=0))
+    return alert("Informe pelo menos um valor.");
+  const novoUSD=Number.isFinite(uv)&&uv>0?uv:0;
+  const novoBRL=Number.isFinite(bv)&&bv>0?bv:(novoUSD>0?novoUSD*cotacaoAtual:0);
   try {
-    await updateDoc(doc(db, "produtos", editandoCustoId), {
-      ultimaUSD: novoUSD,
-      ultimaBRL: novoBRL,
-      custoManual: true
+    await updateDoc(doc(db,"produtos",editandoCustoId),{ ultimaUSD:novoUSD, ultimaBRL:novoBRL, custoManual:true });
+    await addDoc(collection(db,"compras"),{
+      produtoId:editandoCustoId, produtoNome:editandoCustoNome, foto:"",
+      tipo:"Ajuste Manual", qtd:0, totalUSD:novoUSD, totalBRL:novoBRL,
+      criadoEm:new Date().toISOString()
     });
-
-    await addDoc(collection(db, "compras"), {
-      produtoId: editandoCustoId,
-      produtoNome: editandoCustoNome,
-      foto: "",
-      tipo: "Ajuste Manual",
-      qtd: 0,
-      totalUSD: novoUSD,
-      totalBRL: novoBRL,
-      criadoEm: new Date().toISOString()
-    });
-
     alert(`✅ Custo atualizado!\n$ ${novoUSD.toFixed(2)} | R$ ${novoBRL.toFixed(2)}`);
     fecharModais();
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao salvar custo.");
-  }
+  } catch(e) { console.error(e); alert("Erro ao salvar custo."); }
 };
 
-window.abrirHistoricoCusto = async function (id) {
-  const p = produtosMap.get(id);
-  if (!p) return alert("Produto não encontrado.");
-
-  $("nomeHistoricoCusto").innerText = p.nome;
-  const tbody = $("listaHistoricoCusto");
-  tbody.innerHTML = "<tr><td colspan='3'>Carregando...</td></tr>";
+// ── Histórico Custo ──────────────────────────────────────────
+window.abrirHistoricoCusto = async function(id) {
+  const p=produtosMap.get(id); if(!p) return;
+  $("nomeHistoricoCusto").innerText=p.nome;
+  const tbody=$("listaHistoricoCusto");
+  tbody.innerHTML="<tr><td colspan='3'>Carregando...</td></tr>";
   $("modalHistoricoCusto").classList.add("active");
-
   try {
-    const snapCompras = await getDocs(collection(db, "compras"));
-    const historico = [];
-    snapCompras.forEach(d => {
-      const c = d.data();
-      if (c.produtoId === id && (c.tipo === "Compra" || c.tipo === "Ajuste Manual")) historico.push(c);
+    const sn=await getDocs(collection(db,"compras"));
+    const hist=[];
+    sn.forEach(d=>{ const c=d.data(); if(c.produtoId===id&&(c.tipo==="Compra"||c.tipo==="Ajuste Manual")) hist.push(c); });
+    hist.sort((a,b)=>String(b.criadoEm||"").localeCompare(String(a.criadoEm||"")));
+    tbody.innerHTML="";
+    if (!hist.length) { tbody.innerHTML="<tr><td colspan='3' style='text-align:center'>Sem registros.</td></tr>"; return; }
+    hist.forEach(h=>{
+      const qtd=toNumber(h.qtd,0);
+      const uUSD=qtd>0?toNumber(h.totalUSD)/qtd:toNumber(h.totalUSD);
+      const uBRL=qtd>0?toNumber(h.totalBRL)/qtd:toNumber(h.totalBRL);
+      const data=h.criadoEm?new Date(h.criadoEm).toLocaleDateString("pt-BR"):"—";
+      const tag=h.tipo==="Ajuste Manual"?`<span class="tag-manual">manual</span>`:`<span class="tag-auto">compra</span>`;
+      tbody.innerHTML+=`<tr>
+        <td>${escapeHtml(data)} ${tag}</td>
+        <td style="color:var(--primary);font-weight:600">$ ${uUSD.toFixed(2)}</td>
+        <td style="color:var(--green);font-weight:600">R$ ${uBRL.toFixed(2)}</td></tr>`;
     });
-
-    historico.sort((a, b) => String(b.criadoEm || "").localeCompare(String(a.criadoEm || "")));
-    tbody.innerHTML = "";
-
-    if (!historico.length) {
-      tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Sem registros.</td></tr>";
-      return;
-    }
-
-    historico.forEach(h => {
-      const qtd = toNumber(h.qtd, 0);
-      const unitUSD = qtd > 0 ? toNumber(h.totalUSD) / qtd : toNumber(h.totalUSD);
-      const unitBRL = qtd > 0 ? toNumber(h.totalBRL) / qtd : toNumber(h.totalBRL);
-      const data = h.criadoEm ? new Date(h.criadoEm).toLocaleDateString("pt-BR") : "—";
-      const tipoTag = h.tipo === "Ajuste Manual"
-        ? `<span class="tag-manual">manual</span>`
-        : `<span class="tag-auto">compra</span>`;
-
-      tbody.innerHTML += `<tr>
-        <td>${escapeHtml(data)} ${tipoTag}</td>
-        <td style="color:var(--primary);font-weight:600">$ ${unitUSD.toFixed(2)}</td>
-        <td style="color:var(--green);font-weight:600">R$ ${unitBRL.toFixed(2)}</td>
-      </tr>`;
-    });
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = "<tr><td colspan='3'>Erro ao carregar histórico.</td></tr>";
-  }
+  } catch(e) { console.error(e); tbody.innerHTML="<tr><td colspan='3'>Erro ao carregar.</td></tr>"; }
 };
 
-window.deletarProduto = async function (id) {
+// ── Deletar ──────────────────────────────────────────────────
+window.deletarProduto = async function(id) {
   if (!confirm("Excluir definitivamente este produto?")) return;
-  try {
-    await deleteDoc(doc(db, "produtos", id));
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao excluir produto.");
-  }
+  try { await deleteDoc(doc(db,"produtos",id)); }
+  catch(e) { console.error(e); alert("Erro ao excluir."); }
 };
 
-$("searchProdutos").addEventListener("input", function (e) {
-  const term = e.target.value.toLowerCase().trim();
-  document.querySelectorAll("#listaProdutos tr").forEach(tr => {
-    const name = tr.children[1] ? tr.children[1].innerText.toLowerCase() : "";
-    const sku = tr.children[2] ? tr.children[2].innerText.toLowerCase() : "";
-    tr.style.display = (!term || name.includes(term) || sku.includes(term)) ? "" : "none";
+// ── Busca ────────────────────────────────────────────────────
+$("searchProdutos").addEventListener("input", function(e) {
+  const term=e.target.value.toLowerCase().trim();
+  document.querySelectorAll("#listaProdutos tr").forEach(tr=>{
+    const n=tr.children[1]?tr.children[1].innerText.toLowerCase():"";
+    const s=tr.children[2]?tr.children[2].innerText.toLowerCase():"";
+    tr.style.display=(!term||n.includes(term)||s.includes(term))?"":"none";
   });
-});
-
-// Fecha modal com ESC
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") fecharModais();
 });
 
 verificarERenovarToken();
