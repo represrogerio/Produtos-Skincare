@@ -72,6 +72,7 @@ tr:hover td{background:#f8fafc}
 .ml-tag{font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-weight:600;font-family:monospace}
 .dup-warning{background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:10px;border-radius:8px;font-size:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .sem-sku-info{background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.badge-count{background:var(--primary);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;margin-left:8px}
 .upload-area{border:2px dashed var(--border);border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:all 0.3s}
 .upload-area:hover,.upload-area.dragover{border-color:var(--primary);background:#f0f4ff}
 .upload-area.has-image{border-style:solid;border-color:var(--green);background:#f0fdf4}
@@ -85,8 +86,6 @@ tr:hover td{background:#f8fafc}
 .form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
 .form-grid-5{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px}
 .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.filtro-bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.badge-count{background:var(--primary);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700}
 @media(max-width:900px){
   .app{flex-direction:column}
   .sidebar{width:100%;padding:16px}
@@ -111,7 +110,7 @@ tr:hover td{background:#f8fafc}
 <header class="topbar">
   <h2 id="pageTitle" style="margin:0;font-size:18px">Dashboard</h2>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <button class="btn btn-edit" onclick="abrirConfigML()" title="Configurar Token Mercado Livre">⚙️ Token ML</button>
+    <button class="btn btn-edit" onclick="abrirConfigML()">⚙️ Token ML</button>
     <input id="searchProdutos" class="input" style="margin:0;max-width:200px" placeholder="Buscar produto...">
     <button class="btn btn-success" onclick="exportarExcel('tabelaProdutosExport','Estoque_Skincare')">📥 Exportar Excel</button>
   </div>
@@ -125,8 +124,8 @@ tr:hover td{background:#f8fafc}
       <div class="stat"><h4>Total Produtos</h4><strong id="totalProdutos">0</strong></div>
       <div class="stat"><h4>Total Estoque</h4><strong id="totalEstoque">0</strong></div>
       <div class="stat"><h4>Estoque Baixo</h4><strong id="totalBaixo" style="color:var(--red)">0</strong></div>
-      <div class="stat"><h4>Valor Estoque ($)</h4><strong id="totalValorUSD" style="color:var(--primary)">$0.00</strong></div>
-      <div class="stat"><h4>Valor Estoque (R$)</h4><strong id="totalValorBRL" style="color:var(--green)">R$0.00</strong></div>
+      <div class="stat"><h4>Valor ($)</h4><strong id="totalValorUSD" style="color:var(--primary)">$0.00</strong></div>
+      <div class="stat"><h4>Valor (R$)</h4><strong id="totalValorBRL" style="color:var(--green)">R$0.00</strong></div>
     </div>
     <div class="dashboard-grid">
       <div class="card">
@@ -168,14 +167,10 @@ tr:hover td{background:#f8fafc}
           <button class="btn btn-danger" onclick="removerDuplicidadesGlobal()">🧹 Remover Duplicidades</button>
         </div>
       </div>
-
-      <!-- Info produtos sem SKU -->
       <div id="semSkuInfo" class="sem-sku-info" style="display:none">
-        <span>ℹ️ <strong id="semSkuCount">0</strong> produto(s) sem SKU estão ocultos. Use <strong>🔄 Sincronizar SKU/ML</strong> para cadastrá-los.</span>
+        <span>ℹ️ <strong id="semSkuCount">0</strong> produto(s) sem SKU ocultos. Use <strong>🔄 Sincronizar SKU/ML</strong> para cadastrá-los.</span>
       </div>
-
       <div id="dupWarningProdutos"></div>
-
       <div class="table-wrap">
         <table id="tabelaProdutosExport">
           <thead>
@@ -213,10 +208,7 @@ tr:hover td{background:#f8fafc}
       <div class="table-wrap">
         <table id="tabelaMovsExport">
           <thead>
-            <tr>
-              <th>Data/Hora</th><th>Produto</th><th>Tipo</th>
-              <th>Qtd</th><th>Unitário</th><th>Total</th>
-            </tr>
+            <tr><th>Data/Hora</th><th>Produto</th><th>Tipo</th><th>Qtd</th><th>Unitário</th><th>Total</th></tr>
           </thead>
           <tbody id="listaMovs"></tbody>
         </table>
@@ -256,7 +248,7 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
-<!-- Modal Editar Custo Manual -->
+<!-- Modal Editar Custo -->
 <div class="modal-overlay" id="modalEditarCusto">
   <div class="modal" style="max-width:420px">
     <h3>✏️ Editar Custo Manualmente</h3>
@@ -268,8 +260,7 @@ tr:hover td{background:#f8fafc}
     <input type="number" id="novoBRL" class="input" step="0.01" min="0" placeholder="Ex: 63.85 (opcional)" oninput="previewConversaoModal()">
     <div id="previewConversaoModal" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px;color:#166534;font-weight:600"></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
-      💡 Se deixar R$ em branco, será calculado automaticamente
-      (<span id="cotacaoModalInfo"></span>)
+      💡 Se R$ em branco, calculado automaticamente (<span id="cotacaoModalInfo"></span>)
     </div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-success" style="flex:1" onclick="salvarCustoManual()">💾 Salvar</button>
@@ -278,20 +269,19 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
-<!-- Modal Sincronizar SKU/ML ID -->
+<!-- Modal Sincronizar SKU/ML -->
 <div class="modal-overlay" id="modalSincSKU">
   <div class="modal" style="max-width:640px">
     <h3>🔄 Sincronizar SKU / ML ID</h3>
     <p style="font-size:13px;color:var(--muted);margin-top:0">
-      Cole abaixo os dados no formato:<br>
-      <strong>Nome do Produto ⇥ ml_item_id ⇥ SKU</strong>
+      Formato: <strong>Nome ⇥ ml_item_id ⇥ SKU</strong>
     </p>
     <div style="display:flex;gap:6px;margin-bottom:10px">
       <button class="btn btn-edit" onclick="carregarExemploSKU()" style="font-size:11px">📋 Carregar Lista</button>
       <button class="btn btn-danger" onclick="document.getElementById('dadosSKU').value=''" style="font-size:11px">🗑️ Limpar</button>
     </div>
     <textarea id="dadosSKU" class="input" rows="10" style="font-family:monospace;font-size:11px;resize:vertical"
-      placeholder="Nome do Produto&#9;ml_item_id&#9;SKU"></textarea>
+      placeholder="Nome&#9;ml_item_id&#9;SKU"></textarea>
     <div style="background:#fef3c7;border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#92400e">
       ⚠️ Duplicidades serão mescladas automaticamente.
     </div>
@@ -302,31 +292,27 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
-<!-- Modal Configurar Token ML -->
+<!-- Modal Token ML -->
 <div class="modal-overlay" id="modalConfigML">
   <div class="modal" style="max-width:550px">
     <h3>⚙️ Configurar Mercado Livre</h3>
-    <p style="font-size:13px;color:var(--muted)">Credenciais da sua aplicação no Mercado Livre Developers.</p>
     <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:15px;font-size:12px;color:#92400e">
       💡 A API do ML pode bloquear chamadas diretas do navegador (CORS).
     </div>
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">App ID (Client ID)</label>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">App ID</label>
     <input type="text" id="mlAppId" class="input" placeholder="Ex: 1234567890123456" autocomplete="off">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Secret Key</label>
-    <input type="password" id="mlSecretKey" class="input" placeholder="Ex: abc123def456..." autocomplete="off">
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Access Token (Opcional)</label>
-    <input type="text" id="mlAccessToken" class="input" placeholder="Cole seu token aqui..." autocomplete="off">
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Refresh Token (Opcional)</label>
-    <input type="text" id="mlRefreshToken" class="input" placeholder="Cole seu refresh token aqui..." autocomplete="off">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:15px">⏱️ Access Token ~6h | Refresh Token ~6 meses</div>
+    <input type="password" id="mlSecretKey" class="input" autocomplete="off">
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Access Token</label>
+    <input type="text" id="mlAccessToken" class="input" autocomplete="off">
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Refresh Token</label>
+    <input type="text" id="mlRefreshToken" class="input" autocomplete="off">
     <div style="display:flex;gap:10px">
-      <button class="btn btn-success" style="flex:1" onclick="salvarTokenML()">💾 Salvar Credenciais</button>
+      <button class="btn btn-success" style="flex:1" onclick="salvarTokenML()">💾 Salvar</button>
       <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
     </div>
     <div style="margin-top:15px;padding-top:15px;border-top:1px solid var(--border)">
-      <button class="btn btn-edit" style="width:100%;justify-content:center" onclick="abrirGeradorToken()">
-        🔗 Gerar Token Agora (Abre Site ML)
-      </button>
+      <button class="btn btn-edit" style="width:100%;justify-content:center" onclick="abrirGeradorToken()">🔗 Gerar Token (Abre ML)</button>
     </div>
   </div>
 </div>
@@ -334,10 +320,8 @@ tr:hover td{background:#f8fafc}
 <!-- Modal Renomear -->
 <div class="modal-overlay" id="modalRenomear">
   <div class="modal" style="max-width:450px">
-    <h3>✏️ Corrigir Nome do Produto</h3>
-    <p style="font-size:13px;color:var(--muted);margin-top:0">O histórico e custos serão mantidos.</p>
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">Novo Nome</label>
-    <input type="text" id="novoNomeProduto" class="input" placeholder="Ex: Creme Facial Hidratante 50g">
+    <h3>✏️ Renomear Produto</h3>
+    <input type="text" id="novoNomeProduto" class="input" placeholder="Novo nome">
     <div style="display:flex;gap:10px">
       <button class="btn btn-success" style="flex:1" onclick="salvarRenomear()">💾 Salvar</button>
       <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
@@ -349,11 +333,10 @@ tr:hover td{background:#f8fafc}
 <div class="modal-overlay" id="modalEditarSKU">
   <div class="modal" style="max-width:450px">
     <h3>🏷️ Editar SKU / ML ID</h3>
-    <p style="font-size:13px;color:var(--muted);margin-top:0">O <strong>ML ID</strong> é usado para sincronizar estoque.</p>
-    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">SKU (Código Interno)</label>
+    <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">SKU</label>
     <input type="text" id="editSku" class="input" placeholder="Ex: CREME001">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase">ML Item ID</label>
-    <input type="text" id="editMlId" class="input" placeholder="Ex: 123456789 ou MLB123456789">
+    <input type="text" id="editMlId" class="input" placeholder="Ex: 123456789">
     <p style="font-size:11px;color:var(--muted);margin-top:-5px;margin-bottom:10px">ℹ️ Números puros recebem prefixo MLB automaticamente.</p>
     <div style="display:flex;gap:10px">
       <button class="btn btn-success" style="flex:1" onclick="salvarEditarSKU()">💾 Salvar</button>
@@ -365,19 +348,18 @@ tr:hover td{background:#f8fafc}
 <!-- Modal Imagem -->
 <div class="modal-overlay" id="modalEditarImagem">
   <div class="modal" style="max-width:500px">
-    <h3>🖼️ Alterar Imagem do Produto</h3>
-    <p style="font-size:13px;color:var(--muted);margin-top:0">Cole a URL ou faça upload (máx ~700KB).</p>
+    <h3>🖼️ Alterar Imagem</h3>
     <div id="uploadArea" class="upload-area">
       <div class="upload-icon">📷</div>
-      <div class="upload-text" id="uploadText">Clique para selecionar uma imagem</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:5px">ou arraste e solte aqui</div>
+      <div class="upload-text" id="uploadText">Clique para selecionar</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">ou arraste aqui</div>
       <img id="uploadPreview" class="upload-preview" style="display:none" alt="Preview">
     </div>
     <input type="file" id="fileInput" accept="image/*" style="display:none">
     <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:15px;display:block">Ou cole a URL</label>
     <input type="text" id="imagemURL" class="input" placeholder="https://exemplo.com/imagem.jpg">
     <div style="display:flex;gap:10px;margin-top:15px">
-      <button class="btn btn-success" style="flex:1" onclick="salvarImagem()">💾 Salvar Imagem</button>
+      <button class="btn btn-success" style="flex:1" onclick="salvarImagem()">💾 Salvar</button>
       <button class="btn btn-danger" style="flex:1" onclick="fecharModais()">Cancelar</button>
     </div>
   </div>
@@ -405,49 +387,64 @@ const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
 let cotacaoAtual = 5.11;
-let produtoSelId = null, produtoSelNome = "", produtoSelCusto = 0;
-let chartInstance = null;
-let editandoCustoId = null, editandoCustoNome = "", editandoCustoUSDAtual = 0, editandoCustoBRLAtual = 0;
-let renomearId = null, editarSkuId = null, editarImagemId = null;
-let imagemBase64 = null, menuAbertoId = null;
-const produtosMap = new Map();
+let produtoSelId=null,produtoSelNome="",produtoSelCusto=0,chartInstance=null;
+let editandoCustoId=null,editandoCustoNome="",editandoCustoUSDAtual=0,editandoCustoBRLAtual=0;
+let renomearId=null,editarSkuId=null,editarImagemId=null,imagemBase64=null,menuAbertoId=null;
+const produtosMap=new Map();
 
-let mlAppId         = localStorage.getItem("ml_app_id")         || "";
-let mlSecretKey     = localStorage.getItem("ml_secret_key")     || "";
-let mlAccessToken   = localStorage.getItem("ml_access_token")   || "";
-let mlRefreshToken  = localStorage.getItem("ml_refresh_token")  || "";
-let mlTokenExpiraEm = parseInt(localStorage.getItem("ml_token_expira_em") || "0", 10) || 0;
+let mlAppId        = localStorage.getItem("ml_app_id")        ||"";
+let mlSecretKey    = localStorage.getItem("ml_secret_key")    ||"";
+let mlAccessToken  = localStorage.getItem("ml_access_token")  ||"";
+let mlRefreshToken = localStorage.getItem("ml_refresh_token") ||"";
+let mlTokenExpiraEm= parseInt(localStorage.getItem("ml_token_expira_em")||"0",10)||0;
+
+// ── Lista fixa de produtos com SKU ────────────────────────────
+const LISTA_SKU = [
+  {nome:"Fino Premium Touc Hair Máscara Capilar 230g", mlItemId:"6845189982", sku:"MASFINCRE230"},
+  {nome:"Medicube Pdrn Exosome 2000 Colágeno 30ml",    mlItemId:"4671922511", sku:"PDRMEDSER30M"},
+  {nome:"Vt Cosmetics Cica Cream Plus 100ml",           mlItemId:"7104495842", sku:"CICVTSER100"},
+  {nome:"Skin1004 Ampoule Centella De Madagascar 100ml",mlItemId:"4852430375", sku:"AMPSKISER100"},
+  {nome:"Espuma de Limpeza Ampoule Fom",                mlItemId:"7104034322", sku:"AMPSKIESP125"},
+  {nome:"Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml",mlItemId:"4667484245",sku:"NO9NAMCRE10M"},
+  {nome:"Pore + Dark Spot BrighteningCelimax 35ml",    mlItemId:"6726179242", sku:"PORCELCRE35M"},
+  {nome:"Retinal Shor Celimax 15ml",                    mlItemId:"6725246532", sku:"RETCELCRE15M"},
+  {nome:"345 Relief Cream Dr Althea 50 ml",             mlItemId:"4633597133", sku:"345DRACRE55M"},
+  {nome:"Probio-Cica Intensive Ampoule Skin 1004 50 ml",mlItemId:"6669781578", sku:"PROSKIAMP55M"},
+  {nome:"Light Cleasing Oil Skin 1004 200 ml",          mlItemId:"4629595331", sku:"LIGSKICLE200"},
+  {nome:"Hearleaf Pore Control Cleasing Oil Anua",      mlItemId:"4629579899", sku:"HEAANUCLE200"},
+  {nome:"PDRN Pink Caffeine Night Mask Medicube",       mlItemId:"6662223372", sku:"PDRMEDMAS75M"},
+  {nome:"Deep Vita C Pad Medicube",                     mlItemId:"6662204692", sku:"DEEMEDPAD70U"},
+  {nome:"Toner Pads Zero Pore 70 Pads Medicube",        mlItemId:"4634071405", sku:"TONMEDPAD70U"},
+  {nome:"Medicube Collagen Lifting Mask 1 Unid",        mlItemId:"4633793035", sku:"COLMEDMAS1UN"},
+  {nome:"Vitamin With Niacinamide Mask OMG 1 unid",     mlItemId:"4633775937", sku:"VITOMGMAS1UN"},
+  {nome:"Collagen With PDRN Mask OMG",                  mlItemId:"6670185682", sku:"COLOMGMAS1UN"},
+  {nome:"Poremizing Clarifyng Mask Skin 1004 1 unid",   mlItemId:"6670134408", sku:"PORSKIMAS1UN"},
+  {nome:"Deep Peptide Radiance Mask Medicube 1 unid",   mlItemId:"4633624291", sku:"DEEMEDMAS1UN"},
+  {nome:"Sérum Olhos Axis-y Vegan Collagen Eye 10ml",   mlItemId:"",           sku:"VEGAXISER10M"}
+];
 
 // ── Helpers ───────────────────────────────────────────────────
-function escapeHtml(str) {
-  return String(str ?? "")
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-}
-function normalizarNome(str) {
-  return String(str||"").toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/\s+/g," ").trim();
-}
+function escapeHtml(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+function normalizarNome(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim(); }
 function toNumber(v,fb=0){ const n=parseFloat(v); return Number.isFinite(n)?n:fb; }
 function toInt(v,fb=0)   { const n=parseInt(v,10); return Number.isFinite(n)?n:fb; }
 function mapProduto(id,d={}){
   return {
     id,
-    nome:        d.nome      || d.name          || "Sem nome",
-    estoque:     toInt(d.estoque    ?? d.quantity,    0),
-    minimo:      toInt(d.minimo     ?? d.minimumStock, 1),
-    foto:        d.foto      || d.photo         || "",
-    ultimaUSD:   toNumber(d.ultimaUSD  ?? d.custoUSD,  0),
-    ultimaBRL:   toNumber(d.ultimaBRL  ?? d.custoBRL,  0),
-    custoManual: !!d.custoManual,
-    sku:         String(d.sku       || "").trim(),
-    mlItemId:    String(d.mlItemId  || d.mL_item_id || "").trim()
+    nome:      d.nome     ||d.name         ||"Sem nome",
+    estoque:   toInt(d.estoque   ??d.quantity,   0),
+    minimo:    toInt(d.minimo    ??d.minimumStock,1),
+    foto:      d.foto     ||d.photo        ||"",
+    ultimaUSD: toNumber(d.ultimaUSD ??d.custoUSD, 0),
+    ultimaBRL: toNumber(d.ultimaBRL ??d.custoBRL, 0),
+    custoManual:!!d.custoManual,
+    sku:       String(d.sku      ||"").trim(),
+    mlItemId:  String(d.mlItemId ||d.mL_item_id||"").trim()
   };
 }
 function calcularCustoBRL(p){
-  if(p.custoManual && (p.ultimaBRL||0)>0) return p.ultimaBRL;
-  if((p.ultimaUSD||0)>0 && (p.ultimaBRL||0)===0) return p.ultimaUSD * cotacaoAtual;
+  if(p.custoManual&&(p.ultimaBRL||0)>0) return p.ultimaBRL;
+  if((p.ultimaUSD||0)>0&&(p.ultimaBRL||0)===0) return p.ultimaUSD*cotacaoAtual;
   return p.ultimaBRL||0;
 }
 function formatMlItemId(raw){
@@ -468,92 +465,88 @@ fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL")
 
 // ── Token ML ──────────────────────────────────────────────────
 async function verificarERenovarToken(){
-  const agora=Date.now(), s=$("tokenStatusML");
+  const agora=Date.now(),s=$("tokenStatusML");
   if(!mlAppId||!mlSecretKey){
-    s.style.display="block"; s.className="token-status token-expired";
-    s.innerHTML="⚠️ Token ML: Não configurado"; s.style.cursor="pointer"; s.onclick=abrirConfigML; return false;
+    s.style.display="block";s.className="token-status token-expired";
+    s.innerHTML="⚠️ Token ML: Não configurado";s.style.cursor="pointer";s.onclick=abrirConfigML;return false;
   }
-  if(mlAccessToken && agora < mlTokenExpiraEm-3600000){
-    s.style.display="block"; s.className="token-status token-ok";
+  if(mlAccessToken&&agora<mlTokenExpiraEm-3600000){
+    s.style.display="block";s.className="token-status token-ok";
     const h=Math.max(0,Math.floor((mlTokenExpiraEm-agora)/3600000));
-    s.innerHTML=`✅ ML: Válido (${h}h)`; s.onclick=null; s.style.cursor="default"; return true;
+    s.innerHTML=`✅ ML: Válido (${h}h)`;s.onclick=null;s.style.cursor="default";return true;
   }
   if(mlRefreshToken){
-    s.style.display="block"; s.className="token-status token-warning";
-    s.innerHTML="🔄 ML: Renovando..."; s.onclick=null;
+    s.style.display="block";s.className="token-status token-warning";s.innerHTML="🔄 ML: Renovando...";s.onclick=null;
     const ok=await renovarTokenML();
-    if(ok){ s.className="token-status token-ok"; s.innerHTML="✅ ML: Renovado"; return true; }
+    if(ok){s.className="token-status token-ok";s.innerHTML="✅ ML: Renovado";return true;}
   }
-  s.style.display="block"; s.className="token-status token-expired";
-  s.innerHTML="❌ ML: Expirado (clique)"; s.style.cursor="pointer"; s.onclick=abrirConfigML; return false;
+  s.style.display="block";s.className="token-status token-expired";
+  s.innerHTML="❌ ML: Expirado (clique)";s.style.cursor="pointer";s.onclick=abrirConfigML;return false;
 }
 async function renovarTokenML(){
   if(!mlRefreshToken||!mlAppId||!mlSecretKey) return false;
   try{
-    const body=new URLSearchParams({grant_type:"refresh_token",client_id:mlAppId,
-      client_secret:mlSecretKey,refresh_token:mlRefreshToken});
-    const r=await fetch("https://api.mercadolibre.com/oauth/token",{
-      method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/json"},body});
+    const body=new URLSearchParams({grant_type:"refresh_token",client_id:mlAppId,client_secret:mlSecretKey,refresh_token:mlRefreshToken});
+    const r=await fetch("https://api.mercadolibre.com/oauth/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/json"},body});
     const data=await r.json();
     if(!r.ok||!data.access_token) return false;
-    mlAccessToken=data.access_token; mlRefreshToken=data.refresh_token||mlRefreshToken;
+    mlAccessToken=data.access_token;mlRefreshToken=data.refresh_token||mlRefreshToken;
     mlTokenExpiraEm=Date.now()+(toNumber(data.expires_in,21600)*1000);
     localStorage.setItem("ml_access_token",mlAccessToken);
     localStorage.setItem("ml_refresh_token",mlRefreshToken);
     localStorage.setItem("ml_token_expira_em",String(mlTokenExpiraEm));
     return true;
-  }catch(e){ console.error(e); return false; }
+  }catch(e){console.error(e);return false;}
 }
 
 // ── Navegação ─────────────────────────────────────────────────
 window.showPage=function(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
-  const pg=$(id); if(pg) pg.classList.remove("hidden");
+  const pg=$(id);if(pg)pg.classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  const nb=$("nav-"+id); if(nb) nb.classList.add("active");
+  const nb=$("nav-"+id);if(nb)nb.classList.add("active");
   const t={dashboard:"Dashboard",produtos:"Gestão de Produtos",compras:"Compras e Vendas"};
   $("pageTitle").innerText=t[id]||id;
 };
 window.fecharModais=function(){
   document.querySelectorAll(".modal-overlay").forEach(m=>m.classList.remove("active"));
   imagemBase64=null;
-  const prev=$("uploadPreview"); if(prev){prev.style.display="none";prev.removeAttribute("src");}
-  const area=$("uploadArea"); if(area) area.classList.remove("has-image","dragover");
-  const fi=$("fileInput"); if(fi) fi.value="";
-  const iu=$("imagemURL"); if(iu) iu.value="";
-  const ut=$("uploadText"); if(ut) ut.innerText="Clique para selecionar uma imagem";
+  const prev=$("uploadPreview");if(prev){prev.style.display="none";prev.removeAttribute("src");}
+  const area=$("uploadArea");if(area)area.classList.remove("has-image","dragover");
+  const fi=$("fileInput");if(fi)fi.value="";
+  const iu=$("imagemURL");if(iu)iu.value="";
+  const ut=$("uploadText");if(ut)ut.innerText="Clique para selecionar";
 };
 
 // ── Tooltip ───────────────────────────────────────────────────
 window.showTooltip=function(url,e){
-  if(!url) return;
-  const t=$("tooltip"); t.src=url; t.style.display="block";
+  if(!url)return;const t=$("tooltip");t.src=url;t.style.display="block";
   t.style.left=Math.min(e.clientX+15,window.innerWidth-140)+"px";
   t.style.top=Math.min(e.clientY+15,window.innerHeight-140)+"px";
 };
-window.hideTooltip=function(){ const t=$("tooltip"); t.style.display="none"; t.removeAttribute("src"); };
-document.addEventListener("mouseover",e=>{ const el=e.target.closest("[data-tooltip]"); if(el) showTooltip(el.getAttribute("data-tooltip"),e); });
-document.addEventListener("mouseout",e=>{ if(e.target.closest("[data-tooltip]")) hideTooltip(); });
+window.hideTooltip=function(){const t=$("tooltip");t.style.display="none";t.removeAttribute("src");};
+document.addEventListener("mouseover",e=>{const el=e.target.closest("[data-tooltip]");if(el)showTooltip(el.getAttribute("data-tooltip"),e);});
+document.addEventListener("mouseout",e=>{if(e.target.closest("[data-tooltip]"))hideTooltip();});
 document.addEventListener("mousemove",e=>{
-  const t=$("tooltip"); if(!t||t.style.display==="none") return;
+  const t=$("tooltip");if(!t||t.style.display==="none")return;
   t.style.left=Math.min(e.clientX+15,window.innerWidth-140)+"px";
   t.style.top=Math.min(e.clientY+15,window.innerHeight-140)+"px";
 });
 
 // ── Exportar ──────────────────────────────────────────────────
 window.exportarExcel=function(tableId,filename){
-  const table=$(tableId); if(!table) return;
+  const table=$(tableId);if(!table)return;
   const csv=[];
   table.querySelectorAll("tr").forEach(row=>{
     const cols=row.querySelectorAll("td,th"),out=[];
     cols.forEach((col,j)=>{
-      if(tableId==="tabelaProdutosExport"&&(j===0||j===cols.length-1)) return;
+      if(tableId==="tabelaProdutosExport"&&(j===0||j===cols.length-1))return;
       out.push('"'+col.innerText.replace(/\r?\n|\r/g," ").trim().replace(/"/g,'""')+'"');
     });
-    if(out.length) csv.push(out.join(","));
+    if(out.length)csv.push(out.join(","));
   });
   const blob=new Blob(["\uFEFF"+csv.join("\n")],{type:"text/csv;charset=utf-8;"});
-  const a=document.createElement("a"); a.download=filename+".csv"; a.href=URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
+  const a=document.createElement("a");a.download=filename+".csv";a.href=URL.createObjectURL(blob);a.click();URL.revokeObjectURL(a.href);
 };
 
 // ── Salvar Produto ────────────────────────────────────────────
@@ -561,251 +554,227 @@ window.salvarProduto=async function(){
   const nome=$("nomeProduto").value.trim();
   const estoque=toInt($("estoqueProduto").value,0);
   const minimo=toInt($("minimoProduto").value,1);
-  if(!nome) return alert("Informe o nome");
+  if(!nome)return alert("Informe o nome");
   try{
     await addDoc(collection(db,"produtos"),{nome,estoque,minimo,foto:"",ultimaUSD:0,ultimaBRL:0,custoManual:false,sku:"",mlItemId:""});
     alert("Produto salvo!");
-    $("nomeProduto").value=""; $("estoqueProduto").value=""; $("minimoProduto").value="";
-  }catch(e){ console.error(e); alert("Erro ao salvar produto."); }
+    $("nomeProduto").value="";$("estoqueProduto").value="";$("minimoProduto").value="";
+  }catch(e){console.error(e);alert("Erro ao salvar produto.");}
 };
 
 // ── Importar GitHub ───────────────────────────────────────────
 window.importarGitHub=async function(){
-  const btn=$("btnImportar"); btn.innerText="Importando..."; btn.disabled=true;
+  const btn=$("btnImportar");btn.innerText="Importando...";btn.disabled=true;
   try{
     const info=await(await fetch("https://api.github.com/repos/represrogerio/Controle-de-Compras")).json();
-    if(info.message) throw new Error(info.message);
+    if(info.message)throw new Error(info.message);
     const files=await(await fetch(`https://api.github.com/repos/represrogerio/Controle-de-Compras/contents?ref=${info.default_branch}`)).json();
-    if(!Array.isArray(files)) throw new Error("Não listou arquivos.");
+    if(!Array.isArray(files))throw new Error("Não listou arquivos.");
     const snap=await getDocs(collection(db,"produtos")),existentes=new Set();
     snap.forEach(d=>existentes.add(normalizarNome(mapProduto(d.id,d.data()).nome)));
     let criados=0;
     for(const f of files){
-      if(!/\.(png|jpg|jpeg|webp)$/i.test(f.name||"")) continue;
+      if(!/\.(png|jpg|jpeg|webp)$/i.test(f.name||""))continue;
       const nome=f.name.replace(/\.(png|jpg|jpeg|webp)$/i,"").replace(/[_\-.]+/g," ").trim();
       const key=normalizarNome(nome);
-      if(!key||existentes.has(key)) continue;
+      if(!key||existentes.has(key))continue;
       await addDoc(collection(db,"produtos"),{nome,estoque:0,minimo:1,foto:f.download_url||"",ultimaUSD:0,ultimaBRL:0,custoManual:false,sku:"",mlItemId:""});
-      existentes.add(key); criados++;
+      existentes.add(key);criados++;
     }
     alert("Importados novos: "+criados);
-  }catch(e){ console.error(e); alert("Erro ao importar: "+(e.message||"falha")); }
-  finally{ btn.innerText="📥 Importar GitHub"; btn.disabled=false; }
+  }catch(e){console.error(e);alert("Erro: "+(e.message||"falha"));}
+  finally{btn.innerText="📥 Importar GitHub";btn.disabled=false;}
 };
 
 // ── Mesclar duplicados ────────────────────────────────────────
 async function mesclarGrupo(grupo){
-  if(!grupo||grupo.length<2) return 0;
+  if(!grupo||grupo.length<2)return 0;
   grupo.sort((a,b)=>(b.estoque||0)-(a.estoque||0));
-  const manter=grupo[0]; let estTotal=manter.estoque||0,removidos=0;
-  for(let i=1;i<grupo.length;i++){ estTotal+=grupo[i].estoque||0; await deleteDoc(doc(db,"produtos",grupo[i].id)); removidos++; }
-  if(estTotal!==(manter.estoque||0)) await updateDoc(doc(db,"produtos",manter.id),{estoque:estTotal});
+  const manter=grupo[0];let estTotal=manter.estoque||0,removidos=0;
+  for(let i=1;i<grupo.length;i++){estTotal+=grupo[i].estoque||0;await deleteDoc(doc(db,"produtos",grupo[i].id));removidos++;}
+  if(estTotal!==(manter.estoque||0))await updateDoc(doc(db,"produtos",manter.id),{estoque:estTotal});
   return removidos;
 }
 window.removerDuplicidadesGlobal=async function(){
-  if(!confirm("🧹 Remover duplicidades?\n\nProdutos com mesmo nome (ou mesmo SKU) serão mesclados.")) return;
+  if(!confirm("🧹 Remover duplicidades?\nProdutos com mesmo nome (ou SKU) serão mesclados."))return;
   try{
     let removidos=0;
-    const s1=await getDocs(collection(db,"produtos")),p1=[]; s1.forEach(d=>p1.push(mapProduto(d.id,d.data())));
-    const gn={}; p1.forEach(p=>{ const k=normalizarNome(p.nome); if(!k) return; (gn[k]=gn[k]||[]).push(p); });
-    for(const k of Object.keys(gn)) removidos+=await mesclarGrupo(gn[k]);
-    const s2=await getDocs(collection(db,"produtos")),p2=[]; s2.forEach(d=>p2.push(mapProduto(d.id,d.data())));
-    const gs={}; p2.forEach(p=>{ if(!p.sku) return; const k=p.sku.toUpperCase(); (gs[k]=gs[k]||[]).push(p); });
-    for(const k of Object.keys(gs)) removidos+=await mesclarGrupo(gs[k]);
-    alert(`✅ Limpeza concluída!\n🗑️ Duplicidades removidas: ${removidos}`);
-  }catch(e){ console.error(e); alert("Erro ao remover duplicidades."); }
+    const s1=await getDocs(collection(db,"produtos")),p1=[];s1.forEach(d=>p1.push(mapProduto(d.id,d.data())));
+    const gn={};p1.forEach(p=>{const k=normalizarNome(p.nome);if(!k)return;(gn[k]=gn[k]||[]).push(p);});
+    for(const k of Object.keys(gn))removidos+=await mesclarGrupo(gn[k]);
+    const s2=await getDocs(collection(db,"produtos")),p2=[];s2.forEach(d=>p2.push(mapProduto(d.id,d.data())));
+    const gs={};p2.forEach(p=>{if(!p.sku)return;const k=p.sku.toUpperCase();(gs[k]=gs[k]||[]).push(p);});
+    for(const k of Object.keys(gs))removidos+=await mesclarGrupo(gs[k]);
+    alert(`✅ Concluído!\n🗑️ Removidos: ${removidos}`);
+  }catch(e){console.error(e);alert("Erro ao remover duplicidades.");}
 };
 
 // ── Sincronizar SKU/ML ────────────────────────────────────────
-window.abrirSincronizarSKU=function(){ $("modalSincSKU").classList.add("active"); };
+window.abrirSincronizarSKU=function(){$("modalSincSKU").classList.add("active");};
 
 window.carregarExemploSKU=function(){
-  $("dadosSKU").value=
-`Fino Premium Touc Hair Máscara Capilar 230g\t6845189982\tMASFINCRE230
-Medicube Pdrn Exosome 2000 Colágeno 30ml\t4671922511\tPDRMEDSER30M
-Vt Cosmetics Cica Cream Plus 100ml\t7104495842\tCICVTSER100
-Skin1004 Ampoule Centella De Madagascar 100ml\t4852430375\tAMPSKISER100
-Espuma de Limpeza Ampoule Fom\t7104034322\tAMPSKIESP125
-Numbuzin No.9 Nad+ Retinol Creme Para Olhos 10ml\t4667484245\tNO9NAMCRE10M
-Pore + Dark Spot BrighteningCelimax 35ml\t6726179242\tPORCELCRE35M
-Retinal Shor Celimax 15ml\t6725246532\tRETCELCRE15M
-345 Relief Cream Dr Althea 50 ml\t4633597133\t345DRACRE55M
-Probio-Cica Intensive Ampoule Skin 1004 50 ml\t6669781578\tPROSKIAMP55M
-Light Cleasing Oil Skin 1004 200 ml\t4629595331\tLIGSKICLE200
-Hearleaf Pore Control Cleasing Oil Anua\t4629579899\tHEAANUCLE200
-PDRN Pink Caffeine Night Mask Medicube\t6662223372\tPDRMEDMAS75M
-Deep Vita C Pad Medicube\t6662204692\tDEEMEDPAD70U
-Toner Pads Zero Pore 70 Pads Medicube\t4634071405\tTONMEDPAD70U
-Medicube Collagen Lifting Mask Máscara Facial 1 Unid\t4633793035\tCOLMEDMAS1UN
-Vitamin With Niacinamide Mask OMG 1 unid\t4633775937\tVITOMGMAS1UN
-Collagen With PDRN Mask OMG\t6670185682\tCOLOMGMAS1UN
-Poremizing Clarifyng Mask Skin 1004 1 unid\t6670134408\tPORSKIMAS1UN
-Deep Peptide Radiance Mask Medicube 1 unid\t4633624291\tDEEMEDMAS1UN
-Sérum Olhos Axis-y Vegan Collagen Eye 10ml\t\tVEGAXISER10M`;
+  $("dadosSKU").value=LISTA_SKU.map(r=>`${r.nome}\t${r.mlItemId}\t${r.sku}`).join("\n");
 };
 
 window.processarSincronizacaoSKU=async function(){
-  const raw=$("dadosSKU").value.trim(); if(!raw) return alert("Cole os dados primeiro!");
+  const raw=$("dadosSKU").value.trim();if(!raw)return alert("Cole os dados primeiro!");
   const linhas=raw.split("\n").map(l=>l.trim()).filter(Boolean),registros=[];
   for(const linha of linhas){
     let p=linha.split("\t");
-    if(p.length<3) p=linha.split(";");
-    if(p.length<3) p=linha.split(",");
-    if(p.length<3) continue;
+    if(p.length<3)p=linha.split(";");
+    if(p.length<3)p=linha.split(",");
+    if(p.length<3)continue;
     const nome=p[0].trim(),mlItemId=p[1].trim(),sku=p[2].trim();
-    if(nome&&sku) registros.push({nome,mlItemId,sku});
+    if(nome&&sku)registros.push({nome,mlItemId,sku});
   }
-  if(!registros.length) return alert("Nenhuma linha válida.");
-  if(!confirm(`Encontradas ${registros.length} linhas.\nProcessar agora?`)) return;
+  if(!registros.length)return alert("Nenhuma linha válida.");
+  if(!confirm(`Encontradas ${registros.length} linhas.\nProcessar agora?`))return;
   try{
     let atualizados=0,criados=0,duplicadosRemovidos=0;
-    const s1=await getDocs(collection(db,"produtos")),p1=[]; s1.forEach(d=>p1.push(mapProduto(d.id,d.data())));
-    const gn={}; p1.forEach(p=>{ const k=normalizarNome(p.nome); (gn[k]=gn[k]||[]).push(p); });
-    for(const k of Object.keys(gn)) duplicadosRemovidos+=await mesclarGrupo(gn[k]);
-    const s2=await getDocs(collection(db,"produtos")),p2=[]; s2.forEach(d=>p2.push(mapProduto(d.id,d.data())));
+    const s1=await getDocs(collection(db,"produtos")),p1=[];s1.forEach(d=>p1.push(mapProduto(d.id,d.data())));
+    const gn={};p1.forEach(p=>{const k=normalizarNome(p.nome);(gn[k]=gn[k]||[]).push(p);});
+    for(const k of Object.keys(gn))duplicadosRemovidos+=await mesclarGrupo(gn[k]);
+    const s2=await getDocs(collection(db,"produtos")),p2=[];s2.forEach(d=>p2.push(mapProduto(d.id,d.data())));
     for(const reg of registros){
       const nNorm=normalizarNome(reg.nome);
       const ex=p2.find(p=>normalizarNome(p.nome)===nNorm||(p.sku&&p.sku.toUpperCase()===reg.sku.toUpperCase()));
       if(ex){
         await updateDoc(doc(db,"produtos",ex.id),{nome:reg.nome,sku:reg.sku,mlItemId:reg.mlItemId});
-        ex.nome=reg.nome; ex.sku=reg.sku; ex.mlItemId=reg.mlItemId; atualizados++;
+        ex.nome=reg.nome;ex.sku=reg.sku;ex.mlItemId=reg.mlItemId;atualizados++;
       }else{
-        const ref=await addDoc(collection(db,"produtos"),{nome:reg.nome,sku:reg.sku,mlItemId:reg.mlItemId,
-          estoque:0,minimo:1,foto:"",ultimaUSD:0,ultimaBRL:0,custoManual:false});
-        p2.push({id:ref.id,nome:reg.nome,sku:reg.sku,mlItemId:reg.mlItemId,estoque:0}); criados++;
+        const ref=await addDoc(collection(db,"produtos"),{nome:reg.nome,sku:reg.sku,mlItemId:reg.mlItemId,estoque:0,minimo:1,foto:"",ultimaUSD:0,ultimaBRL:0,custoManual:false});
+        p2.push({id:ref.id,nome:reg.nome,sku:reg.sku,mlItemId:reg.mlItemId,estoque:0});criados++;
       }
     }
-    const s3=await getDocs(collection(db,"produtos")),p3=[]; s3.forEach(d=>p3.push(mapProduto(d.id,d.data())));
-    const gs={}; p3.forEach(p=>{ if(!p.sku) return; const k=p.sku.toUpperCase(); (gs[k]=gs[k]||[]).push(p); });
-    for(const k of Object.keys(gs)) duplicadosRemovidos+=await mesclarGrupo(gs[k]);
+    const s3=await getDocs(collection(db,"produtos")),p3=[];s3.forEach(d=>p3.push(mapProduto(d.id,d.data())));
+    const gs={};p3.forEach(p=>{if(!p.sku)return;const k=p.sku.toUpperCase();(gs[k]=gs[k]||[]).push(p);});
+    for(const k of Object.keys(gs))duplicadosRemovidos+=await mesclarGrupo(gs[k]);
     alert(`✅ Sincronização concluída!\n\n📝 Atualizados: ${atualizados}\n✨ Criados: ${criados}\n🗑️ Duplicidades removidas: ${duplicadosRemovidos}`);
     fecharModais();
-  }catch(e){ console.error(e); alert("Erro na sincronização."); }
+  }catch(e){console.error(e);alert("Erro na sincronização.");}
 };
 
 // ── Config ML ─────────────────────────────────────────────────
 window.abrirConfigML=function(){
-  $("mlAppId").value=mlAppId; $("mlSecretKey").value=mlSecretKey;
-  $("mlAccessToken").value=mlAccessToken; $("mlRefreshToken").value=mlRefreshToken;
+  $("mlAppId").value=mlAppId;$("mlSecretKey").value=mlSecretKey;
+  $("mlAccessToken").value=mlAccessToken;$("mlRefreshToken").value=mlRefreshToken;
   $("modalConfigML").classList.add("active");
 };
 window.abrirGeradorToken=function(){
-  if(!mlAppId) return alert("Preencha o App ID primeiro!");
+  if(!mlAppId)return alert("Preencha o App ID primeiro!");
   window.open(`https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${encodeURIComponent(mlAppId)}&redirect_uri=${encodeURIComponent("https://localhost")}`,"_blank");
-  alert("Autorize no Mercado Livre e cole o access_token e refresh_token nos campos.");
 };
 window.salvarTokenML=async function(){
   const appId=$("mlAppId").value.trim(),secretKey=$("mlSecretKey").value.trim();
   const accessToken=$("mlAccessToken").value.trim(),refreshToken=$("mlRefreshToken").value.trim();
-  if(!appId||!secretKey) return alert("App ID e Secret Key são obrigatórios!");
-  mlAppId=appId; mlSecretKey=secretKey;
-  localStorage.setItem("ml_app_id",mlAppId); localStorage.setItem("ml_secret_key",mlSecretKey);
+  if(!appId||!secretKey)return alert("App ID e Secret Key obrigatórios!");
+  mlAppId=appId;mlSecretKey=secretKey;
+  localStorage.setItem("ml_app_id",mlAppId);localStorage.setItem("ml_secret_key",mlSecretKey);
   if(accessToken){
-    mlAccessToken=accessToken; mlRefreshToken=refreshToken||mlRefreshToken;
-    if(!mlTokenExpiraEm||mlTokenExpiraEm<Date.now()) mlTokenExpiraEm=Date.now()+6*3600*1000;
+    mlAccessToken=accessToken;mlRefreshToken=refreshToken||mlRefreshToken;
+    if(!mlTokenExpiraEm||mlTokenExpiraEm<Date.now())mlTokenExpiraEm=Date.now()+6*3600*1000;
     localStorage.setItem("ml_access_token",mlAccessToken);
     localStorage.setItem("ml_refresh_token",mlRefreshToken);
     localStorage.setItem("ml_token_expira_em",String(mlTokenExpiraEm));
-    alert("✅ Credenciais salvas!"); fecharModais(); verificarERenovarToken();
-  }else{ alert("📝 Gere o Access Token e cole aqui com o Refresh Token."); abrirGeradorToken(); }
+    alert("✅ Credenciais salvas!");fecharModais();verificarERenovarToken();
+  }else{alert("📝 Gere o Access Token e cole aqui.");abrirGeradorToken();}
 };
 
-// ── Sync Estoque ML ───────────────────────────────────────────
+// ── Sync ML ───────────────────────────────────────────────────
 async function fetchItemML(mlId){
   return fetch(`https://api.mercadolibre.com/items/${encodeURIComponent(formatMlItemId(mlId))}`,{
     headers:{Authorization:`Bearer ${mlAccessToken}`,Accept:"application/json"}});
 }
 window.sincronizarEstoqueML=async function(){
   const ok=await verificarERenovarToken();
-  if(!ok&&!mlAccessToken){ alert("⚠️ Configure o Token ML primeiro."); abrirConfigML(); return; }
+  if(!ok&&!mlAccessToken){alert("⚠️ Configure o Token ML primeiro.");abrirConfigML();return;}
   const btn=$("btnSyncML"),orig=btn.innerText;
-  btn.innerText="🔄 Atualizando..."; btn.disabled=true;
+  btn.innerText="🔄 Atualizando...";btn.disabled=true;
   try{
     const snap=await getDocs(collection(db,"produtos")),lista=[];
-    snap.forEach(d=>{ const p=mapProduto(d.id,d.data()); if(p.mlItemId) lista.push(p); });
-    if(!lista.length){ alert("Nenhum produto com ML ID encontrado."); return; }
+    snap.forEach(d=>{const p=mapProduto(d.id,d.data());if(p.mlItemId)lista.push(p);});
+    if(!lista.length){alert("Nenhum produto com ML ID encontrado.");return;}
     let atualizados=0,erros=0;
     for(const prod of lista){
       try{
         let r=await fetchItemML(prod.mlItemId);
-        if(r.status===401){ const ren=await renovarTokenML(); if(!ren){ alert("❌ Token inválido."); break; } r=await fetchItemML(prod.mlItemId); }
-        if(!r.ok){ erros++; continue; }
+        if(r.status===401){const ren=await renovarTokenML();if(!ren){alert("❌ Token inválido.");break;}r=await fetchItemML(prod.mlItemId);}
+        if(!r.ok){erros++;continue;}
         const data=await r.json();
-        if(data.available_quantity!=null){ await updateDoc(doc(db,"produtos",prod.id),{estoque:toInt(data.available_quantity,0)}); atualizados++; }
+        if(data.available_quantity!=null){await updateDoc(doc(db,"produtos",prod.id),{estoque:toInt(data.available_quantity,0)});atualizados++;}
         else erros++;
         await new Promise(r=>setTimeout(r,200));
-      }catch(e){ console.error(e); erros++; }
+      }catch(e){console.error(e);erros++;}
     }
-    alert(`✅ Sincronização finalizada!\n\n📦 Atualizados: ${atualizados}\n⚠️ Erros: ${erros}`);
-  }catch(e){ console.error(e); alert("Erro geral na sincronização."); }
-  finally{ btn.innerText=orig; btn.disabled=false; }
+    alert(`✅ Finalizado!\n📦 Atualizados: ${atualizados}\n⚠️ Erros: ${erros}`);
+  }catch(e){console.error(e);alert("Erro geral na sincronização.");}
+  finally{btn.innerText=orig;btn.disabled=false;}
 };
 
 // ── Renomear ──────────────────────────────────────────────────
-window.abrirRenomear=function(id){ const p=produtosMap.get(id); if(!p) return; renomearId=id; $("novoNomeProduto").value=p.nome; $("modalRenomear").classList.add("active"); };
+window.abrirRenomear=function(id){const p=produtosMap.get(id);if(!p)return;renomearId=id;$("novoNomeProduto").value=p.nome;$("modalRenomear").classList.add("active");};
 window.salvarRenomear=async function(){
-  const nome=$("novoNomeProduto").value.trim(); if(!nome) return alert("Nome não pode ser vazio.");
-  if(!confirm(`Alterar para:\n"${nome}"?`)) return;
-  try{ await updateDoc(doc(db,"produtos",renomearId),{nome}); alert("✅ Nome atualizado!"); fecharModais(); }
-  catch(e){ console.error(e); alert("Erro ao renomear."); }
+  const nome=$("novoNomeProduto").value.trim();if(!nome)return alert("Nome não pode ser vazio.");
+  if(!confirm(`Alterar para:\n"${nome}"?`))return;
+  try{await updateDoc(doc(db,"produtos",renomearId),{nome});alert("✅ Nome atualizado!");fecharModais();}
+  catch(e){console.error(e);alert("Erro ao renomear.");}
 };
 
 // ── SKU / ML ID ───────────────────────────────────────────────
-window.abrirEditarSKU=function(id){ const p=produtosMap.get(id); if(!p) return; editarSkuId=id; $("editSku").value=p.sku||""; $("editMlId").value=p.mlItemId||""; $("modalEditarSKU").classList.add("active"); };
+window.abrirEditarSKU=function(id){const p=produtosMap.get(id);if(!p)return;editarSkuId=id;$("editSku").value=p.sku||"";$("editMlId").value=p.mlItemId||"";$("modalEditarSKU").classList.add("active");};
 window.salvarEditarSKU=async function(){
   const sku=$("editSku").value.trim(),mlId=$("editMlId").value.trim();
-  if(!sku&&!mlId) return alert("Preencha pelo menos um campo.");
-  if(mlId){ const clean=mlId.toUpperCase().replace(/^MLB/,""); if(!/^\d+$/.test(clean)&&!/^[A-Z]{3}\d+$/.test(mlId.toUpperCase())) return alert("ML ID inválido."); }
-  try{ await updateDoc(doc(db,"produtos",editarSkuId),{sku,mlItemId:mlId}); alert("✅ SKU/ML ID atualizado!"); fecharModais(); }
-  catch(e){ console.error(e); alert("Erro ao atualizar SKU."); }
+  if(!sku&&!mlId)return alert("Preencha pelo menos um campo.");
+  try{await updateDoc(doc(db,"produtos",editarSkuId),{sku,mlItemId:mlId});alert("✅ SKU/ML ID atualizado!");fecharModais();}
+  catch(e){console.error(e);alert("Erro ao atualizar SKU.");}
 };
 
 // ── Imagem ────────────────────────────────────────────────────
 window.abrirEditarImagem=function(id){
-  const p=produtosMap.get(id); if(!p) return; editarImagemId=id; imagemBase64=null;
+  const p=produtosMap.get(id);if(!p)return;editarImagemId=id;imagemBase64=null;
   $("imagemURL").value=(!String(p.foto).startsWith("data:")?p.foto:"")||"";
-  $("uploadPreview").style.display="none"; $("uploadPreview").removeAttribute("src");
-  $("uploadArea").classList.remove("has-image","dragover"); $("fileInput").value="";
-  $("uploadText").innerText="Clique para selecionar uma imagem"; $("modalEditarImagem").classList.add("active");
+  $("uploadPreview").style.display="none";$("uploadPreview").removeAttribute("src");
+  $("uploadArea").classList.remove("has-image","dragover");$("fileInput").value="";
+  $("uploadText").innerText="Clique para selecionar";$("modalEditarImagem").classList.add("active");
 };
 function lerArquivoImagem(file){
-  if(!file||!file.type.startsWith("image/")) return alert("Arquivo inválido.");
-  if(file.size>700*1024) return alert("Imagem grande demais (~700KB max). Use uma URL.");
+  if(!file||!file.type.startsWith("image/"))return alert("Arquivo inválido.");
+  if(file.size>700*1024)return alert("Imagem grande demais. Use uma URL.");
   const reader=new FileReader();
-  reader.onload=e=>{ imagemBase64=e.target.result; const prev=$("uploadPreview"); prev.src=imagemBase64; prev.style.display="block"; $("uploadArea").classList.add("has-image"); $("uploadText").innerText="Imagem selecionada!"; };
+  reader.onload=e=>{imagemBase64=e.target.result;const prev=$("uploadPreview");prev.src=imagemBase64;prev.style.display="block";$("uploadArea").classList.add("has-image");$("uploadText").innerText="Imagem selecionada!";};
   reader.readAsDataURL(file);
 }
-window.previewImagem=function(input){ if(input.files&&input.files[0]) lerArquivoImagem(input.files[0]); };
+window.previewImagem=function(input){if(input.files&&input.files[0])lerArquivoImagem(input.files[0]);};
 (function setupUpload(){
-  const area=$("uploadArea"),fi=$("fileInput"); if(!area||!fi) return;
-  area.addEventListener("click",()=>fi.click()); fi.addEventListener("change",()=>previewImagem(fi));
-  ["dragenter","dragover"].forEach(ev=>area.addEventListener(ev,e=>{ e.preventDefault();e.stopPropagation();area.classList.add("dragover"); }));
-  ["dragleave","drop"].forEach(ev=>area.addEventListener(ev,e=>{ e.preventDefault();e.stopPropagation();area.classList.remove("dragover"); }));
-  area.addEventListener("drop",e=>{ const f=e.dataTransfer?.files?.[0]; if(f) lerArquivoImagem(f); });
+  const area=$("uploadArea"),fi=$("fileInput");if(!area||!fi)return;
+  area.addEventListener("click",()=>fi.click());fi.addEventListener("change",()=>previewImagem(fi));
+  ["dragenter","dragover"].forEach(ev=>area.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();area.classList.add("dragover");}));
+  ["dragleave","drop"].forEach(ev=>area.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();area.classList.remove("dragover");}));
+  area.addEventListener("drop",e=>{const f=e.dataTransfer?.files?.[0];if(f)lerArquivoImagem(f);});
 })();
 window.salvarImagem=async function(){
   const url=$("imagemURL").value.trim(),img=imagemBase64||url;
-  if(!img) return alert("Selecione uma imagem ou cole uma URL.");
-  try{ await updateDoc(doc(db,"produtos",editarImagemId),{foto:img}); alert("✅ Imagem atualizada!"); fecharModais(); }
-  catch(e){ console.error(e); alert("Erro ao salvar imagem. Tente uma URL."); }
+  if(!img)return alert("Selecione uma imagem ou cole uma URL.");
+  try{await updateDoc(doc(db,"produtos",editarImagemId),{foto:img});alert("✅ Imagem atualizada!");fecharModais();}
+  catch(e){console.error(e);alert("Erro ao salvar imagem.");}
 };
 
-// ── Menu de Ações ─────────────────────────────────────────────
+// ── Menu Ações ────────────────────────────────────────────────
 window.toggleMenuAcoes=function(id,event){
   event.stopPropagation();
-  if(menuAbertoId&&menuAbertoId!==id){ const m=$("menu-"+menuAbertoId); if(m) m.classList.remove("show"); }
-  const menu=$("menu-"+id); if(!menu) return;
+  if(menuAbertoId&&menuAbertoId!==id){const m=$("menu-"+menuAbertoId);if(m)m.classList.remove("show");}
+  const menu=$("menu-"+id);if(!menu)return;
   const isOpen=menu.classList.contains("show");
   document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show"));
-  if(!isOpen){ menu.classList.add("show"); menuAbertoId=id; }else menuAbertoId=null;
+  if(!isOpen){menu.classList.add("show");menuAbertoId=id;}else menuAbertoId=null;
 };
-window.fecharTodosMenus=function(){ document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show")); menuAbertoId=null; };
-document.addEventListener("click",e=>{ if(!e.target.closest(".actions-cell")) fecharTodosMenus(); });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") fecharModais(); });
+window.fecharTodosMenus=function(){document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show"));menuAbertoId=null;};
+document.addEventListener("click",e=>{if(!e.target.closest(".actions-cell"))fecharTodosMenus();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")fecharModais();});
 document.addEventListener("click",e=>{
-  const btn=e.target.closest("[data-action]"); if(!btn) return;
+  const btn=e.target.closest("[data-action]");if(!btn)return;
   const action=btn.getAttribute("data-action"),id=btn.getAttribute("data-id");
-  if(action==="menu"){ toggleMenuAcoes(id,e); return; }
+  if(action==="menu"){toggleMenuAcoes(id,e);return;}
   fecharTodosMenus();
   if(action==="vender")         abrirVenda(id);
   else if(action==="historico") abrirHistoricoCusto(id);
@@ -817,45 +786,47 @@ document.addEventListener("click",e=>{
 });
 
 // ── Listener Produtos ─────────────────────────────────────────
-// EXIBE SOMENTE PRODUTOS COM SKU NA TABELA
+// Exibe SOMENTE produtos com SKU na tabela
 onSnapshot(collection(db,"produtos"),snap=>{
   const tbody=$("listaProdutos"),sel=$("produtoCompra"),alerts=$("alerts"),dupWarn=$("dupWarning");
-  tbody.innerHTML=""; sel.innerHTML=""; alerts.innerHTML=""; dupWarn.innerHTML=""; produtosMap.clear();
+  tbody.innerHTML="";sel.innerHTML="";alerts.innerHTML="";dupWarn.innerHTML="";produtosMap.clear();
 
   let totalP=0,totalQ=0,totalCrit=0,totalUSD=0,totalBRL=0;
   const dadosGrafico=[],produtos=[];
 
-  snap.forEach(d=>{ const p=mapProduto(d.id,d.data()); produtos.push(p); produtosMap.set(p.id,p); });
+  snap.forEach(d=>{const p=mapProduto(d.id,d.data());produtos.push(p);produtosMap.set(p.id,p);});
   produtos.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
 
-  // Separa com e sem SKU
-  const comSku  = produtos.filter(p=>p.sku && p.sku.trim()!=="");
-  const semSku  = produtos.filter(p=>!p.sku || p.sku.trim()==="");
+  // Separação com/sem SKU
+  const comSku=produtos.filter(p=>p.sku&&p.sku.trim()!=="");
+  const semSku=produtos.filter(p=>!p.sku||p.sku.trim()==="");
 
-  // Atualiza badge e aviso
-  $("badgeComSku").innerText = comSku.length;
-  const semSkuInfo=$("semSkuInfo");
-  if(semSku.length>0){
-    semSkuInfo.style.display="flex";
-    $("semSkuCount").innerText=semSku.length;
-  }else{
-    semSkuInfo.style.display="none";
-  }
+  $("badgeComSku").innerText=comSku.length;
+  const infoSem=$("semSkuInfo");
+  if(semSku.length>0){infoSem.style.display="flex";$("semSkuCount").innerText=semSku.length;}
+  else infoSem.style.display="none";
 
-  // Duplicatas apenas entre os com SKU
+  // Duplicatas apenas entre com SKU
   const agrup={},contDup={},idsDup=new Set();
   comSku.forEach(p=>{
     const chave="sku:"+p.sku.toUpperCase();
-    if(!agrup[chave]){ agrup[chave]={...p,estoqueSomado:p.estoque||0}; contDup[chave]=1; }
-    else{ agrup[chave].estoqueSomado+=(p.estoque||0); contDup[chave]++; idsDup.add(p.id); idsDup.add(agrup[chave].id); }
+    if(!agrup[chave]){agrup[chave]={...p,estoqueSomado:p.estoque||0};contDup[chave]=1;}
+    else{agrup[chave].estoqueSomado+=(p.estoque||0);contDup[chave]++;idsDup.add(p.id);idsDup.add(agrup[chave].id);}
   });
 
-  const dupWarnProd=$("dupWarningProdutos");
-  if(idsDup.size>0){
-    dupWarnProd.innerHTML=`<div class="dup-warning"><span>⚠️ Detectados <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span><button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar</button></div>`;
-  }else{ dupWarnProd.innerHTML=""; }
+  const dwp=$("dupWarningProdutos");
+  if(idsDup.size>0) dwp.innerHTML=`<div class="dup-warning"><span>⚠️ <strong>${idsDup.size}</strong> produto(s) duplicado(s).</span><button class="btn btn-danger" onclick="removerDuplicidadesGlobal()" style="font-size:11px">🧹 Limpar</button></div>`;
+  else dwp.innerHTML="";
 
-  // Alertas (todos os produtos - com e sem SKU)
+  // Stats — todos os produtos
+  produtos.forEach(p=>{
+    totalP++;totalQ+=(p.estoque||0);
+    const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
+    totalUSD+=custoUSD*(p.estoque||0);totalBRL+=custoBRL*(p.estoque||0);
+    dadosGrafico.push({nome:p.nome,valor:custoBRL*(p.estoque||0)});
+  });
+
+  // Alertas — todos os produtos
   const alertasArr=[];
   produtos.forEach(p=>{
     if((p.estoque||0)<=(p.minimo||0)){
@@ -870,32 +841,24 @@ onSnapshot(collection(db,"produtos"),snap=>{
   }else{
     const frag=document.createDocumentFragment();
     alertasArr.forEach(al=>{
-      const div=document.createElement("div"); div.className="alert-low";
-      if(al.foto) div.setAttribute("data-tooltip",al.foto);
+      const div=document.createElement("div");div.className="alert-low";
+      if(al.foto)div.setAttribute("data-tooltip",al.foto);
       div.innerHTML=`<span class="alert-info">⚠ <strong>${escapeHtml(al.nome)}</strong> — Estoque: ${al.estoque} (Mín: ${al.minimo})</span>`;
       frag.appendChild(div);
     });
     alerts.appendChild(frag);
   }
 
-  // Stats gerais (todos)
-  produtos.forEach(p=>{
-    totalP++; totalQ+=(p.estoque||0);
-    const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
-    totalUSD+=custoUSD*(p.estoque||0); totalBRL+=custoBRL*(p.estoque||0);
-    dadosGrafico.push({nome:p.nome,valor:custoBRL*(p.estoque||0)});
-  });
-
-  // Select compras (todos os produtos)
+  // Select compras — todos os produtos
   const optFrag=document.createDocumentFragment();
-  const ph=document.createElement("option"); ph.value=""; ph.textContent="Selecione um produto..."; optFrag.appendChild(ph);
+  const ph=document.createElement("option");ph.value="";ph.textContent="Selecione um produto...";optFrag.appendChild(ph);
   produtos.forEach(p=>{
-    const opt=document.createElement("option"); opt.value=p.id;
-    opt.textContent=p.sku?`${p.nome} (${p.sku})`:p.nome; optFrag.appendChild(opt);
+    const opt=document.createElement("option");opt.value=p.id;
+    opt.textContent=p.sku?`${p.nome} (${p.sku})`:p.nome;optFrag.appendChild(opt);
   });
   sel.appendChild(optFrag);
 
-  // Tabela — SOMENTE produtos com SKU
+  // Tabela — SOMENTE com SKU
   comSku.forEach(p=>{
     const custoUSD=p.ultimaUSD||0,custoBRL=calcularCustoBRL(p);
     let tagCusto="";
@@ -907,7 +870,7 @@ onSnapshot(collection(db,"produtos"),snap=>{
     if(p.mlItemId) skuHtml+=`<br><span class="ml-tag" style="margin-top:3px;display:inline-block">ML: ${escapeHtml(p.mlItemId)}</span>`;
     if(isDup) skuHtml+=`<br><span class="badge-dup" style="margin-top:3px;display:inline-block">duplicado</span>`;
 
-    const tr=document.createElement("tr"); if(isDup) tr.style.background="#fef3c7";
+    const tr=document.createElement("tr");if(isDup)tr.style.background="#fef3c7";
     tr.innerHTML=`
       <td>${p.foto?`<img src="${escapeHtml(p.foto)}" class="img-thumb" data-tooltip="${escapeHtml(p.foto)}" alt="">`:""}</td>
       <td><strong>${escapeHtml(p.nome)}</strong></td>
@@ -941,21 +904,23 @@ onSnapshot(collection(db,"produtos"),snap=>{
 });
 
 function atualizarGrafico(dados){
-  const canvas=$("chartValorTotal"); if(!canvas) return;
+  const canvas=$("chartValorTotal");if(!canvas)return;
   const top10=[...dados].sort((a,b)=>b.valor-a.valor).slice(0,10);
-  if(chartInstance) chartInstance.destroy();
+  if(chartInstance)chartInstance.destroy();
   chartInstance=new Chart(canvas.getContext("2d"),{
     type:"bar",
-    data:{ labels:top10.map(d=>{ const n=d.nome||""; return n.length>15?n.substring(0,15)+"…":n; }),
-      datasets:[{label:"Valor no Estoque (R$)",data:top10.map(d=>d.valor),backgroundColor:"#6366f1",borderRadius:4}] },
+    data:{
+      labels:top10.map(d=>{const n=d.nome||"";return n.length>15?n.substring(0,15)+"…":n;}),
+      datasets:[{label:"Valor no Estoque (R$)",data:top10.map(d=>d.valor),backgroundColor:"#6366f1",borderRadius:4}]
+    },
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
   });
 }
 
-// ── Listener Movimentações ────────────────────────────────────
+// ── Movimentações ─────────────────────────────────────────────
 onSnapshot(collection(db,"compras"),snap=>{
-  const tbody=$("listaMovs"); tbody.innerHTML="";
-  const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+  const tbody=$("listaMovs");tbody.innerHTML="";
+  const arr=[];snap.forEach(d=>arr.push({id:d.id,...d.data()}));
   arr.sort((a,b)=>String(b.criadoEm||"").localeCompare(String(a.criadoEm||"")));
   arr.forEach(c=>{
     const cor=c.tipo==="Compra"?"color:#10b981":(c.tipo==="Venda"?"color:#ef4444":"color:#854d0e");
@@ -978,100 +943,100 @@ onSnapshot(collection(db,"compras"),snap=>{
 
 // ── Venda ─────────────────────────────────────────────────────
 window.abrirVenda=function(id){
-  const p=produtosMap.get(id); if(!p) return alert("Produto não encontrado.");
-  produtoSelId=id; produtoSelNome=p.nome; produtoSelCusto=calcularCustoBRL(p);
-  $("qtdVenda").value=""; $("valorVenda").value=""; $("modalVenda").classList.add("active");
+  const p=produtosMap.get(id);if(!p)return alert("Produto não encontrado.");
+  produtoSelId=id;produtoSelNome=p.nome;produtoSelCusto=calcularCustoBRL(p);
+  $("qtdVenda").value="";$("valorVenda").value="";$("modalVenda").classList.add("active");
 };
 window.confirmarVenda=async function(){
   const qtd=toInt($("qtdVenda").value,0),valor=toNumber($("valorVenda").value,NaN);
-  if(!qtd||qtd<=0||!Number.isFinite(valor)||valor<0) return alert("Preencha Qtd e Valor válidos.");
+  if(!qtd||qtd<=0||!Number.isFinite(valor)||valor<0)return alert("Preencha Qtd e Valor válidos.");
   try{
     const refDoc=doc(db,"produtos",produtoSelId),sn=await getDoc(refDoc);
-    if(!sn.exists()) return alert("Produto não existe.");
+    if(!sn.exists())return alert("Produto não existe.");
     const p=mapProduto(sn.id,sn.data());
-    if(qtd>p.estoque) return alert("Estoque insuficiente!");
+    if(qtd>p.estoque)return alert("Estoque insuficiente!");
     const lucro=valor-(produtoSelCusto*qtd);
     await updateDoc(refDoc,{estoque:p.estoque-qtd});
     await addDoc(collection(db,"compras"),{produtoId:produtoSelId,produtoNome:produtoSelNome,foto:p.foto||"",
       tipo:"Venda",qtd,totalUSD:0,totalBRL:valor,lucro,criadoEm:new Date().toISOString()});
-    alert("Venda registrada!\nLucro: R$ "+lucro.toFixed(2)); fecharModais();
-  }catch(e){ console.error(e); alert("Erro ao registrar venda."); }
+    alert("Venda registrada!\nLucro: R$ "+lucro.toFixed(2));fecharModais();
+  }catch(e){console.error(e);alert("Erro ao registrar venda.");}
 };
 
 // ── Compra ────────────────────────────────────────────────────
 window.registrarCompra=async function(){
   const id=$("produtoCompra").value,qtd=toInt($("quantidadeCompra").value,0);
   const total=toNumber($("valorCompra").value,NaN),moeda=$("moedaCompra").value;
-  if(!id||!qtd||qtd<=0||!Number.isFinite(total)||total<0) return alert("Preencha produto, qtd e valor.");
+  if(!id||!qtd||qtd<=0||!Number.isFinite(total)||total<0)return alert("Preencha produto, qtd e valor.");
   try{
     const refDoc=doc(db,"produtos",id),sn=await getDoc(refDoc);
-    if(!sn.exists()) return alert("Produto não encontrado.");
+    if(!sn.exists())return alert("Produto não encontrado.");
     const p=mapProduto(sn.id,sn.data());
     const tUSD=moeda==="USD"?total:total/cotacaoAtual,tBRL=moeda==="BRL"?total:total*cotacaoAtual;
     await updateDoc(refDoc,{estoque:p.estoque+qtd,ultimaUSD:tUSD/qtd,ultimaBRL:tBRL/qtd,custoManual:false});
     await addDoc(collection(db,"compras"),{produtoId:id,produtoNome:p.nome,foto:p.foto,
       tipo:"Compra",qtd,totalUSD:tUSD,totalBRL:tBRL,criadoEm:new Date().toISOString()});
-    alert("Compra registrada!"); $("quantidadeCompra").value=""; $("valorCompra").value="";
-  }catch(e){ console.error(e); alert("Erro ao registrar compra."); }
+    alert("Compra registrada!");$("quantidadeCompra").value="";$("valorCompra").value="";
+  }catch(e){console.error(e);alert("Erro ao registrar compra.");}
 };
 
 // ── Editar Custo ──────────────────────────────────────────────
 window.abrirEditarCusto=function(id){
-  const p=produtosMap.get(id); if(!p) return;
-  editandoCustoId=id; editandoCustoNome=p.nome; editandoCustoUSDAtual=p.ultimaUSD||0; editandoCustoBRLAtual=calcularCustoBRL(p);
-  $("nomeEditarCusto").innerText=p.nome; $("novoUSD").value=""; $("novoBRL").value="";
-  $("previewConversaoModal").style.display="none"; $("cotacaoModalInfo").innerText="R$ "+cotacaoAtual.toFixed(4);
+  const p=produtosMap.get(id);if(!p)return;
+  editandoCustoId=id;editandoCustoNome=p.nome;editandoCustoUSDAtual=p.ultimaUSD||0;editandoCustoBRLAtual=calcularCustoBRL(p);
+  $("nomeEditarCusto").innerText=p.nome;$("novoUSD").value="";$("novoBRL").value="";
+  $("previewConversaoModal").style.display="none";$("cotacaoModalInfo").innerText="R$ "+cotacaoAtual.toFixed(4);
   const brlAuto=editandoCustoUSDAtual>0?(editandoCustoUSDAtual*cotacaoAtual).toFixed(2):"—";
   $("infoAtualCusto").innerHTML=`<strong>Custo atual:</strong> $ ${editandoCustoUSDAtual.toFixed(2)} | R$ ${editandoCustoBRLAtual.toFixed(2)}<br><span style="font-size:11px">R$ pela cotação: R$ ${brlAuto}</span>`;
   $("modalEditarCusto").classList.add("active");
 };
 window.previewConversaoModal=function(){
   const uv=toNumber($("novoUSD").value,0),bv=toNumber($("novoBRL").value,0),prev=$("previewConversaoModal");
-  if(uv<=0&&bv<=0){ prev.style.display="none"; return; }
+  if(uv<=0&&bv<=0){prev.style.display="none";return;}
   const t=[];
-  if(uv>0&&bv<=0) t.push(`R$ calculado: <strong>R$ ${(uv*cotacaoAtual).toFixed(2)}</strong>`);
-  if(uv>0&&bv>0)  t.push(`USD: <strong>$ ${uv.toFixed(2)}</strong><br>✅ R$ manual: <strong>R$ ${bv.toFixed(2)}</strong>`);
-  if(uv<=0&&bv>0) t.push(`💰 Apenas R$: <strong>R$ ${bv.toFixed(2)}</strong>`);
-  prev.style.display="block"; prev.innerHTML=t.join("<br>");
+  if(uv>0&&bv<=0)t.push(`R$ calculado: <strong>R$ ${(uv*cotacaoAtual).toFixed(2)}</strong>`);
+  if(uv>0&&bv>0)t.push(`USD: <strong>$ ${uv.toFixed(2)}</strong><br>✅ R$ manual: <strong>R$ ${bv.toFixed(2)}</strong>`);
+  if(uv<=0&&bv>0)t.push(`💰 Apenas R$: <strong>R$ ${bv.toFixed(2)}</strong>`);
+  prev.style.display="block";prev.innerHTML=t.join("<br>");
 };
 window.salvarCustoManual=async function(){
   const uv=toNumber($("novoUSD").value,NaN),bv=toNumber($("novoBRL").value,NaN);
-  if((!Number.isFinite(uv)||uv<=0)&&(!Number.isFinite(bv)||bv<=0)) return alert("Informe pelo menos um valor.");
+  if((!Number.isFinite(uv)||uv<=0)&&(!Number.isFinite(bv)||bv<=0))return alert("Informe pelo menos um valor.");
   const novoUSD=Number.isFinite(uv)&&uv>0?uv:0;
   const novoBRL=Number.isFinite(bv)&&bv>0?bv:(novoUSD>0?novoUSD*cotacaoAtual:0);
   try{
     await updateDoc(doc(db,"produtos",editandoCustoId),{ultimaUSD:novoUSD,ultimaBRL:novoBRL,custoManual:true});
     await addDoc(collection(db,"compras"),{produtoId:editandoCustoId,produtoNome:editandoCustoNome,foto:"",
       tipo:"Ajuste Manual",qtd:0,totalUSD:novoUSD,totalBRL:novoBRL,criadoEm:new Date().toISOString()});
-    alert(`✅ Custo atualizado!\n$ ${novoUSD.toFixed(2)} | R$ ${novoBRL.toFixed(2)}`); fecharModais();
-  }catch(e){ console.error(e); alert("Erro ao salvar custo."); }
+    alert(`✅ Custo atualizado!\n$ ${novoUSD.toFixed(2)} | R$ ${novoBRL.toFixed(2)}`);fecharModais();
+  }catch(e){console.error(e);alert("Erro ao salvar custo.");}
 };
 
 // ── Histórico Custo ───────────────────────────────────────────
 window.abrirHistoricoCusto=async function(id){
-  const p=produtosMap.get(id); if(!p) return;
+  const p=produtosMap.get(id);if(!p)return;
   $("nomeHistoricoCusto").innerText=p.nome;
-  const tbody=$("listaHistoricoCusto"); tbody.innerHTML="<tr><td colspan='3'>Carregando...</td></tr>";
+  const tbody=$("listaHistoricoCusto");tbody.innerHTML="<tr><td colspan='3'>Carregando...</td></tr>";
   $("modalHistoricoCusto").classList.add("active");
   try{
     const sn=await getDocs(collection(db,"compras")),hist=[];
-    sn.forEach(d=>{ const c=d.data(); if(c.produtoId===id&&(c.tipo==="Compra"||c.tipo==="Ajuste Manual")) hist.push(c); });
+    sn.forEach(d=>{const c=d.data();if(c.produtoId===id&&(c.tipo==="Compra"||c.tipo==="Ajuste Manual"))hist.push(c);});
     hist.sort((a,b)=>String(b.criadoEm||"").localeCompare(String(a.criadoEm||"")));
     tbody.innerHTML="";
-    if(!hist.length){ tbody.innerHTML="<tr><td colspan='3' style='text-align:center'>Sem registros.</td></tr>"; return; }
+    if(!hist.length){tbody.innerHTML="<tr><td colspan='3' style='text-align:center'>Sem registros.</td></tr>";return;}
     hist.forEach(h=>{
       const qtd=toNumber(h.qtd,0),uUSD=qtd>0?toNumber(h.totalUSD)/qtd:toNumber(h.totalUSD),uBRL=qtd>0?toNumber(h.totalBRL)/qtd:toNumber(h.totalBRL);
       const data=h.criadoEm?new Date(h.criadoEm).toLocaleDateString("pt-BR"):"—";
       const tag=h.tipo==="Ajuste Manual"?`<span class="tag-manual">manual</span>`:`<span class="tag-auto">compra</span>`;
       tbody.innerHTML+=`<tr><td>${escapeHtml(data)} ${tag}</td><td style="color:var(--primary);font-weight:600">$ ${uUSD.toFixed(2)}</td><td style="color:var(--green);font-weight:600">R$ ${uBRL.toFixed(2)}</td></tr>`;
     });
-  }catch(e){ console.error(e); tbody.innerHTML="<tr><td colspan='3'>Erro ao carregar.</td></tr>"; }
+  }catch(e){console.error(e);tbody.innerHTML="<tr><td colspan='3'>Erro ao carregar.</td></tr>";}
 };
 
 // ── Deletar ───────────────────────────────────────────────────
 window.deletarProduto=async function(id){
-  if(!confirm("Excluir definitivamente este produto?")) return;
-  try{ await deleteDoc(doc(db,"produtos",id)); }catch(e){ console.error(e); alert("Erro ao excluir."); }
+  if(!confirm("Excluir definitivamente este produto?"))return;
+  try{await deleteDoc(doc(db,"produtos",id));}catch(e){console.error(e);alert("Erro ao excluir.");}
 };
 
 // ── Busca ─────────────────────────────────────────────────────
